@@ -121,11 +121,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
+# Carpeta de destino que Render va a generar con collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Carpeta donde tú tienes tus archivos estáticos del proyecto
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',        
+    BASE_DIR / 'static',
 ]
+
+# WhiteNoise para producción
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
