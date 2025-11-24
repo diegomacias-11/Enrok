@@ -22,12 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+# Clave por defecto para desarrollo si no se define en entorno
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-insecure-secret-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG','FALSE').lower() == 'true'
+# Por defecto: True si no hay DATABASE_URL (local), False si existe (prod)
+DEBUG = os.environ.get(
+    'DEBUG',
+    'TRUE' if not os.environ.get('DATABASE_URL') else 'FALSE'
+).lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(' ')
+# Permite correr local si no hay variable de entorno definida
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1 localhost').split()
 
 # Application definition
 
@@ -86,7 +92,8 @@ DATABASES = {
 }
 
 database_url = os.environ.get("DATABASE_URL")
-DATABASES['default']= dj_database_url.parse(database_url)
+if database_url:
+    DATABASES['default'] = dj_database_url.parse(database_url)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -139,3 +146,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# En desarrollo local, usar storage estándar para evitar errores de manifest
+if DEBUG:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
