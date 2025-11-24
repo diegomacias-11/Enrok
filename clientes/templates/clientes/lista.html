@@ -41,16 +41,16 @@
     <td class="sticky-2">{{ c.razon_social }}</td>
     <td>{{ c.get_servicio_display }}</td>
     <td>{% if c.comision_servicio is not None %}{{ c.comision_servicio|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista1 }}</td><td>{% if c.comision1 is not None %}{{ c.comision1|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista2 }}</td><td>{% if c.comision2 is not None %}{{ c.comision2|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista3 }}</td><td>{% if c.comision3 is not None %}{{ c.comision3|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista4 }}</td><td>{% if c.comision4 is not None %}{{ c.comision4|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista5 }}</td><td>{% if c.comision5 is not None %}{{ c.comision5|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista6 }}</td><td>{% if c.comision6 is not None %}{{ c.comision6|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista7 }}</td><td>{% if c.comision7 is not None %}{{ c.comision7|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista8 }}</td><td>{% if c.comision8 is not None %}{{ c.comision8|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista9 }}</td><td>{% if c.comision9 is not None %}{{ c.comision9|pct:3 }}{% endif %}</td>
-    <td>{{ c.comisionista10 }}</td><td>{% if c.comision10 is not None %}{{ c.comision10|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista1|default_if_none:"" }}</td><td>{% if c.comision1 is not None %}{{ c.comision1|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista2|default_if_none:"" }}</td><td>{% if c.comision2 is not None %}{{ c.comision2|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista3|default_if_none:"" }}</td><td>{% if c.comision3 is not None %}{{ c.comision3|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista4|default_if_none:"" }}</td><td>{% if c.comision4 is not None %}{{ c.comision4|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista5|default_if_none:"" }}</td><td>{% if c.comision5 is not None %}{{ c.comision5|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista6|default_if_none:"" }}</td><td>{% if c.comision6 is not None %}{{ c.comision6|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista7|default_if_none:"" }}</td><td>{% if c.comision7 is not None %}{{ c.comision7|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista8|default_if_none:"" }}</td><td>{% if c.comision8 is not None %}{{ c.comision8|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista9|default_if_none:"" }}</td><td>{% if c.comision9 is not None %}{{ c.comision9|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista10|default_if_none:"" }}</td><td>{% if c.comision10 is not None %}{{ c.comision10|pct:3 }}{% endif %}</td>
   </tr>
   {% empty %}
   <tr><td colspan="23">No hay clientes registrados.</td></tr>

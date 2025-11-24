@@ -10,6 +10,7 @@ class Cliente(models.Model):
         PRAIDS = "PRAIDS", "PRAIDS"
         MONEDEROS = "MONEDEROS", "Monederos"
         HIDROCARBUROS = "HIDROCARBUROS", "Hidrocarburos"
+        VP360 = "VP360", "VP360"
 
     razon_social = models.CharField(max_length=200)
     servicio = models.CharField(max_length=20, choices=Servicio.choices)
