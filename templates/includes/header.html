@@ -12,6 +12,8 @@
        class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
     <a href="{% url 'comisiones_lista' %}"
        class="{% if 'comisiones' in request.path %}active{% endif %}">Comisiones</a>
+    <a href="{% url 'reporte_looker' %}"
+       class="{% if 'reportes' in request.path %}active{% endif %}">Reportes</a>
   </nav>
   <div class="user-card">
     <div class="user-name">

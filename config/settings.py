@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'clientes',
     'dispersiones',
     'comisiones',
+    'reportes',
 ]
 
 MIDDLEWARE = [
