@@ -57,3 +57,5 @@ credentials/
 *.csr
 *.cer
 *.der
+
+backup_enrok.bat

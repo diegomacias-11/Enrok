@@ -37,7 +37,6 @@
     <th>Comisión (%)</th>
     <th>Monto comisión</th>
     <th>No. factura honorarios</th>
-    <th>Total honorarios</th>
     <th>Estatus proceso</th>
     <th>Estatus periodo</th>
     <th>Estatus pago</th>
@@ -58,13 +57,12 @@
       <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
       <td>{{ d.monto_comision|currency }}</td>
       <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
-      <td>{{ d.total_honorarios|currency }}</td>
       <td>{{ d.estatus_proceso }}</td>
       <td>{{ d.estatus_periodo }}</td>
       <td>{{ d.estatus_pago }}</td>
       <td>{{ d.comentarios|default_if_none:"" }}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="15">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="14">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}

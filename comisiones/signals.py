@@ -21,7 +21,7 @@ def generar_comisiones(sender, instance: Dispersion, created, **kwargs):
 
     cliente = instance.cliente
     # Tasa base ya calculada en monto_comision dentro de Dispersion
-    monto_comision = instance.monto_comision if hasattr(instance, 'monto_comision') else instance.total_honorarios
+    monto_comision = instance.monto_comision
 
     # Mes/año del periodo
     periodo_mes = instance.fecha.month

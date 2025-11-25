@@ -30,7 +30,6 @@ class Dispersion(models.Model):
     comision_porcentaje = models.DecimalField(max_digits=7, decimal_places=4, editable=False)
     monto_comision = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     num_factura_honorarios = models.CharField(max_length=100, blank=True, null=True)
-    total_honorarios = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     estatus_proceso = models.CharField(max_length=20, choices=EstatusProceso.choices, default=EstatusProceso.PENDIENTE)
     comentarios = models.CharField(max_length=255, blank=True, null=True)
     num_periodo = models.CharField(max_length=50, blank=True, null=True)
@@ -72,6 +71,4 @@ class Dispersion(models.Model):
             self.monto_dispersion = Decimal("0")
         self.comision_porcentaje = rate_percent.quantize(Decimal("0.0001"))
         self.monto_comision = (rate_fraction * self.monto_dispersion).quantize(Decimal("0.01"))
-        self.total_honorarios = self.monto_comision
-
         super().save(*args, **kwargs)
