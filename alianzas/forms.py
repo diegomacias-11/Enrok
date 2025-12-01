@@ -4,4 +4,4 @@ from .models import Alianza
 class AlianzaForm(forms.ModelForm):
     class Meta:
         model = Alianza
-        fields = ['nombre']
+        fields = ['nombre', 'correo_electronico']

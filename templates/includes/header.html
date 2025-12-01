@@ -16,14 +16,18 @@
        class="{% if 'reportes' in request.path %}active{% endif %}">Reportes</a>
   </nav>
   <div class="user-card">
-    <div class="user-name">
-      {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+    <div class="user-meta">
+      <div class="user-name">
+        {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+      </div>
+      <div class="user-group">
+        {% with first_group=user.groups.all|first %}
+          {% if first_group %}{{ first_group.name }}{% endif %}
+        {% endwith %}
+      </div>
     </div>
-    <div class="user-row">
-      
-      <a href="#" class="user-logout" title="Cerrar sesión">
-        <img src="{% static 'img/logout.png' %}" alt="Cerrar sesión" class="logout-icon" />
-      </a>
-    </div>
+    <a href="{% url 'logout' %}?next={% url 'login' %}" class="user-logout" title="Cerrar sesi&oacute;n">
+      <img src="{% static 'img/logout.png' %}" alt="Cerrar sesi&oacute;n" class="logout-icon" />
+    </a>
   </div>
 </header>

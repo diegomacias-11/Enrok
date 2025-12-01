@@ -16,6 +16,7 @@
   <tr>
     <th class="sticky-1 col-actions">Acciones</th>
     <th class="sticky-2">Nombre</th>
+    <th>Correo</th>
     <th>Fecha registro</th>
   </tr>
 {% endblock %}
@@ -27,9 +28,10 @@
       <a class="btn-detalle" href="{% url 'editar_alianza' alianza.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
     </td>
     <td class="sticky-2">{{ alianza.nombre }}</td>
+    <td>{{ alianza.correo_electronico }}</td>
     <td>{{ alianza.fecha_registro|date:"Y-m-d H:i" }}</td>
   </tr>
   {% empty %}
-  <tr><td colspan="3">No hay alianzas registradas.</td></tr>
+  <tr><td colspan="4">No hay alianzas registradas.</td></tr>
   {% endfor %}
 {% endblock %}

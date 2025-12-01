@@ -1380,3 +1380,13 @@ input::placeholder,
 textarea::placeholder {
   text-align: center !important;
 }
+
+/* Ajuste tarjeta de usuario: layout en grilla, icono centrado vertical */
+.user-card { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.75rem; background-color: #ffffff; color: #003b71; border-radius: 6px; padding: 0.45rem 0.75rem; line-height: 1.1; min-width: 12rem; }
+.user-card .user-meta { display: flex; flex-direction: column; gap: 0.15rem; align-self: center; }
+.user-card .user-name { font-weight: 700; font-size: 0.95rem; }
+.user-card .user-group { font-weight: 500; font-size: 0.8rem; opacity: 0.85; }
+.user-card .user-logout { display: inline-flex; align-items: center; justify-content: center; align-self: center; padding: 0.15rem; }
+.user-card .logout-icon { display: block; height: 18px; width: 18px; filter: invert(20%); }
+.user-card .user-logout:hover .logout-icon { filter: invert(56%) sepia(10%) saturate(2000%) hue-rotate(153deg) brightness(90%) contrast(95%); }
+
