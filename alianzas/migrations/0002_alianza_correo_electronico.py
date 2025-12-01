@@ -13,7 +13,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alianza',
             name='correo_electronico',
-            field=models.EmailField(default='', max_length=254, unique=True),
-            preserve_default=False,
+            field=models.EmailField(
+                max_length=254,
+                unique=True,
+                null=True,
+                blank=True,
+                default=None,
+            ),
         ),
     ]
