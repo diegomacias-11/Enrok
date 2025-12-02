@@ -166,4 +166,5 @@ GRAPH_CLIENT_SECRET = os.environ.get("GRAPH_CLIENT_SECRET", "")
 GRAPH_TENANT_ID = os.environ.get("GRAPH_TENANT_ID", "")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "")
 DEFAULT_FROM_EMAIL = EMAIL_FROM
-EMAIL_BCC_ALWAYS = os.environ.get("EMAIL_BCC_ALWAYS", "laura.lopez@enrok.mx")
+_bcc_env = os.environ.get("EMAIL_BCC_ALWAYS", "laura.lopez@enrok.mx")
+EMAIL_BCC_ALWAYS = [addr for addr in _bcc_env.split() if addr]

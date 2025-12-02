@@ -236,7 +236,7 @@ def enviar_detalle_comisionista(request, comisionista_id):
             to=destinatario,
             subject=subject,
             html_body=html_body,
-            bcc=[settings.EMAIL_BCC_ALWAYS] if settings.EMAIL_BCC_ALWAYS else None,
+            bcc=settings.EMAIL_BCC_ALWAYS or None,
         )
         messages.success(request, f"Reporte enviado a {destinatario}.")
     except GraphEmailError as exc:
