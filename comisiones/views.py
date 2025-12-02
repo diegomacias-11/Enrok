@@ -2,7 +2,6 @@ from datetime import date
 from calendar import monthrange
 from django.conf import settings
 from django.contrib import messages
-from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db.models import Sum, Q, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -11,6 +10,7 @@ from django.utils.html import strip_tags
 from dispersiones.models import Dispersion
 from .models import Comision, PagoComision
 from .forms import PagoComisionForm
+from core.graph_email import send_graph_mail, GraphEmailError
 
 MESES_NOMBRES = [
     "",
@@ -234,18 +234,16 @@ def enviar_detalle_comisionista(request, comisionista_id):
     text_body = strip_tags(html_body)
 
     try:
-        connection = get_connection(timeout=getattr(settings, "EMAIL_TIMEOUT", None))
-        msg = EmailMultiAlternatives(
+        send_graph_mail(
+            to=destinatario,
             subject=subject,
-            body=text_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[destinatario],
-            connection=connection,
+            html_body=html_body,
+            text_body=text_body,
         )
-        msg.attach_alternative(html_body, "text/html")
-        msg.send()
-        messages.success(request, f"Reporte enviado a {destinatario}.")
-    except Exception as exc:
+        messages.success(request, f"Reporte enviado a {destinatario} via Graph.")
+    except GraphEmailError as exc:
+        messages.error(request, f"No se pudo enviar el correo: {exc}")
+    except Exception as exc:  # pragma: no cover
         messages.error(request, f"No se pudo enviar el correo: {exc}")
 
     return redirect(reverse('comisiones_detalle', args=[comisionista_id]) + f"?mes={mes}&anio={anio}")
