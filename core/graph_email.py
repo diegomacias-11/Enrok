@@ -54,7 +54,7 @@ def _get_access_token() -> str:
 def send_graph_mail(
     to: str,
     subject: str,
-    html_body: str,
+    html_body: Optional[str] = None,
     text_body: Optional[str] = None,
     cc: Optional[Iterable[str]] = None,
     bcc: Optional[Iterable[str]] = None,
@@ -70,17 +70,19 @@ def send_graph_mail(
     def _recipients(addresses):
         return [{"emailAddress": {"address": addr}} for addr in addresses] if addresses else []
 
+    # Prefer HTML; fallback to texto plano si no hay HTML
+    if html_body:
+        body = {"contentType": "HTML", "content": html_body}
+    elif text_body:
+        body = {"contentType": "Text", "content": text_body}
+    else:
+        raise GraphEmailError("No se proporciono cuerpo del mensaje.")
+
     message = {
         "subject": subject,
-        "body": {
-            "contentType": "HTML",
-            "content": html_body,
-        },
+        "body": body,
         "toRecipients": _recipients([to]),
     }
-
-    if text_body:
-        message["body"]["content"] = f"{html_body}\n\n{text_body}"
 
     cc_list = list(cc) if cc else []
     bcc_list = list(bcc) if bcc else []
