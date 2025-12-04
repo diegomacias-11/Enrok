@@ -18,6 +18,7 @@ class ClienteForm(forms.ModelForm):
         model = Cliente
         fields = [
             "razon_social",
+            "ac",
             "ejecutivo",
             "ejecutivos_apoyo",
             "servicio",

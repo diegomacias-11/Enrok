@@ -22,10 +22,13 @@
 
       <label for="{{ form.cliente.id_for_label }}">Cliente</label>
       {{ form.cliente|default_if_none:"" }}
-      {% if not is_ejecutivo and form.instance and form.instance.pk %}
+      {% if cliente_info %}
         <div class="form-hint">
-          Ejecutivo titular: {{ form.instance.cliente.ejecutivo|default_if_none:"" }}<br>
-          Apoyos: {{ form.instance.cliente.ejecutivos_apoyo.all|join:", " }}
+          <div><strong>AC:</strong> {{ cliente_info.ac }}</div>
+          <div><strong>Servicio:</strong> {{ cliente_info.servicio }}</div>
+          <div><strong>Ejecutivo:</strong> {{ cliente_info.ejecutivo|default_if_none:"" }}</div>
+          <div><strong>Apoyos:</strong> {% if cliente_info.apoyos %}{{ cliente_info.apoyos|join:", " }}{% endif %}</div>
+          <div><strong>Comisión servicio:</strong> {{ cliente_info.comision_servicio }}</div>
         </div>
       {% endif %}
 

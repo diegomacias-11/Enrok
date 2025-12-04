@@ -110,7 +110,7 @@ def agregar_dispersion(request):
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(mes=mes, anio=anio, user=request.user)
-    return render(request, "dispersiones/form.html", {"form": form, "back_url": back_url, "mes": mes, "anio": anio, "is_ejecutivo": is_ejecutivo})
+    return render(request, "dispersiones/form.html", {"form": form, "back_url": back_url, "mes": mes, "anio": anio, "is_ejecutivo": is_ejecutivo, "cliente_info": form.cliente_info})
 
 
 def editar_dispersion(request, id: int):
@@ -127,7 +127,7 @@ def editar_dispersion(request, id: int):
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(instance=disp, mes=mes, anio=anio, user=request.user)
-    return render(request, "dispersiones/form.html", {"form": form, "dispersion": disp, "back_url": back_url, "mes": mes, "anio": anio, "is_ejecutivo": is_ejecutivo})
+    return render(request, "dispersiones/form.html", {"form": form, "dispersion": disp, "back_url": back_url, "mes": mes, "anio": anio, "is_ejecutivo": is_ejecutivo, "cliente_info": form.cliente_info})
 
 
 def eliminar_dispersion(request, id: int):

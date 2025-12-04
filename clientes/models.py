@@ -26,6 +26,14 @@ class Cliente(models.Model):
         blank=True,
         related_name="clientes_apoyo",
     )
+    class AC(models.TextChoices):
+        CONFEDIN = "CONFEDIN", "CONFEDIN"
+        CAMARENCE = "CAMARENCE", "CAMARENCE"
+        SERVIARUGA = "SERVIARUGA", "SERVIARUGA"
+        ZAMORA = "ZAMORA", "ZAMORA"
+        INACTIVO = "INACTIVO", "INACTIVO"
+
+    ac = models.CharField(max_length=20, choices=AC.choices, default=AC.CONFEDIN)
     servicio = models.CharField(max_length=20, choices=Servicio.choices)
     # Comision global por servicio (0..1 almacenado)
     # Permite alta precision (hasta 6 decimales tras convertir a fraccion)
