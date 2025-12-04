@@ -17,6 +17,7 @@
   <tr>
     <th class="sticky-1 col-actions">Acciones</th>
     <th class="sticky-2">Razón Social</th>
+    <th>Ejecutivo</th>
     <th>Servicio</th>
     <th>Comisión servicio</th>
     <th>Comisionista 1</th><th>Comisión 1</th>
@@ -39,6 +40,7 @@
       <a class="btn-detalle" href="{% url 'editar_cliente' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
     </td>
     <td class="sticky-2">{{ c.razon_social }}</td>
+    <td>{{ c.ejecutivo|default_if_none:"" }}</td>
     <td>{{ c.get_servicio_display }}</td>
     <td>{% if c.comision_servicio is not None %}{{ c.comision_servicio|pct:3 }}{% endif %}</td>
     <td>{{ c.comisionista1|default_if_none:"" }}</td><td>{% if c.comision1 is not None %}{{ c.comision1|pct:3 }}{% endif %}</td>

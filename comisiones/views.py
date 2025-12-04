@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from dispersiones.models import Dispersion
 from .models import Comision, PagoComision
 from .forms import PagoComisionForm
+from .services import recalcular_periodo
 from core.graph_email import send_graph_mail, GraphEmailError
 
 MESES_NOMBRES = [
@@ -48,9 +49,8 @@ def comisiones_lista(request):
     if redir:
         return redir
 
-    # Recalcular liberaciones simples: Pagado => liberada
-    Comision.objects.filter(periodo_mes=mes, periodo_anio=anio, dispersion__estatus_pago='Pagado').update(liberada=True, estatus_pago_dispersion='Pagado')
-    Comision.objects.filter(periodo_mes=mes, periodo_anio=anio).exclude(dispersion__estatus_pago='Pagado').update(liberada=False)
+    # Recalculo ligero en cada consulta (seguro en Render sin cron)
+    recalcular_periodo(mes, anio)
 
     # Listado por comisionista con total del periodo
     qs_periodo = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio)
@@ -94,6 +94,7 @@ def comisiones_detalle(request, comisionista_id):
     mes, anio, redir = _coerce_mes_anio(request)
     if redir:
         return redir
+    recalcular_periodo(mes, anio)
     context = _detalle_context(comisionista_id, mes, anio)
     return render(request, 'comisiones/detalle.html', context)
 
@@ -217,6 +218,7 @@ def enviar_detalle_comisionista(request, comisionista_id):
     if redir:
         return redir
 
+    recalcular_periodo(mes, anio)
     context = _detalle_context(comisionista_id, mes, anio)
     comisionista = context.get('comisionista')
     if not comisionista:

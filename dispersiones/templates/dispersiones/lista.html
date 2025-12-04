@@ -5,22 +5,74 @@
 
 {% block filtros %}
   <div class="filter-title">{{ mes_nombre }} {{ anio }}</div>
-  <form action="{% url 'dispersiones_lista' %}" method="get" class="filter-form-simple dispersiones-filter">
-    <label for="mes">Mes</label>
-    <select id="mes" name="mes">
-      {% if meses_choices %}
-        {% for m, nombre in meses_choices %}
-          <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ nombre }}</option>
+  <form action="{% url 'dispersiones_lista' %}" method="get" class="filter-form-simple dispersiones-filter" style="gap:.75rem;flex-wrap:wrap;">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;">
+      <label for="mes" style="color:#fff;font-size:12px;font-weight:600;display:block;">Mes</label>
+      <select id="mes" name="mes">
+        {% if meses_choices %}
+          {% for m, nombre in meses_choices %}
+            <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ nombre }}</option>
+          {% endfor %}
+        {% else %}
+          {% for m in meses %}
+            <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ m|stringformat:"02d" }}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
+      <label for="anio" style="color:#fff;font-size:12px;font-weight:600;display:block;">Año</label>
+      <input type="number" id="anio" name="anio" value="{{ anio }}" min="2000" max="2100">
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
+      <label for="f_cliente" style="color:#fff;font-size:12px;font-weight:600;display:block;">Cliente</label>
+      <select id="f_cliente" name="cliente">
+        <option value="">Todos</option>
+        {% for c in clientes %}
+          <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social }}</option>
         {% endfor %}
-      {% else %}
-        {% for m in meses %}
-          <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ m|stringformat:"02d" }}</option>
-        {% endfor %}
-      {% endif %}
-    </select>
-    <label for="anio">Año</label>
-    <input type="number" id="anio" name="anio" value="{{ anio }}" min="2000" max="2100">
+      </select>
+    </div>
+    {% if not is_ejecutivo %}
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
+        <label for="f_ejecutivo" style="color:#fff;font-size:12px;font-weight:600;display:block;">Ejecutivo</label>
+        <select id="f_ejecutivo" name="ejecutivo">
+          <option value="">Todos</option>
+          {% for id, name in ejecutivos %}
+            <option value="{{ id }}" {% if f_ejecutivo == id|stringformat:'i' %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
+        <label for="f_apoyo" style="color:#fff;font-size:12px;font-weight:600;display:block;">Apoyo</label>
+        <select id="f_apoyo" name="apoyo">
+          <option value="">Todos</option>
+          {% for id, name in apoyos %}
+            <option value="{{ id }}" {% if f_apoyo == id|stringformat:'i' %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
+        <label for="f_estatus_proceso" style="color:#fff;font-size:12px;font-weight:600;display:block;">Estatus proceso</label>
+        <select id="f_estatus_proceso" name="estatus_proceso">
+          <option value="">Todos</option>
+          {% for val, label in estatus_proceso_choices %}
+            <option value="{{ val }}" {% if f_estatus_proceso == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
+        <label for="f_estatus_pago" style="color:#fff;font-size:12px;font-weight:600;display:block;">Estatus pago</label>
+        <select id="f_estatus_pago" name="estatus_pago">
+          <option value="">Todos</option>
+          {% for val, label in estatus_pago_choices %}
+            <option value="{{ val }}" {% if f_estatus_pago == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
     <button type="submit" class="btn-filter">Filtrar</button>
+    <a href="{% url 'dispersiones_lista' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter" style="margin-left:.25rem;">Limpiar</a>
   </form>
   <a href="{% url 'agregar_dispersion' %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva dispersión</a>
 {% endblock %}
@@ -37,6 +89,10 @@
     <th>Comisión (%)</th>
     <th>Monto comisión</th>
     <th>No. factura honorarios</th>
+    {% if not is_ejecutivo %}
+    <th>Ejecutivo</th>
+    <th>Apoyos</th>
+    {% endif %}
     <th>Estatus proceso</th>
     <th>Estatus periodo</th>
     <th>Estatus pago</th>
@@ -57,12 +113,16 @@
       <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
       <td>{{ d.monto_comision|currency }}</td>
       <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
+      {% if not is_ejecutivo %}
+      <td>{{ d.cliente.ejecutivo|default_if_none:"" }}</td>
+      <td>{{ d.cliente.ejecutivos_apoyo.all|join:", " }}</td>
+      {% endif %}
       <td>{{ d.estatus_proceso }}</td>
       <td>{{ d.estatus_periodo }}</td>
       <td>{{ d.estatus_pago }}</td>
       <td>{{ d.comentarios|default_if_none:"" }}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="14">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if not is_ejecutivo %}16{% else %}14{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}

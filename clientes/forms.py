@@ -1,5 +1,7 @@
 from decimal import Decimal, ROUND_HALF_UP
 from django import forms
+from django.db.models import Q
+from django.contrib.auth import get_user_model, models as auth_models
 from .models import Cliente
 
 PERCENT_Q = Decimal("0.000001")
@@ -8,11 +10,16 @@ def _percent_to_fraction(val):
     return (Decimal(val) / Decimal("100")).quantize(PERCENT_Q)
 
 
+User = get_user_model()
+
+
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = [
             "razon_social",
+            "ejecutivo",
+            "ejecutivos_apoyo",
             "servicio",
             "comision_servicio",
             # pares 1..10
@@ -22,10 +29,22 @@ class ClienteForm(forms.ModelForm):
         widgets = {
             **{f"comision{i}": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}) for i in range(1, 11)},
             "comision_servicio": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}),
+            "ejecutivos_apoyo": forms.SelectMultiple(attrs={"size": "6"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if "ejecutivo" in self.fields:
+            try:
+                grupo = auth_models.Group.objects.get(name__iexact="Ejecutivo")
+                qset = grupo.user_set.all()
+            except auth_models.Group.DoesNotExist:
+                qset = User.objects.none()
+            self.fields["ejecutivo"].queryset = qset.order_by("username")
+            self.fields["ejecutivo"].required = False
+            if "ejecutivos_apoyo" in self.fields:
+                self.fields["ejecutivos_apoyo"].queryset = qset.order_by("username")
+                self.fields["ejecutivos_apoyo"].required = False
         # Hacer obligatorio comision_servicio
         if 'comision_servicio' in self.fields:
             self.fields['comision_servicio'].required = True

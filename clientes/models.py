@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from alianzas.models import Alianza
 
@@ -6,16 +7,28 @@ class Cliente(models.Model):
     class Servicio(models.TextChoices):
         PROCOM = "PROCOM", "PROCOM"
         MUTUALINK = "MUTUALINK", "Mutualink"
-        PRESTAMO = "PRESTAMO", "Préstamo"
+        PRESTAMO = "PRESTAMO", "Prestamo"
         PRAIDS = "PRAIDS", "PRAIDS"
         MONEDEROS = "MONEDEROS", "Monederos"
         HIDROCARBUROS = "HIDROCARBUROS", "Hidrocarburos"
         VP360 = "VP360", "VP360"
 
     razon_social = models.CharField(max_length=200)
+    ejecutivo = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="clientes_ejecutivo",
+    )
+    ejecutivos_apoyo = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name="clientes_apoyo",
+    )
     servicio = models.CharField(max_length=20, choices=Servicio.choices)
-    # Comisión global por servicio (0..1 almacenado)
-    # Permite alta precisión (hasta 6 decimales tras convertir a fracción)
+    # Comision global por servicio (0..1 almacenado)
+    # Permite alta precision (hasta 6 decimales tras convertir a fraccion)
     comision_servicio = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
@@ -46,7 +59,7 @@ class Cliente(models.Model):
             servicio = self.get_servicio_display()
         except Exception:
             servicio = str(self.servicio)
-        return f"{self.razon_social} — {servicio}"
+        return f"{self.razon_social} - {servicio}"
 
     def save(self, *args, **kwargs):
         if self.razon_social is not None:

@@ -22,12 +22,11 @@ from django.templatetags.static import static
 from core import views as core_views
 
 urlpatterns = [
-    path('favicon.ico', RedirectView.as_view(url=static('img/logo_header.png'), permanent=False)),
+    path('favicon.ico', RedirectView.as_view(url=static('img/logo_nav.png'), permanent=False)),
     path('', core_views.inicio, name='inicio'),
     path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
     path('logout/', core_views.logout_view, name='logout'),
     path('admin/', admin.site.urls),
-    path('', include('comercial.urls')),
     path('alianzas/', include('alianzas.urls')),
     path('clientes/', include('clientes.urls')),
     path('dispersiones/', include('dispersiones.urls')),

@@ -4,12 +4,12 @@
     <img src="{% static 'img/logo_header.png' %}" alt="ARAU" class="logo" />
   </div>
   <nav class="main-nav">
-    <a href="{% url 'citas_lista' %}"
-       class="{% if 'citas' in request.path %}active{% endif %}">Citas</a>
     <a href="{% url 'alianzas_lista' %}"
        class="{% if 'alianzas' in request.path %}active{% endif %}">Alianzas</a>
+    {% if not user.groups.all|dictsort:"name"|first|default_if_none:""|lower == "ejecutivo" %}
     <a href="{% url 'clientes_lista' %}"
        class="{% if 'clientes' in request.path %}active{% endif %}">Clientes</a>
+    {% endif %}
     <a href="{% url 'dispersiones_lista' %}"
        class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
     <a href="{% url 'comisiones_lista' %}"

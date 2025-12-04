@@ -60,6 +60,7 @@
                   <th>%</th>
                   <th>Monto comisión</th>
                   <th>Estatus pago cliente</th>
+                  <th>Liberada</th>
                 </tr>
               </thead>
               <tbody>
@@ -72,6 +73,7 @@
                     <td>{{ c.porcentaje|pct:2 }}</td>
                     <td>{{ c.monto|currency }}</td>
                     <td>{{ c.estatus_pago_dispersion }}</td>
+                    <td>{% if c.liberada %}Liberada{% else %}No liberada{% endif %}</td>
                   </tr>
                 {% empty %}
                   <tr><td colspan="7">Sin registros.</td></tr>
