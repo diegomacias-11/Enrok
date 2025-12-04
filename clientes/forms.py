@@ -42,9 +42,22 @@ class ClienteForm(forms.ModelForm):
             except auth_models.Group.DoesNotExist:
                 qset = User.objects.none()
             self.fields["ejecutivo"].queryset = qset.order_by("username")
+            self.fields["ejecutivo"].label_from_instance = (
+                lambda u: f"{getattr(u, 'first_name', '')} {getattr(u, 'last_name', '')}".strip() or getattr(u, "username", "")
+            )
             self.fields["ejecutivo"].required = False
             if "ejecutivos_apoyo" in self.fields:
-                self.fields["ejecutivos_apoyo"].queryset = qset.order_by("username")
+                # Excluir al ejecutivo principal de la lista de apoyo
+                principal_id = None
+                if self.is_bound:
+                    principal_id = self.data.get("ejecutivo") or self.initial.get("ejecutivo")
+                elif self.instance and getattr(self.instance, "ejecutivo_id", None):
+                    principal_id = self.instance.ejecutivo_id
+                apoyo_qs = qset.exclude(id=principal_id) if principal_id else qset
+                self.fields["ejecutivos_apoyo"].queryset = apoyo_qs.order_by("username")
+                self.fields["ejecutivos_apoyo"].label_from_instance = (
+                    lambda u: f"{getattr(u, 'first_name', '')} {getattr(u, 'last_name', '')}".strip() or getattr(u, "username", "")
+                )
                 self.fields["ejecutivos_apoyo"].required = False
         # Hacer obligatorio comision_servicio
         if 'comision_servicio' in self.fields:
@@ -74,6 +87,11 @@ class ClienteForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        # Validar que el principal no esté en apoyos
+        exec_id = cleaned.get("ejecutivo").id if cleaned.get("ejecutivo") else None
+        apoyos = cleaned.get("ejecutivos_apoyo") or []
+        if exec_id and any(getattr(a, "id", None) == exec_id for a in apoyos):
+            self.add_error("ejecutivos_apoyo", "No puedes seleccionar al ejecutivo principal como apoyo.")
         # comision por servicio
         val_cs = cleaned.get("comision_servicio")
         if val_cs in (None, ""):
