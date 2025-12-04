@@ -1,10 +1,11 @@
 {% load static %}
+{% load group_tags %}
 <header class="main-header">
   <div class="logo-title">
     <img src="{% static 'img/logo_header.png' %}" alt="ARAU" class="logo" />
   </div>
   <nav class="main-nav">
-    {% if user.is_authenticated and user.groups.filter(name__iexact='Ejecutivo').exists %}
+    {% if user.is_authenticated and user|has_group:"Ejecutivo" %}
       <a href="{% url 'dispersiones_lista' %}"
          class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
     {% else %}
