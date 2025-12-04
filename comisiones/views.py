@@ -2,6 +2,7 @@ from datetime import date
 from calendar import monthrange
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
 from django.db.models import Sum, Q, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -44,6 +45,7 @@ def _first_day_next_month(y, m):
     return date(y, m + 1, 1)
 
 
+@permission_required("comisiones.view_comision", raise_exception=True)
 def comisiones_lista(request):
     mes, anio, redir = _coerce_mes_anio(request)
     if redir:
@@ -99,6 +101,7 @@ def comisiones_detalle(request, comisionista_id):
     return render(request, 'comisiones/detalle.html', context)
 
 
+@permission_required("comisiones.add_pagocomision", raise_exception=True)
 def registrar_pago(request, comisionista_id: int = None):
     mes, anio, redir = _coerce_mes_anio(request)
     if redir and request.method != 'POST':
@@ -144,6 +147,7 @@ def registrar_pago(request, comisionista_id: int = None):
     })
 
 
+@permission_required("comisiones.change_pagocomision", raise_exception=True)
 def editar_pago(request, id: int):
     pago = get_object_or_404(PagoComision, pk=id)
     mes, anio, _ = _coerce_mes_anio(request)
@@ -182,6 +186,7 @@ def editar_pago(request, id: int):
     })
 
 
+@permission_required("comisiones.delete_pagocomision", raise_exception=True)
 def eliminar_pago(request, id: int):
     pago = get_object_or_404(PagoComision, pk=id)
     mes, anio, _ = _coerce_mes_anio(request)
@@ -213,6 +218,7 @@ def _detalle_context(comisionista_id, mes, anio):
     }
 
 
+@permission_required("comisiones.view_comision", raise_exception=True)
 def enviar_detalle_comisionista(request, comisionista_id):
     mes, anio, redir = _coerce_mes_anio(request)
     if redir:
