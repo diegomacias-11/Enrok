@@ -14,6 +14,30 @@ User = get_user_model()
 
 
 class ClienteForm(forms.ModelForm):
+    def save(self, commit=True):
+        # Manejar que ejecutivos_apoyo viene como ModelChoiceField (un solo apoyo opcional)
+        apoyo = self.cleaned_data.get("ejecutivos_apoyo")
+        obj = super().save(commit=False)
+        if commit:
+            obj.save()
+            # Asignar apoyo único si existe, o limpiar
+            if apoyo:
+                obj.ejecutivos_apoyo.set([apoyo])
+            else:
+                obj.ejecutivos_apoyo.clear()
+        else:
+            # Si no se hace commit, posponer asignación de M2M
+            self._pending_apoyo = apoyo
+        return obj
+
+    def save_m2m(self):
+        super().save_m2m()
+        apoyo = getattr(self, "_pending_apoyo", None)
+        if apoyo is not None:
+            if apoyo:
+                self.instance.ejecutivos_apoyo.set([apoyo])
+            else:
+                self.instance.ejecutivos_apoyo.clear()
     class Meta:
         model = Cliente
         fields = [
@@ -54,13 +78,15 @@ class ClienteForm(forms.ModelForm):
                 elif self.instance and getattr(self.instance, "ejecutivo_id", None):
                     principal_id = self.instance.ejecutivo_id
                 apoyo_qs = qset.exclude(id=principal_id) if principal_id else qset
-                self.fields["ejecutivos_apoyo"].queryset = apoyo_qs.order_by("username")
-                # Mostrar como dropdown (size 1) y permitir dejar vacío
-                self.fields["ejecutivos_apoyo"].widget = forms.SelectMultiple(attrs={"size": "1"})
+                self.fields["ejecutivos_apoyo"] = forms.ModelChoiceField(
+                    queryset=apoyo_qs.order_by("username"),
+                    required=False,
+                    empty_label="---------",
+                    widget=forms.Select(),
+                )
                 self.fields["ejecutivos_apoyo"].label_from_instance = (
                     lambda u: f"{getattr(u, 'first_name', '')} {getattr(u, 'last_name', '')}".strip() or getattr(u, "username", "")
                 )
-                self.fields["ejecutivos_apoyo"].required = False
         # Hacer obligatorio comision_servicio
         if 'comision_servicio' in self.fields:
             self.fields['comision_servicio'].required = True
