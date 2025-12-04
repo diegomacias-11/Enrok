@@ -55,6 +55,8 @@ class ClienteForm(forms.ModelForm):
                     principal_id = self.instance.ejecutivo_id
                 apoyo_qs = qset.exclude(id=principal_id) if principal_id else qset
                 self.fields["ejecutivos_apoyo"].queryset = apoyo_qs.order_by("username")
+                # Mostrar como dropdown (size 1) y permitir dejar vacío
+                self.fields["ejecutivos_apoyo"].widget = forms.SelectMultiple(attrs={"size": "1"})
                 self.fields["ejecutivos_apoyo"].label_from_instance = (
                     lambda u: f"{getattr(u, 'first_name', '')} {getattr(u, 'last_name', '')}".strip() or getattr(u, "username", "")
                 )
