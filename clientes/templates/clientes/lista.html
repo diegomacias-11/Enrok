@@ -42,7 +42,7 @@
     </td>
     <td class="sticky-2">{{ c.razon_social }}</td>
     <td>{{ c.get_ac_display }}</td>
-    <td>{{ c.ejecutivo|default_if_none:"" }}</td>
+    <td>{% with exec=c.ejecutivo %}{% if exec %}{{ exec.get_full_name|default:exec.username }}{% endif %}{% endwith %}</td>
     <td>{{ c.get_servicio_display }}</td>
     <td>{% if c.comision_servicio is not None %}{{ c.comision_servicio|pct:3 }}{% endif %}</td>
     <td>{{ c.comisionista1|default_if_none:"" }}</td><td>{% if c.comision1 is not None %}{{ c.comision1|pct:3 }}{% endif %}</td>

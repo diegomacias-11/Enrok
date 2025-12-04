@@ -9,7 +9,7 @@ def alianzas_lista(request):
     alianzas_qs = Alianza.objects.all()
     if q:
         alianzas_qs = alianzas_qs.filter(nombre__icontains=q)
-    alianzas = alianzas_qs.order_by("-fecha_registro")
+    alianzas = alianzas_qs.order_by("nombre")
 
     context = {
         "alianzas": alianzas,

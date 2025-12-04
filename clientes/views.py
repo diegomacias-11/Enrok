@@ -11,7 +11,7 @@ def clientes_lista(request):
     qs = Cliente.objects.all()
     if q:
         qs = qs.filter(razon_social__icontains=q)
-    clientes = qs.order_by("-fecha_registro")
+    clientes = qs.order_by("razon_social")
 
     context = {"clientes": clientes, "q": q}
     return render(request, "clientes/lista.html", context)
