@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 
 from django.contrib.auth import get_user_model
+from django.db import connection
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,9 @@ def ensure_superuser():
     """
     if os.environ.get("CREATE") != "1":
         return
+    # Evitar ejecutar durante migraciones/creacion de tablas
+    if any(cmd in sys.argv for cmd in ["migrate", "makemigrations", "collectstatic"]):
+        return
 
     username = os.environ.get("DJANGO_SUPERUSER_USERNAME")
     password = os.environ.get("DJANGO_SUPERUSER_PASSWORD")
@@ -34,6 +39,13 @@ def ensure_superuser():
         return
 
     User = get_user_model()
+    # Saltar si las tablas auth aún no existen (primer arranque antes de migrate)
+    try:
+        if "auth_user" not in connection.introspection.table_names():
+            return
+    except Exception:
+        return
+
     if User.objects.filter(username=username).exists():
         return
 
