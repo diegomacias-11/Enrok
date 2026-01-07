@@ -4,7 +4,7 @@
 {% block title %}Dispersiones{% endblock %}
 
 {% block filtros %}
-  <div class="filter-title">{{ mes_nombre }} {{ anio }}</div>
+  <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
   <form action="{% url 'dispersiones_lista' %}" method="get" class="filter-form-simple dispersiones-filter" style="gap:.75rem;flex-wrap:wrap;">
     <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;">
       <label for="mes" style="color:#fff;font-size:12px;font-weight:600;display:block;">Mes</label>
@@ -22,7 +22,7 @@
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
       <label for="anio" style="color:#fff;font-size:12px;font-weight:600;display:block;">Año</label>
-      <input type="number" id="anio" name="anio" value="{{ anio }}" min="2000" max="2100">
+      <input type="number" id="anio" name="anio" value="{{ anio|default_if_none:'' }}" min="2000" max="2100">
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
       <label for="f_cliente" style="color:#fff;font-size:12px;font-weight:600;display:block;">Cliente</label>
@@ -104,8 +104,8 @@
   {% for d in dispersiones %}
     <tr>
       <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'editar_dispersion' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Editar</a></td>
-      <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y" }}</td>
-      <td class="sticky-3">{{ d.cliente.razon_social }}</td>
+      <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
+      <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
       <td>{{ d.servicio|default_if_none:"" }}</td>
       <td>{{ d.facturadora|default_if_none:"" }}</td>
       <td>{{ d.num_factura|default_if_none:"" }}</td>
@@ -117,9 +117,9 @@
       <td>{{ d.cliente.ejecutivo|default_if_none:"" }}</td>
       <td>{{ d.cliente.ejecutivos_apoyo.all|join:", " }}</td>
       {% endif %}
-      <td>{{ d.estatus_proceso }}</td>
-      <td>{{ d.estatus_periodo }}</td>
-      <td>{{ d.estatus_pago }}</td>
+      <td>{{ d.estatus_proceso|default_if_none:"" }}</td>
+      <td>{{ d.estatus_periodo|default_if_none:"" }}</td>
+      <td>{{ d.estatus_pago|default_if_none:"" }}</td>
       <td>{{ d.comentarios|default_if_none:"" }}</td>
     </tr>
   {% empty %}

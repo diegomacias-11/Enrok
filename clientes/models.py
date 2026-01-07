@@ -61,6 +61,8 @@ class Cliente(models.Model):
     comision9 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     comisionista10 = models.ForeignKey(Alianza, null=True, blank=True, on_delete=models.SET_NULL, related_name="clientes_comisionista10")
     comision10 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    comisionista11 = models.ForeignKey(Alianza, null=True, blank=True, on_delete=models.SET_NULL, related_name="clientes_comisionista11")
+    comision11 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     def __str__(self):
         try:

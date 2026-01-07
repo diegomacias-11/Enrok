@@ -5,7 +5,7 @@
 {% block filtros %}
   <form action="{% url 'alianzas_lista' %}" method="get" class="filter-form-simple">
     <label for="q">Buscar</label>
-    <input type="text" id="q" name="q" value="{{ request.GET.q }}" placeholder="Nombre de la alianza">
+    <input type="text" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="Nombre de la alianza">
     <button type="submit" class="btn-filter">Filtrar</button>
     <a href="{% url 'alianzas_lista' %}" class="btn-filter">Limpiar</a>
     <a href="{% url 'agregar_alianza' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva alianza</a>
@@ -27,9 +27,9 @@
     <td class="sticky-1 col-actions">
       <a class="btn-detalle" href="{% url 'editar_alianza' alianza.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
     </td>
-    <td class="sticky-2">{{ alianza.nombre }}</td>
-    <td>{{ alianza.correo_electronico }}</td>
-    <td>{{ alianza.fecha_registro|date:"Y-m-d H:i" }}</td>
+    <td class="sticky-2">{{ alianza.nombre|default_if_none:"" }}</td>
+    <td>{{ alianza.correo_electronico|default_if_none:"" }}</td>
+    <td>{{ alianza.fecha_registro|date:"d/m/Y H:i"|default_if_none:"" }}</td>
   </tr>
   {% empty %}
   <tr><td colspan="4">No hay alianzas registradas.</td></tr>

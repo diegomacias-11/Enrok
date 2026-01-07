@@ -6,14 +6,14 @@
 
 {% block back_link %}
   <section class="filter-container">
-    <a href="{{ back_url }}" class="btn-filter">Volver</a>
+    <a href="{{ back_url|default_if_none:'' }}" class="btn-filter">Volver</a>
   </section>
 {% endblock %}
 
 {% block form_fields %}
-  <input type="hidden" name="next" value="{{ back_url }}">
-  <input type="hidden" name="mes" value="{{ mes }}">
-  <input type="hidden" name="anio" value="{{ anio }}">
+  <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">
+  <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
+  <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
 
   <div class="form-grid">
     <div class="form-col">
@@ -24,11 +24,11 @@
       {{ form.cliente|default_if_none:"" }}
       {% if cliente_info %}
         <div class="form-hint">
-          <div><strong>AC:</strong> {{ cliente_info.ac }}</div>
-          <div><strong>Servicio:</strong> {{ cliente_info.servicio }}</div>
+          <div><strong>AC:</strong> {{ cliente_info.ac|default_if_none:"" }}</div>
+          <div><strong>Servicio:</strong> {{ cliente_info.servicio|default_if_none:"" }}</div>
           <div><strong>Ejecutivo:</strong> {{ cliente_info.ejecutivo|default_if_none:"" }}</div>
           <div><strong>Apoyos:</strong> {% if cliente_info.apoyos %}{{ cliente_info.apoyos|join:", " }}{% endif %}</div>
-          <div><strong>Comisión servicio:</strong> {{ cliente_info.comision_servicio }}</div>
+          <div><strong>Comisión servicio:</strong> {{ cliente_info.comision_servicio|default_if_none:"" }}</div>
         </div>
       {% endif %}
 

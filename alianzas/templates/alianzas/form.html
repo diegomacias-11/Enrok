@@ -4,15 +4,15 @@
 
 {% block back_link %}
   <section class="filter-container">
-    <a href="{{ back_url }}" class="btn-filter">Volver</a>
+    <a href="{{ back_url|default_if_none:'' }}" class="btn-filter">Volver</a>
   </section>
 {% endblock %}
 
 {% block form_fields %}
   {% if alianza %}
-  <div class="form-meta">Fecha de registro: {{ alianza.fecha_registro|date:"d/m/Y H:i" }}</div>
+  <div class="form-meta">Fecha de registro: {{ alianza.fecha_registro|date:"d/m/Y H:i"|default_if_none:"" }}</div>
   {% endif %}
-  <input type="hidden" name="next" value="{{ back_url }}">
+  <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">
   <div class="form-grid">
     <div class="form-col">
       <label for="{{ form.nombre.id_for_label }}">Nombre</label>

@@ -5,8 +5,8 @@
 
 {% block back_link %}
   <section class="filter-container">
-    <div class="filter-title">Registrar pago — {{ mes_nombre }} {{ anio }}</div>
-    <a href="{{ back_url }}" class="btn-filter">Volver</a>
+    <div class="filter-title">Registrar pago — {{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
+    <a href="{{ back_url|default_if_none:'' }}" class="btn-filter">Volver</a>
   </section>
 {% endblock %}
 
@@ -17,16 +17,16 @@
 {% endblock %}
 
 {% block form_fields %}
-  <input type="hidden" name="next" value="{{ back_url }}">
-  <input type="hidden" name="mes" value="{{ mes }}">
-  <input type="hidden" name="anio" value="{{ anio }}">
+  <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">
+  <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
+  <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
 
   <div class="form-grid">
     <div class="form-col">
       <label for="{{ form.comisionista.id_for_label }}">Comisionista</label>
       {% if comisionista %}
-        <div class="fixed-center">{{ comisionista.nombre }}</div>
-        <input type="hidden" name="comisionista" value="{{ comisionista.id }}">
+        <div class="fixed-center">{{ comisionista.nombre|default_if_none:"" }}</div>
+        <input type="hidden" name="comisionista" value="{{ comisionista.id|default_if_none:'' }}">
       {% else %}
         {{ form.comisionista }}
       {% endif %}

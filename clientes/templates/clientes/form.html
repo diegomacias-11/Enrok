@@ -6,16 +6,16 @@
 
 {% block back_link %}
   <section class="filter-container">
-    <a href="{{ back_url }}" class="btn-filter">Volver</a>
+    <a href="{{ back_url|default_if_none:'' }}" class="btn-filter">Volver</a>
   </section>
 {% endblock %}
 
 {% block form_fields %}
   {% if cliente %}
-  <div class="form-meta">Fecha de registro: {{ cliente.fecha_registro|date:"d/m/Y H:i" }}</div>
+  <div class="form-meta">Fecha de registro: {{ cliente.fecha_registro|date:"d/m/Y H:i"|default_if_none:"" }}</div>
   {% endif %}
 
-  <input type="hidden" name="next" value="{{ back_url }}">  {% if form.non_field_errors %}  <div class="form-alert">{{ form.non_field_errors }}</div>  {% endif %}
+  <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">  {% if form.non_field_errors %}  <div class="form-alert">{{ form.non_field_errors }}</div>  {% endif %}
   <div class="form-grid">
     <div class="form-col">
       <label for="{{ form.razon_social.id_for_label }}">Razón Social</label>

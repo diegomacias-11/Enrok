@@ -6,7 +6,7 @@
 {% block filtros %}
   <form action="{% url 'clientes_lista' %}" method="get" class="filter-form-simple">
     <label for="q">Buscar</label>
-    <input type="text" id="q" name="q" value="{{ request.GET.q }}" placeholder="Razón Social">
+    <input type="text" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="Razón Social">
     <button type="submit" class="btn-filter">Filtrar</button>
     <a href="{% url 'clientes_lista' %}" class="btn-filter">Limpiar</a>
     <a href="{% url 'agregar_cliente' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nuevo cliente</a>
@@ -41,15 +41,15 @@
     <td class="sticky-1 col-actions">
       <a class="btn-detalle" href="{% url 'editar_cliente' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
     </td>
-    <td class="sticky-2">{{ c.razon_social }}</td>
-    <td>{{ c.get_ac_display }}</td>
+    <td class="sticky-2">{{ c.razon_social|default_if_none:"" }}</td>
+    <td>{{ c.get_ac_display|default_if_none:"" }}</td>
     <td>{% with exec=c.ejecutivo %}{% if exec %}{{ exec.get_full_name|default:exec.username }}{% endif %}{% endwith %}</td>
     <td>
       {% with apoyo=c.ejecutivos_apoyo.all|first %}
         {% if apoyo %}{{ apoyo.get_full_name|default:apoyo.username }}{% endif %}
       {% endwith %}
     </td>
-    <td>{{ c.get_servicio_display }}</td>
+    <td>{{ c.get_servicio_display|default_if_none:"" }}</td>
     <td>{% if c.comision_servicio is not None %}{{ c.comision_servicio|pct:3 }}{% endif %}</td>
     <td>{{ c.comisionista1|default_if_none:"" }}</td><td>{% if c.comision1 is not None %}{{ c.comision1|pct:3 }}{% endif %}</td>
     <td>{{ c.comisionista2|default_if_none:"" }}</td><td>{% if c.comision2 is not None %}{{ c.comision2|pct:3 }}{% endif %}</td>

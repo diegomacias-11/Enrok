@@ -4,31 +4,31 @@
 {% block title %}Detalle de comisiones{% endblock %}
 
 {% block filtros %}
-  <div class="filter-title">{{ comisionista|default_if_none:"" }} — {{ mes_nombre }} {{ anio }}</div>
+  <div class="filter-title">{{ comisionista|default_if_none:"" }} — {{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
   <div class="filter-cut"><div class="line"></div><div></div><div></div></div>
   <div class="metrics-row">
     <div class="metric">
       <div class="metric-label">Total periodo</div>
-      <div class="metric-value">{{ total_periodo|currency }}</div>
+      <div class="metric-value">{{ total_periodo|default_if_none:""|currency }}</div>
     </div>
     <div class="metric">
       <div class="metric-label">Liberado</div>
-      <div class="metric-value">{{ total_liberado|currency }}</div>
+      <div class="metric-value">{{ total_liberado|default_if_none:""|currency }}</div>
     </div>
     <div class="metric">
       <div class="metric-label">Pagos</div>
-      <div class="metric-value">{{ total_pagos|currency }}</div>
+      <div class="metric-value">{{ total_pagos|default_if_none:""|currency }}</div>
     </div>
     <div class="metric">
       <div class="metric-label">Pendiente</div>
-      <div class="metric-value">{{ total_pendiente|currency }}</div>
+      <div class="metric-value">{{ total_pendiente|default_if_none:""|currency }}</div>
     </div>
   </div>
   <div class="filter-row">
     <div></div>
     <form action="{% url 'comisiones_lista' %}" method="get" class="filter-form-simple comisiones-filter">
-      <input type="hidden" name="mes" value="{{ mes }}">
-      <input type="hidden" name="anio" value="{{ anio }}">
+      <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
+      <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
       <a href="{% url 'comisiones_lista' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Volver</a>
     </form>
     <div class="actions">
@@ -66,13 +66,13 @@
               <tbody>
                 {% for c in items %}
                   <tr>
-                    <td>{{ c.fecha_dispersion|date:"d/m/Y" }}</td>
-                    <td>{{ c.cliente.razon_social }}</td>
-                    <td>{{ c.servicio }}</td>
+                    <td>{{ c.fecha_dispersion|date:"d/m/Y"|default_if_none:"" }}</td>
+                    <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
+                    <td>{{ c.servicio|default_if_none:"" }}</td>
                     <td>{{ c.dispersion.monto_dispersion|currency }}</td>
                     <td>{{ c.porcentaje|pct:2 }}</td>
                     <td>{{ c.monto|currency }}</td>
-                    <td>{{ c.estatus_pago_dispersion }}</td>
+                    <td>{{ c.estatus_pago_dispersion|default_if_none:"" }}</td>
                     <td>{% if c.liberada %}Liberada{% else %}No liberada{% endif %}</td>
                   </tr>
                 {% empty %}
@@ -97,8 +97,8 @@
               <tbody>
                 {% for p in pagos %}
                 <tr>
-                  <td>{{ p.fecha_pago|date:"d/m/Y" }}</td>
-                  <td>{{ p.monto|currency }}</td>
+                  <td>{{ p.fecha_pago|date:"d/m/Y"|default_if_none:"" }}</td>
+                  <td>{{ p.monto|default_if_none:""|currency }}</td>
                   <td>{{ p.comentario|default_if_none:"" }}</td>
                   <td>
                     <a class="btn-detalle" href="{% url 'comisiones_editar_pago' p.id %}?mes={{ mes }}&anio={{ anio }}">Editar</a>
