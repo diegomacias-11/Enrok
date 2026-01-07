@@ -32,6 +32,8 @@
     <th>Comisionista 8</th><th>Comisión 8</th>
     <th>Comisionista 9</th><th>Comisión 9</th>
     <th>Comisionista 10</th><th>Comisión 10</th>
+    <th>Comisionista 11</th><th>Comisión 11</th>
+    <th>Comisionista 12</th><th>Comisión 12</th>
   </tr>
 {% endblock %}
 
@@ -61,8 +63,10 @@
     <td>{{ c.comisionista8|default_if_none:"" }}</td><td>{% if c.comision8 is not None %}{{ c.comision8|pct:3 }}{% endif %}</td>
     <td>{{ c.comisionista9|default_if_none:"" }}</td><td>{% if c.comision9 is not None %}{{ c.comision9|pct:3 }}{% endif %}</td>
     <td>{{ c.comisionista10|default_if_none:"" }}</td><td>{% if c.comision10 is not None %}{{ c.comision10|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista11|default_if_none:"" }}</td><td>{% if c.comision11 is not None %}{{ c.comision11|pct:3 }}{% endif %}</td>
+    <td>{{ c.comisionista12|default_if_none:"" }}</td><td>{% if c.comision12 is not None %}{{ c.comision12|pct:3 }}{% endif %}</td>
   </tr>
   {% empty %}
-  <tr><td colspan="24">No hay clientes registrados.</td></tr>
+  <tr><td colspan="31">No hay clientes registrados.</td></tr>
   {% endfor %}
 {% endblock %}

@@ -40,7 +40,7 @@ class Cliente(models.Model):
     comision_servicio = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
-    # 10 pares de comisionista / comision (porcentaje en 0..1)
+    # 12 pares de comisionista / comision (porcentaje en 0..1)
     comisionista1 = models.ForeignKey(Alianza, null=True, blank=True, on_delete=models.SET_NULL, related_name="clientes_comisionista1")
     comision1 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     comisionista2 = models.ForeignKey(Alianza, null=True, blank=True, on_delete=models.SET_NULL, related_name="clientes_comisionista2")
@@ -63,6 +63,8 @@ class Cliente(models.Model):
     comision10 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     comisionista11 = models.ForeignKey(Alianza, null=True, blank=True, on_delete=models.SET_NULL, related_name="clientes_comisionista11")
     comision11 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    comisionista12 = models.ForeignKey(Alianza, null=True, blank=True, on_delete=models.SET_NULL, related_name="clientes_comisionista12")
+    comision12 = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     def __str__(self):
         try:

@@ -29,11 +29,11 @@ class ClienteForm(forms.ModelForm):
             "ejecutivos_apoyo",
             "servicio",
             "comision_servicio",
-            *[f"comisionista{i}" for i in range(1, 11)],
-            *[f"comision{i}" for i in range(1, 11)],
+            *[f"comisionista{i}" for i in range(1, 13)],
+            *[f"comision{i}" for i in range(1, 13)],
         ]
         widgets = {
-            **{f"comision{i}": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}) for i in range(1, 11)},
+            **{f"comision{i}": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}) for i in range(1, 13)},
             "comision_servicio": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}),
             "ejecutivos_apoyo": forms.Select(),
         }
@@ -67,7 +67,7 @@ class ClienteForm(forms.ModelForm):
         if "comision_servicio" in self.fields:
             self.fields["comision_servicio"].required = True
         if self.instance and getattr(self.instance, "pk", None) and not self.is_bound:
-            for i in range(1, 11):
+            for i in range(1, 13):
                 key = f"comision{i}"
                 val = getattr(self.instance, key, None)
                 if val is not None:
@@ -77,7 +77,7 @@ class ClienteForm(forms.ModelForm):
             if val is not None:
                 percent = (Decimal(val) * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
                 self.initial["comision_servicio"] = format(percent, 'f')
-        for i in range(1, 11):
+        for i in range(1, 13):
             f = f"comision{i}"
             if f in self.fields:
                 self.fields[f].widget.attrs["step"] = "any"
@@ -102,7 +102,7 @@ class ClienteForm(forms.ModelForm):
             except Exception:
                 self.add_error("comision_servicio", "Valor inválido.")
         total_comisionistas = Decimal("0")
-        for i in range(1, 11):
+        for i in range(1, 13):
             key = f"comision{i}"
             val = cleaned.get(key)
             if val in (None, ""):
