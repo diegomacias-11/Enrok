@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from alianzas.models import Alianza
@@ -76,4 +77,10 @@ class Cliente(models.Model):
     def save(self, *args, **kwargs):
         if self.razon_social is not None:
             self.razon_social = self.razon_social.strip().upper()
+        total_comision = Decimal("0")
+        for i in range(1, 13):
+            val = getattr(self, f"comision{i}", None)
+            if val is not None:
+                total_comision += val
+        self.comision_servicio = total_comision
         super().save(*args, **kwargs)

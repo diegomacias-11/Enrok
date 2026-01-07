@@ -65,7 +65,8 @@ class ClienteForm(forms.ModelForm):
                 )
                 self.fields["ejecutivos_apoyo"].label_from_instance = _label_user
         if "comision_servicio" in self.fields:
-            self.fields["comision_servicio"].required = True
+            self.fields["comision_servicio"].required = False
+            self.fields["comision_servicio"].disabled = True
         if self.instance and getattr(self.instance, "pk", None) and not self.is_bound:
             for i in range(1, 13):
                 key = f"comision{i}"
@@ -73,10 +74,25 @@ class ClienteForm(forms.ModelForm):
                 if val is not None:
                     percent = (Decimal(val) * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
                     self.initial[key] = format(percent, 'f')
-            val = getattr(self.instance, "comision_servicio", None)
-            if val is not None:
-                percent = (Decimal(val) * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
-                self.initial["comision_servicio"] = format(percent, 'f')
+            total = Decimal("0")
+            for i in range(1, 13):
+                val = getattr(self.instance, f"comision{i}", None)
+                if val is not None:
+                    total += Decimal(val)
+            percent = (total * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
+            self.initial["comision_servicio"] = format(percent, 'f')
+        elif self.is_bound:
+            total = Decimal("0")
+            for i in range(1, 13):
+                val = self.data.get(f"comision{i}")
+                if val in (None, ""):
+                    continue
+                try:
+                    total += _percent_to_fraction(val)
+                except Exception:
+                    continue
+            percent = (total * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
+            self.initial["comision_servicio"] = format(percent, 'f')
         for i in range(1, 13):
             f = f"comision{i}"
             if f in self.fields:
@@ -93,14 +109,6 @@ class ClienteForm(forms.ModelForm):
         if exec_id and apoyo and getattr(apoyo, "id", None) == exec_id:
             self.add_error("ejecutivos_apoyo", "No puedes seleccionar al ejecutivo principal como apoyo.")
 
-        val_cs = cleaned.get("comision_servicio")
-        if val_cs in (None, ""):
-            self.add_error("comision_servicio", "Este campo es obligatorio.")
-        else:
-            try:
-                cleaned["comision_servicio"] = _percent_to_fraction(val_cs)
-            except Exception:
-                self.add_error("comision_servicio", "Valor inválido.")
         total_comisionistas = Decimal("0")
         for i in range(1, 13):
             key = f"comision{i}"
@@ -113,16 +121,7 @@ class ClienteForm(forms.ModelForm):
                 continue
             cleaned[key] = dec
             total_comisionistas += dec
-        cs = cleaned.get("comision_servicio")
-        if cs not in (None, ""):
-            try:
-                eps = PERCENT_Q
-                if total_comisionistas > cs + eps:
-                    self.add_error(None, "La suma de porcentajes de comisionistas supera la comisión por servicio.")
-                elif total_comisionistas + eps < cs:
-                    self.add_error(None, "La suma de porcentajes de comisionistas es menor que la comisión por servicio.")
-            except Exception:
-                pass
+        cleaned["comision_servicio"] = total_comisionistas
         return cleaned
 
     def save(self, commit=True):
