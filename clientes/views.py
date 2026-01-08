@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import Cliente
+from core.choices import SERVICIO_CHOICES
 from .forms import ClienteForm
 from django.contrib import messages
 from decimal import Decimal
@@ -8,12 +9,15 @@ from decimal import Decimal
 
 def clientes_lista(request):
     q = (request.GET.get("q") or "").strip()
+    servicio = (request.GET.get("servicio") or "").strip()
     qs = Cliente.objects.all()
     if q:
         qs = qs.filter(razon_social__icontains=q)
+    if servicio:
+        qs = qs.filter(servicio=servicio)
     clientes = qs.order_by("razon_social")
 
-    context = {"clientes": clientes, "q": q}
+    context = {"clientes": clientes, "q": q, "servicio": servicio, "servicio_choices": SERVICIO_CHOICES}
     return render(request, "clientes/lista.html", context)
 
 

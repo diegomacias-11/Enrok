@@ -102,6 +102,7 @@
   --color-primary: #003b71;   
   --color-accent: #ffcf56;    
   --color-tertiary: #355f9b;    --color-info: #71a6d1;    --color-soft: #ffffff;  
+  --h-scrollbar-height: 12px;
   font-family: var(--fuente-principal);
 }
 
@@ -121,6 +122,49 @@ body {
   height: 100%;
   overflow-x: hidden;
   
+}
+
+.page-scroll-x {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: calc(var(--h-scrollbar-height) + 6px);
+}
+.page-scroll-x::-webkit-scrollbar {
+  height: 0;
+}
+.page-scroll-x {
+  scrollbar-width: none;
+}
+
+.h-scrollbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--h-scrollbar-height);
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #ffffff;
+  border-top: 1px solid #003b71;
+  z-index: 1000;
+  scrollbar-width: thin;
+  scrollbar-color: #808b98 transparent;
+}
+.h-scrollbar-inner {
+  height: 1px;
+}
+.h-scrollbar::-webkit-scrollbar {
+  height: 10px;
+}
+.h-scrollbar::-webkit-scrollbar-thumb {
+  background: #808b98;
+  border-radius: 6px;
+}
+.h-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #294369;
+}
+.h-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 
@@ -417,7 +461,7 @@ body.reportes-no-scroll { overflow: hidden; }
   height: 100%;
   border: 1px solid #003b71;
   border-radius: 6px;
-  overflow: auto;
+  overflow: visible;
   box-sizing: border-box;
   
   scrollbar-width: thin;
