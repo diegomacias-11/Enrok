@@ -4,12 +4,17 @@
 
 {% block filtros %}
   <form action="{% url 'alianzas_lista' %}" method="get" class="filter-form-simple">
-    <label for="q">Buscar</label>
-    <input type="text" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="Nombre de la alianza">
-    <button type="submit" class="btn-filter">Filtrar</button>
-    <a href="{% url 'alianzas_lista' %}" class="btn-filter">Limpiar</a>
-    <a href="{% url 'agregar_alianza' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva alianza</a>
+    <div class="filter-block">
+      <label for="q">Alianza</label>
+      <input type="text" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}">
+    </div>
+    <span class="filter-separator" aria-hidden="true"></span>
+    <div class="filter-actions">
+      <button type="submit" class="btn-filter">Filtrar</button>
+      <a href="{% url 'alianzas_lista' %}" class="btn-filter">Limpiar</a>
+    </div>
   </form>
+  <a href="{% url 'agregar_alianza' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva alianza</a>
 {% endblock %}
 
 {% block tabla_head %}

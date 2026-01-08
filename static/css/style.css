@@ -1435,3 +1435,60 @@ textarea::placeholder {
 .user-card .logout-icon { display: block; height: 18px; width: 18px; filter: invert(20%); }
 .user-card .user-logout:hover .logout-icon { filter: invert(56%) sepia(10%) saturate(2000%) hue-rotate(153deg) brightness(90%) contrast(95%); }
 
+/* Universal filter bar layout (labels arriba, separadores, botón nuevo a la derecha) */
+.filter-container {
+  gap: 0.75rem !important;
+  align-items: center !important;
+}
+.filter-container .filter-form-simple {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+  margin: 0 auto !important;
+  flex: 1 1 auto !important;
+}
+.filter-container .filter-block {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  min-width: 160px !important;
+}
+.filter-container .filter-block label,
+.filter-container .filter-form-simple label {
+  color: #ffffff !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  margin: 0 0 0.15rem 0 !important;
+  text-align: center !important;
+}
+.filter-container .filter-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+.filter-container .filter-separator {
+  width: 1px !important;
+  height: 38px !important;
+  align-self: flex-end !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0)) !important;
+}
+.filter-container > .btn-primary {
+  margin-left: auto !important;
+  align-self: center !important;
+}
+
+@media (max-width: 900px) {
+  .filter-container .filter-form-simple {
+    justify-content: center !important;
+  }
+  .filter-container .filter-separator {
+    display: none !important;
+  }
+  .filter-container > .btn-primary {
+    margin-left: 0 !important;
+  }
+}
+
