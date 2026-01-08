@@ -8,8 +8,7 @@
     {% endblock %}
   </section>
 
-  <div class="table-scroll top-scroll" style="overflow-x:auto; margin-bottom:6px; height:12px;"></div>
-  <div class="table-container table-scroll main-scroll" style="overflow-x:auto;">
+  <div class="table-container">
     <table class="table">
       <thead>
         {% block tabla_head %}{% endblock %}
@@ -22,25 +21,4 @@
 
   {% block extra_content %}{% endblock %}
 </main>
-
-<script>
-(function() {
-  const top = document.querySelector('.table-scroll.top-scroll');
-  const main = document.querySelector('.table-scroll.main-scroll');
-  if (!top || !main) return;
-  function syncWidth() {
-    const table = main.querySelector('table');
-    top.innerHTML = "";
-    if (!table) return;
-    const spacer = document.createElement('div');
-    spacer.style.width = table.scrollWidth + 'px';
-    spacer.style.height = '1px';
-    top.appendChild(spacer);
-  }
-  syncWidth();
-  window.addEventListener('resize', syncWidth);
-  top.addEventListener('scroll', () => { main.scrollLeft = top.scrollLeft; });
-  main.addEventListener('scroll', () => { top.scrollLeft = main.scrollLeft; });
-})();
-</script>
 {% endblock %}

@@ -120,40 +120,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-x: auto;
-  padding-bottom: var(--h-scrollbar-height);
+  overflow-x: hidden;
   
-}
-
-.h-scrollbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--h-scrollbar-height);
-  overflow-x: auto;
-  overflow-y: hidden;
-  background: #ffffff;
-  border-top: 1px solid #003b71;
-  z-index: 1000;
-  scrollbar-width: thin;
-  scrollbar-color: #808b98 transparent;
-}
-.h-scrollbar-inner {
-  height: 1px;
-}
-.h-scrollbar::-webkit-scrollbar {
-  height: 10px;
-}
-.h-scrollbar::-webkit-scrollbar-thumb {
-  background: #808b98;
-  border-radius: 6px;
-}
-.h-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #294369;
-}
-.h-scrollbar::-webkit-scrollbar-corner {
-  background: transparent;
 }
 
 
@@ -450,11 +418,55 @@ body.reportes-no-scroll { overflow: hidden; }
   height: 100%;
   border: 1px solid #003b71;
   border-radius: 6px;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
   box-sizing: border-box;
   
   scrollbar-width: thin;
   scrollbar-color: #808b98 transparent;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 0;
+}
+.table-container {
+  scrollbar-width: none;
+}
+
+.table-scroll-bottom {
+  position: fixed;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.35rem;
+  height: var(--h-scrollbar-height);
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  scrollbar-width: thin;
+  scrollbar-color: #808b98 transparent;
+}
+.table-scroll-inner {
+  height: 1px;
+}
+.table-scroll-bottom::-webkit-scrollbar {
+  height: 10px;
+}
+.table-scroll-bottom::-webkit-scrollbar-thumb {
+  background: #808b98;
+  border-radius: 6px;
+}
+.table-scroll-bottom::-webkit-scrollbar-thumb:hover {
+  background: #294369;
+}
+.table-scroll-bottom::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+main {
+  padding-bottom: calc(var(--h-scrollbar-height) + 8px);
 }
 
 .table-container::-webkit-scrollbar {

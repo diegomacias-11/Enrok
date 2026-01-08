@@ -22,53 +22,67 @@
     {% endif %}
     {% block content %}{% endblock %}
   </main>
-  <div class="h-scrollbar" id="h-scrollbar" aria-hidden="true">
-    <div class="h-scrollbar-inner" id="h-scrollbar-inner"></div>
+
+  <div id="table-scroll-bottom" class="table-scroll-bottom" aria-hidden="true">
+    <div class="table-scroll-inner"></div>
   </div>
+
   <script>
     (function () {
-      var bar = document.getElementById("h-scrollbar");
-      var barInner = document.getElementById("h-scrollbar-inner");
-      if (!bar || !barInner) {
+      var bottom = document.getElementById("table-scroll-bottom");
+      var inner = bottom ? bottom.querySelector(".table-scroll-inner") : null;
+      if (!bottom || !inner) {
         return;
       }
-      var syncing = false;
-      var doc = document.documentElement;
-      function updateBar() {
-        var contentWidth = doc.scrollWidth;
-        var viewportWidth = doc.clientWidth;
-        barInner.style.width = contentWidth + "px";
-        if (contentWidth > viewportWidth + 1) {
-          bar.style.display = "block";
-        } else {
-          bar.style.display = "none";
-          bar.scrollLeft = 0;
-        }
-      }
-      window.addEventListener("scroll", function () {
-        if (syncing) {
+      var activeContainer = null;
+
+      function updateWidth(container) {
+        var table = container.querySelector("table");
+        var width = table ? table.scrollWidth : container.scrollWidth;
+        if (!width) {
           return;
         }
-        syncing = true;
-        bar.scrollLeft = doc.scrollLeft;
-        syncing = false;
-      });
-      bar.addEventListener("scroll", function () {
-        if (syncing) {
+        inner.style.width = width + "px";
+      }
+
+      function setActive(container) {
+        activeContainer = container;
+        updateWidth(container);
+        bottom.scrollLeft = container.scrollLeft;
+      }
+
+      function onContainerScroll(e) {
+        if (activeContainer !== e.currentTarget) {
           return;
         }
-        syncing = true;
-        window.scrollTo({ left: bar.scrollLeft, top: window.scrollY });
-        syncing = false;
-      });
-      if (typeof ResizeObserver !== "undefined") {
-        var ro = new ResizeObserver(updateBar);
-        ro.observe(document.body);
-        ro.observe(doc);
+        bottom.scrollLeft = activeContainer.scrollLeft;
       }
-      window.addEventListener("load", updateBar);
-      window.addEventListener("resize", updateBar);
-      updateBar();
+
+      function onBottomScroll() {
+        if (!activeContainer) {
+          return;
+        }
+        activeContainer.scrollLeft = bottom.scrollLeft;
+      }
+
+      var containers = Array.prototype.slice.call(
+        document.querySelectorAll(".table-container, .kanban-board")
+      );
+      containers.forEach(function (c) {
+        c.addEventListener("mouseenter", function () {
+          setActive(c);
+        });
+        c.addEventListener("scroll", onContainerScroll);
+      });
+      bottom.addEventListener("scroll", onBottomScroll);
+      if (containers[0]) {
+        setActive(containers[0]);
+      }
+      window.addEventListener("resize", function () {
+        if (activeContainer) {
+          updateWidth(activeContainer);
+        }
+      });
     })();
   </script>
 </body>
