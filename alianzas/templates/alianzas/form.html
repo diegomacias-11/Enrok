@@ -27,7 +27,7 @@
   {% if alianza %}
     <button type="submit"
             class="btn-delete"
-            formaction="{% url 'eliminar_alianza' alianza.id %}"
+            formaction="{% url 'alianzas_delete' alianza.id %}"
             formmethod="post"
             onclick="return confirm('¿Eliminar esta alianza?');">
       Eliminar

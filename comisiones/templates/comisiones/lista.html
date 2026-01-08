@@ -23,7 +23,7 @@
       <div class="metric-value">{{ total_pendiente|default_if_none:""|currency }}</div>
     </div>
   </div>
-  <form action="{% url 'comisiones_lista' %}" method="get" class="filter-form-simple comisiones-filter">
+  <form action="{% url 'comisiones_list' %}" method="get" class="filter-form-simple comisiones-filter">
     <div class="filter-block">
       <label for="mes">Mes</label>
       <select id="mes" name="mes">
@@ -48,7 +48,7 @@
       <button type="submit" class="btn-filter">Filtrar</button>
     </div>
   </form>
-  <a href="{% url 'comisiones_registrar_pago' %}?mes={{ mes }}&anio={{ anio }}" class="btn-primary">Registrar pago</a>
+  <a href="{% url 'comisiones_pago_add' %}?mes={{ mes }}&anio={{ anio }}" class="btn-primary">Registrar pago</a>
 {% endblock %}
 
 {% block tabla_head %}
@@ -66,7 +66,7 @@
   {% for r in resumen %}
     <tr>
       <td class="sticky-1 col-actions">
-        <a class="btn-detalle" href="{% url 'comisiones_detalle' r.comisionista_id %}?mes={{ mes }}&anio={{ anio }}">Detalle</a>
+        <a class="btn-detalle" href="{% url 'comisiones_detail' r.comisionista_id %}?mes={{ mes }}&anio={{ anio }}">Detalle</a>
       </td>
       <td class="sticky-2">{{ r.comisionista__nombre|default_if_none:"" }}</td>
       <td>{{ r.total|default_if_none:""|currency }}</td>

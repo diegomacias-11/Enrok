@@ -5,7 +5,7 @@
 
 {% block filtros %}
   <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
-  <form action="{% url 'dispersiones_lista' %}" method="get" class="filter-form-simple dispersiones-filter">
+  <form action="{% url 'dispersiones_list' %}" method="get" class="filter-form-simple dispersiones-filter">
     <div class="filter-block">
       <label for="mes">Mes</label>
       <select id="mes" name="mes">
@@ -80,10 +80,10 @@
     <span class="filter-separator" aria-hidden="true"></span>
     <div class="filter-actions">
       <button type="submit" class="btn-filter">Filtrar</button>
-      <a href="{% url 'dispersiones_lista' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
+      <a href="{% url 'dispersiones_list' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
     </div>
   </form>
-  <a href="{% url 'agregar_dispersion' %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva dispersión</a>
+  <a href="{% url 'dispersiones_add' %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva dispersión</a>
 {% endblock %}
 
 {% block tabla_head %}
@@ -112,7 +112,7 @@
 {% block tabla_body %}
   {% for d in dispersiones %}
     <tr>
-      <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'editar_dispersion' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Editar</a></td>
+      <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Editar</a></td>
       <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
       <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
       <td>{{ d.servicio|default_if_none:"" }}</td>

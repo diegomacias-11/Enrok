@@ -4,7 +4,7 @@
 {% block title %}Clientes{% endblock %}
 
 {% block filtros %}
-  <form action="{% url 'clientes_lista' %}" method="get" class="filter-form-simple">
+  <form action="{% url 'clientes_list' %}" method="get" class="filter-form-simple">
     <div class="filter-block">
       <label for="q">Cliente</label>
       <input type="text" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}">
@@ -22,10 +22,10 @@
     <span class="filter-separator" aria-hidden="true"></span>
     <div class="filter-actions">
       <button type="submit" class="btn-filter">Filtrar</button>
-      <a href="{% url 'clientes_lista' %}" class="btn-filter">Limpiar</a>
+      <a href="{% url 'clientes_list' %}" class="btn-filter">Limpiar</a>
     </div>
   </form>
-  <a href="{% url 'agregar_cliente' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nuevo cliente</a>
+  <a href="{% url 'clientes_add' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nuevo cliente</a>
 {% endblock %}
 
 {% block tabla_head %}
@@ -56,7 +56,7 @@
   {% for c in clientes %}
   <tr>
     <td class="sticky-1 col-actions">
-      <a class="btn-detalle" href="{% url 'editar_cliente' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
+      <a class="btn-detalle" href="{% url 'clientes_edit' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
     </td>
     <td class="sticky-2">{{ c.razon_social|default_if_none:"" }}</td>
     <td>{{ c.get_ac_display|default_if_none:"" }}</td>

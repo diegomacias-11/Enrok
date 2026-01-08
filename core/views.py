@@ -5,7 +5,7 @@ from django.contrib.auth import logout
 
 def inicio(request):
     if request.user.is_authenticated:
-        return redirect("dispersiones_lista")
+        return redirect("dispersiones_list")
     return redirect(settings.LOGIN_URL)
 
 

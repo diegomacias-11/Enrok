@@ -99,7 +99,7 @@ def agregar_dispersion(request):
     mes, anio, redir = _coerce_mes_anio(request)
     if redir and request.method != "POST":
         return redir
-    back_url = request.GET.get("next") or f"{reverse('dispersiones_lista')}?mes={mes}&anio={anio}"
+    back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
     is_ejecutivo = request.user.groups.filter(name__iexact="Ejecutivo").exists() if request.user.is_authenticated else False
 
     if request.method == "POST":
@@ -118,9 +118,9 @@ def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
     is_ejecutivo = request.user.groups.filter(name__iexact="Ejecutivo").exists() if request.user.is_authenticated else False
     if is_ejecutivo and not (disp.cliente.ejecutivo_id == request.user.id or disp.cliente.ejecutivos_apoyo.filter(id=request.user.id).exists()):
-        return redirect(reverse("dispersiones_lista"))
+        return redirect(reverse("dispersiones_list"))
     mes, anio, _ = _coerce_mes_anio(request)
-    back_url = request.GET.get("next") or f"{reverse('dispersiones_lista')}?mes={mes}&anio={anio}"
+    back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
     if request.method == "POST":
         form = DispersionForm(request.POST, instance=disp, mes=mes, anio=anio, user=request.user)
         if form.is_valid():
@@ -132,7 +132,7 @@ def editar_dispersion(request, id: int):
 
 
 def eliminar_dispersion(request, id: int):
-    back_url = request.POST.get("next") or request.GET.get("next") or reverse("dispersiones_lista")
+    back_url = request.POST.get("next") or request.GET.get("next") or reverse("dispersiones_list")
     disp = get_object_or_404(Dispersion, pk=id)
     disp.delete()
     return redirect(back_url)

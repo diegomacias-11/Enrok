@@ -97,7 +97,7 @@
   {% if cliente %}
     <button type="submit"
             class="btn-delete"
-            formaction="{% url 'eliminar_cliente' cliente.id %}"
+            formaction="{% url 'clientes_delete' cliente.id %}"
             formmethod="post"
             onclick="return confirm('¿Eliminar este cliente?');">
       Eliminar

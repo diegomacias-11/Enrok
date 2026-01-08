@@ -26,15 +26,15 @@
   </div>
   <div class="filter-row">
     <div></div>
-    <form action="{% url 'comisiones_lista' %}" method="get" class="filter-form-simple comisiones-filter">
+    <form action="{% url 'comisiones_list' %}" method="get" class="filter-form-simple comisiones-filter">
       <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
       <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
-      <a href="{% url 'comisiones_lista' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Volver</a>
+      <a href="{% url 'comisiones_list' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Volver</a>
     </form>
     <div class="actions">
       {% if comisionista %}
-        <a class="btn-primary" href="{% url 'comisiones_enviar_detalle' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Enviar reporte</a>
-        <a class="btn-primary" href="{% url 'comisiones_registrar_pago_by_id' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Registrar pago</a>
+        <a class="btn-primary" href="{% url 'comisiones_detail_send' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Enviar reporte</a>
+        <a class="btn-primary" href="{% url 'comisiones_pago_add_by_id' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Registrar pago</a>
       {% endif %}
     </div>
   </div>
@@ -101,7 +101,7 @@
                   <td>{{ p.monto|default_if_none:""|currency }}</td>
                   <td>{{ p.comentario|default_if_none:"" }}</td>
                   <td>
-                    <a class="btn-detalle" href="{% url 'comisiones_editar_pago' p.id %}?mes={{ mes }}&anio={{ anio }}">Editar</a>
+                    <a class="btn-detalle" href="{% url 'comisiones_pago_edit' p.id %}?mes={{ mes }}&anio={{ anio }}">Editar</a>
                   </td>
                 </tr>
                 {% empty %}

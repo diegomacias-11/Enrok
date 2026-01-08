@@ -22,7 +22,7 @@ def clientes_lista(request):
 
 
 def agregar_cliente(request):
-    back_url = request.GET.get("next") or reverse("clientes_lista")
+    back_url = request.GET.get("next") or reverse("clientes_list")
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST)
@@ -36,7 +36,7 @@ def agregar_cliente(request):
 
 def editar_cliente(request, id: int):
     cliente = get_object_or_404(Cliente, pk=id)
-    back_url = request.GET.get("next") or reverse("clientes_lista")
+    back_url = request.GET.get("next") or reverse("clientes_list")
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, instance=cliente)
@@ -50,7 +50,7 @@ def editar_cliente(request, id: int):
 
 
 def eliminar_cliente(request, id: int):
-    back_url = request.POST.get("next") or request.GET.get("next") or reverse("clientes_lista")
+    back_url = request.POST.get("next") or request.GET.get("next") or reverse("clientes_list")
     cliente = get_object_or_404(Cliente, pk=id)
     cliente.delete()
     return redirect(back_url)

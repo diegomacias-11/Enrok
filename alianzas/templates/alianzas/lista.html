@@ -3,7 +3,7 @@
 {% block title %}Alianzas{% endblock %}
 
 {% block filtros %}
-  <form action="{% url 'alianzas_lista' %}" method="get" class="filter-form-simple">
+  <form action="{% url 'alianzas_list' %}" method="get" class="filter-form-simple">
     <div class="filter-block">
       <label for="q">Alianza</label>
       <input type="text" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}">
@@ -11,10 +11,10 @@
     <span class="filter-separator" aria-hidden="true"></span>
     <div class="filter-actions">
       <button type="submit" class="btn-filter">Filtrar</button>
-      <a href="{% url 'alianzas_lista' %}" class="btn-filter">Limpiar</a>
+      <a href="{% url 'alianzas_list' %}" class="btn-filter">Limpiar</a>
     </div>
   </form>
-  <a href="{% url 'agregar_alianza' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva alianza</a>
+  <a href="{% url 'alianzas_add' %}?next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva alianza</a>
 {% endblock %}
 
 {% block tabla_head %}
@@ -30,7 +30,7 @@
   {% for alianza in alianzas %}
   <tr>
     <td class="sticky-1 col-actions">
-      <a class="btn-detalle" href="{% url 'editar_alianza' alianza.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
+      <a class="btn-detalle" href="{% url 'alianzas_edit' alianza.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
     </td>
     <td class="sticky-2">{{ alianza.nombre|default_if_none:"" }}</td>
     <td>{{ alianza.correo_electronico|default_if_none:"" }}</td>
