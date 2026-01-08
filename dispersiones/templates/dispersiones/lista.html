@@ -5,9 +5,9 @@
 
 {% block filtros %}
   <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
-  <form action="{% url 'dispersiones_lista' %}" method="get" class="filter-form-simple dispersiones-filter" style="gap:.75rem;flex-wrap:wrap;">
-    <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;">
-      <label for="mes" style="color:#fff;font-size:12px;font-weight:600;display:block;">Mes</label>
+  <form action="{% url 'dispersiones_lista' %}" method="get" class="filter-form-simple dispersiones-filter">
+    <div class="filter-block">
+      <label for="mes">Mes</label>
       <select id="mes" name="mes">
         {% if meses_choices %}
           {% for m, nombre in meses_choices %}
@@ -20,12 +20,14 @@
         {% endif %}
       </select>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
-      <label for="anio" style="color:#fff;font-size:12px;font-weight:600;display:block;">Año</label>
+    <span class="filter-separator" aria-hidden="true"></span>
+    <div class="filter-block">
+      <label for="anio">Año</label>
       <input type="number" id="anio" name="anio" value="{{ anio|default_if_none:'' }}" min="2000" max="2100">
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
-      <label for="f_cliente" style="color:#fff;font-size:12px;font-weight:600;display:block;">Cliente</label>
+    <span class="filter-separator" aria-hidden="true"></span>
+    <div class="filter-block">
+      <label for="f_cliente">Cliente</label>
       <select id="f_cliente" name="cliente">
         <option value="">Todos</option>
         {% for c in clientes %}
@@ -34,8 +36,9 @@
       </select>
     </div>
     {% if not is_ejecutivo %}
-      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
-        <label for="f_ejecutivo" style="color:#fff;font-size:12px;font-weight:600;display:block;">Ejecutivo</label>
+      <span class="filter-separator" aria-hidden="true"></span>
+      <div class="filter-block">
+        <label for="f_ejecutivo">Ejecutivo</label>
         <select id="f_ejecutivo" name="ejecutivo">
           <option value="">Todos</option>
           {% for id, name in ejecutivos %}
@@ -43,8 +46,9 @@
           {% endfor %}
         </select>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
-        <label for="f_apoyo" style="color:#fff;font-size:12px;font-weight:600;display:block;">Apoyo</label>
+      <span class="filter-separator" aria-hidden="true"></span>
+      <div class="filter-block">
+        <label for="f_apoyo">Apoyo</label>
         <select id="f_apoyo" name="apoyo">
           <option value="">Todos</option>
           {% for id, name in apoyos %}
@@ -52,8 +56,9 @@
           {% endfor %}
         </select>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
-        <label for="f_estatus_proceso" style="color:#fff;font-size:12px;font-weight:600;display:block;">Estatus proceso</label>
+      <span class="filter-separator" aria-hidden="true"></span>
+      <div class="filter-block">
+        <label for="f_estatus_proceso">Estatus proceso</label>
         <select id="f_estatus_proceso" name="estatus_proceso">
           <option value="">Todos</option>
           {% for val, label in estatus_proceso_choices %}
@@ -61,8 +66,9 @@
           {% endfor %}
         </select>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;padding:0 .5rem;border-left:1px solid #ffcf56;">
-        <label for="f_estatus_pago" style="color:#fff;font-size:12px;font-weight:600;display:block;">Estatus pago</label>
+      <span class="filter-separator" aria-hidden="true"></span>
+      <div class="filter-block">
+        <label for="f_estatus_pago">Estatus pago</label>
         <select id="f_estatus_pago" name="estatus_pago">
           <option value="">Todos</option>
           {% for val, label in estatus_pago_choices %}
@@ -71,8 +77,11 @@
         </select>
       </div>
     {% endif %}
-    <button type="submit" class="btn-filter">Filtrar</button>
-    <a href="{% url 'dispersiones_lista' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter" style="margin-left:.25rem;">Limpiar</a>
+    <span class="filter-separator" aria-hidden="true"></span>
+    <div class="filter-actions">
+      <button type="submit" class="btn-filter">Filtrar</button>
+      <a href="{% url 'dispersiones_lista' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
+    </div>
   </form>
   <a href="{% url 'agregar_dispersion' %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}" class="btn-primary">Nueva dispersión</a>
 {% endblock %}
