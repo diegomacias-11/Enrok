@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
 from .models import Dispersion
+from core.choices import ESTATUS_PROCESO_CHOICES, ESTATUS_PAGO_CHOICES
 from .forms import DispersionForm
 from clientes.models import Cliente
 
@@ -87,8 +88,8 @@ def dispersiones_lista(request):
         "f_cliente": cliente_id,
         "f_estatus_proceso": estatus_proceso if not is_ejecutivo else "",
         "f_estatus_pago": estatus_pago if not is_ejecutivo else "",
-        "estatus_proceso_choices": Dispersion.EstatusProceso.choices,
-        "estatus_pago_choices": Dispersion.EstatusPago.choices,
+        "estatus_proceso_choices": ESTATUS_PROCESO_CHOICES,
+        "estatus_pago_choices": ESTATUS_PAGO_CHOICES,
         "clientes": clientes_qs.order_by("razon_social"),
     }
     return render(request, "dispersiones/lista.html", context)

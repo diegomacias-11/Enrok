@@ -34,6 +34,7 @@ SERVICIO_CHOICES = [
     ("VP360", "VP360"),
     ("Préstamos", "Préstamos"),
     ("Reembolsos", "Reembolsos"),
+    ("Reclutamiento", "Reclutamiento"),
 ]
 
 VENDEDOR_CHOICES = [
@@ -77,4 +78,47 @@ LUGAR_CHOICES = [
     ("Oficina de Enrok", "Oficina de Enrok"),
     ("Oficina del cliente", "Oficina del cliente"),
     ("Zoom", "Zoom"),
+]
+
+
+AC_CHOICES = [
+    ("CONFEDIN", "CONFEDIN"),
+    ("CAMARENCE", "CAMARENCE"),
+    ("SERVIARUGA", "SERVIARUGA"),
+    ("ZAMORA", "ZAMORA"),
+    ("INACTIVO", "INACTIVO"),
+]
+
+ESTATUS_PROCESO_PENDIENTE = "Pendiente"
+ESTATUS_PROCESO_ENVIADA = "Enviada"
+ESTATUS_PROCESO_APLICADA = "Aplicada"
+
+ESTATUS_PROCESO_CHOICES = [
+    (ESTATUS_PROCESO_PENDIENTE, "Pendiente"),
+    (ESTATUS_PROCESO_ENVIADA, "Enviada"),
+    (ESTATUS_PROCESO_APLICADA, "Aplicada"),
+]
+
+ESTATUS_PERIODO_PENDIENTE = "Pendiente"
+ESTATUS_PERIODO_CERRADO = "Cerrado"
+ESTATUS_PERIODO_TIMBRADO = "Timbrado"
+ESTATUS_PERIODO_ENVIADO = "Enviado"
+ESTATUS_PERIODO_ENVIADO_IND = "Enviado ind."
+ESTATUS_PERIODO_DRIVE = "Drive"
+
+ESTATUS_PERIODO_CHOICES = [
+    (ESTATUS_PERIODO_PENDIENTE, "Pendiente"),
+    (ESTATUS_PERIODO_CERRADO, "Cerrado"),
+    (ESTATUS_PERIODO_TIMBRADO, "Timbrado"),
+    (ESTATUS_PERIODO_ENVIADO, "Enviado"),
+    (ESTATUS_PERIODO_ENVIADO_IND, "Enviado ind."),
+    (ESTATUS_PERIODO_DRIVE, "Drive"),
+]
+
+ESTATUS_PAGO_PENDIENTE = "Pendiente"
+ESTATUS_PAGO_PAGADO = "Pagado"
+
+ESTATUS_PAGO_CHOICES = [
+    (ESTATUS_PAGO_PENDIENTE, "Pendiente"),
+    (ESTATUS_PAGO_PAGADO, "Pagado"),
 ]

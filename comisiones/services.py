@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Optional, Tuple
 from django.utils import timezone
 from dispersiones.models import Dispersion
+from core.choices import ESTATUS_PAGO_PAGADO
 from .models import Comision
 
 
@@ -20,7 +21,7 @@ def _all_dispersions_paid(cliente_id: int, mes: int, anio: int) -> bool:
     total = qs.count()
     if total == 0:
         return False
-    return qs.filter(estatus_pago=Dispersion.EstatusPago.PAGADO).count() == total
+    return qs.filter(estatus_pago=ESTATUS_PAGO_PAGADO).count() == total
 
 
 def evaluar_liberacion_cliente_mes(cliente_id: int, mes: int, anio: int, today: Optional[date] = None) -> None:
@@ -63,7 +64,7 @@ def generar_comisiones_para_dispersion(instance: Dispersion) -> None:
     periodo_mes, periodo_anio = periodo_from_date(instance.fecha)
     liberable_desde = first_day_next_month(instance.fecha)
 
-    for i in range(1, 11):
+    for i in range(1, 13):
         com_field = f"comisionista{i}"
         pct_field = f"comision{i}"
         comisionista = getattr(cliente, com_field, None)

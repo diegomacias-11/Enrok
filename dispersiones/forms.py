@@ -4,6 +4,7 @@ from django import forms
 from django.db.models import Q
 from clientes.models import Cliente
 from .models import Dispersion
+from core.choices import ESTATUS_PAGO_PENDIENTE
 
 
 class DispersionForm(forms.ModelForm):
@@ -105,5 +106,5 @@ class DispersionForm(forms.ModelForm):
             if self.instance and getattr(self.instance, "pk", None):
                 cleaned["estatus_pago"] = self.instance.estatus_pago
             else:
-                cleaned["estatus_pago"] = self.fields["estatus_pago"].initial or Dispersion.EstatusPago.PENDIENTE
+                cleaned["estatus_pago"] = self.fields["estatus_pago"].initial or ESTATUS_PAGO_PENDIENTE
         return cleaned

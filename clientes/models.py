@@ -2,18 +2,10 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from alianzas.models import Alianza
+from core.choices import AC_CHOICES, SERVICIO_CHOICES
 
 
 class Cliente(models.Model):
-    class Servicio(models.TextChoices):
-        PROCOM = "PROCOM", "PROCOM"
-        MUTUALINK = "MUTUALINK", "Mutualink"
-        PRESTAMO = "PRESTAMO", "Prestamo"
-        PRAIDS = "PRAIDS", "PRAIDS"
-        MONEDEROS = "MONEDEROS", "Monederos"
-        HIDROCARBUROS = "HIDROCARBUROS", "Hidrocarburos"
-        VP360 = "VP360", "VP360"
-
     razon_social = models.CharField(max_length=200)
     ejecutivo = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -27,15 +19,8 @@ class Cliente(models.Model):
         blank=True,
         related_name="clientes_apoyo",
     )
-    class AC(models.TextChoices):
-        CONFEDIN = "CONFEDIN", "CONFEDIN"
-        CAMARENCE = "CAMARENCE", "CAMARENCE"
-        SERVIARUGA = "SERVIARUGA", "SERVIARUGA"
-        ZAMORA = "ZAMORA", "ZAMORA"
-        INACTIVO = "INACTIVO", "INACTIVO"
-
-    ac = models.CharField(max_length=20, choices=AC.choices, default=AC.CONFEDIN)
-    servicio = models.CharField(max_length=20, choices=Servicio.choices)
+    ac = models.CharField(max_length=20, choices=AC_CHOICES, default="CONFEDIN")
+    servicio = models.CharField(max_length=20, choices=SERVICIO_CHOICES)
     # Comision global por servicio (0..1 almacenado)
     # Permite alta precision (hasta 6 decimales tras convertir a fraccion)
     comision_servicio = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
