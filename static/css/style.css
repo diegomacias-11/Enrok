@@ -120,20 +120,9 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-x: hidden;
-  
-}
-
-.page-scroll-x {
   overflow-x: auto;
-  overflow-y: visible;
-  padding-bottom: calc(var(--h-scrollbar-height) + 6px);
-}
-.page-scroll-x::-webkit-scrollbar {
-  height: 0;
-}
-.page-scroll-x {
-  scrollbar-width: none;
+  padding-bottom: var(--h-scrollbar-height);
+  
 }
 
 .h-scrollbar {

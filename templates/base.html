@@ -12,33 +12,31 @@
 <body>
   {% include 'includes/header.html' %}
 
-  <div class="page-scroll-x" id="page-scroll-x">
-    <main>
-      {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-      {% block content %}{% endblock %}
-    </main>
-  </div>
+  <main>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
   <div class="h-scrollbar" id="h-scrollbar" aria-hidden="true">
     <div class="h-scrollbar-inner" id="h-scrollbar-inner"></div>
   </div>
   <script>
     (function () {
-      var pageScroll = document.getElementById("page-scroll-x");
       var bar = document.getElementById("h-scrollbar");
       var barInner = document.getElementById("h-scrollbar-inner");
-      if (!pageScroll || !bar || !barInner) {
+      if (!bar || !barInner) {
         return;
       }
       var syncing = false;
+      var doc = document.documentElement;
       function updateBar() {
-        var contentWidth = pageScroll.scrollWidth;
-        var viewportWidth = pageScroll.clientWidth;
+        var contentWidth = doc.scrollWidth;
+        var viewportWidth = doc.clientWidth;
         barInner.style.width = contentWidth + "px";
         if (contentWidth > viewportWidth + 1) {
           bar.style.display = "block";
@@ -47,12 +45,12 @@
           bar.scrollLeft = 0;
         }
       }
-      pageScroll.addEventListener("scroll", function () {
+      window.addEventListener("scroll", function () {
         if (syncing) {
           return;
         }
         syncing = true;
-        bar.scrollLeft = pageScroll.scrollLeft;
+        bar.scrollLeft = doc.scrollLeft;
         syncing = false;
       });
       bar.addEventListener("scroll", function () {
@@ -60,13 +58,13 @@
           return;
         }
         syncing = true;
-        pageScroll.scrollLeft = bar.scrollLeft;
+        window.scrollTo({ left: bar.scrollLeft, top: window.scrollY });
         syncing = false;
       });
       if (typeof ResizeObserver !== "undefined") {
         var ro = new ResizeObserver(updateBar);
-        ro.observe(pageScroll);
         ro.observe(document.body);
+        ro.observe(doc);
       }
       window.addEventListener("load", updateBar);
       window.addEventListener("resize", updateBar);
