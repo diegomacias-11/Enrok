@@ -109,6 +109,12 @@ class GroupPermissionMiddleware(MiddlewareMixin):
         user = getattr(request, "user", None)
         if not user or not user.is_authenticated:
             return None
+        if user.is_superuser:
+            return None
+
+        path = request.path or ""
+        if path.startswith("/admin"):
+            return None
 
         resolver = getattr(request, "resolver_match", None)
         if not resolver or not resolver.url_name:
