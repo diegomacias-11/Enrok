@@ -6,9 +6,6 @@ from core.choices import (
     ESTATUS_PROCESO_CHOICES,
     ESTATUS_PERIODO_CHOICES,
     ESTATUS_PAGO_CHOICES,
-    ESTATUS_PROCESO_PENDIENTE,
-    ESTATUS_PERIODO_PENDIENTE,
-    ESTATUS_PAGO_PENDIENTE,
 )
 
 class Dispersion(models.Model):
@@ -21,11 +18,11 @@ class Dispersion(models.Model):
     comision_porcentaje = models.DecimalField(max_digits=7, decimal_places=4, editable=False)
     monto_comision = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     num_factura_honorarios = models.CharField(max_length=100, blank=True, null=True)
-    estatus_proceso = models.CharField(max_length=20, choices=ESTATUS_PROCESO_CHOICES, default=ESTATUS_PROCESO_PENDIENTE)
+    estatus_proceso = models.CharField(max_length=20, choices=ESTATUS_PROCESO_CHOICES, default="Pendiente")
     comentarios = models.CharField(max_length=255, blank=True, null=True)
     num_periodo = models.CharField(max_length=50, blank=True, null=True)
-    estatus_periodo = models.CharField(max_length=20, choices=ESTATUS_PERIODO_CHOICES, default=ESTATUS_PERIODO_PENDIENTE)
-    estatus_pago = models.CharField(max_length=20, choices=ESTATUS_PAGO_CHOICES, default=ESTATUS_PAGO_PENDIENTE)
+    estatus_periodo = models.CharField(max_length=20, choices=ESTATUS_PERIODO_CHOICES, default="Pendiente")
+    estatus_pago = models.CharField(max_length=20, choices=ESTATUS_PAGO_CHOICES, default="Pendiente")
 
     def __str__(self):
         return f"{self.cliente} - {self.facturadora} - {self.fecha}"

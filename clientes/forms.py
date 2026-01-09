@@ -41,6 +41,8 @@ class ClienteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
+        if "ac" in self.fields:
+            self.fields["ac"].empty_label = "---------"
         if "ejecutivo" in self.fields:
             try:
                 grupo = auth_models.Group.objects.get(name__iexact="Ejecutivo")

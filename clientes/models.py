@@ -19,7 +19,7 @@ class Cliente(models.Model):
         blank=True,
         related_name="clientes_apoyo",
     )
-    ac = models.CharField(max_length=20, choices=AC_CHOICES, default="CONFEDIN")
+    ac = models.CharField(max_length=20, choices=AC_CHOICES, null=True, blank=True)
     servicio = models.CharField(max_length=50, choices=SERVICIO_CHOICES)
     # Comision global por servicio (0..1 almacenado)
     # Permite alta precision (hasta 6 decimales tras convertir a fraccion)
