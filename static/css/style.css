@@ -116,14 +116,18 @@
 html,
 body {
   background-color: #ffffff;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block;
   height: 100%;
   overflow-x: hidden;
   
 }
-
+body {
+  display: block;
+  font-size: 0;
+  line-height: 0;
+}
 
 @media print {
   
@@ -148,6 +152,10 @@ body {
 .main-header {
   background-color: #003b71;
   margin: 0;
+  position: static;
+  width: 100%;
+  font-size: 1rem;
+  line-height: normal;
   font-weight: 900;
   font-style: normal;
   color: #d2dee3;
@@ -155,6 +163,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   box-shadow: 0 4px 10px #355f9b;
@@ -250,10 +259,12 @@ body {
 }
 
 main {
-  margin: .5rem;
+  margin: 0.25rem .5rem .5rem;
   display: flex;
   flex-direction: column;
   flex: 1;
+  font-size: 1rem;
+  line-height: normal;
 }
 
 
