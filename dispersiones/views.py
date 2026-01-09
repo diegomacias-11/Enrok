@@ -15,6 +15,8 @@ User = get_user_model()
 def _user_in_groups(user, names):
     if not user or not user.is_authenticated:
         return False
+    if getattr(user, "is_superuser", False):
+        return False
     return any(user.groups.filter(name__iexact=name).exists() for name in names)
 
 

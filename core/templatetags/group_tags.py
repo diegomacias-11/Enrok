@@ -10,4 +10,6 @@ def has_group(user, group_name: str) -> bool:
     """
     if not getattr(user, "is_authenticated", False):
         return False
+    if getattr(user, "is_superuser", False):
+        return True
     return user.groups.filter(name__iexact=group_name).exists()

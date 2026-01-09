@@ -11,11 +11,15 @@ from decimal import Decimal
 def _is_ejecutivo_restringido(user):
     if not user or not user.is_authenticated:
         return False
+    if getattr(user, "is_superuser", False):
+        return False
     return user.groups.filter(name__iexact="Ejecutivo Jr").exists() or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
 
 
 def _is_ejecutivo_permisos(user):
     if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
         return False
     return (
         user.groups.filter(name__iexact="Ejecutivo Jr").exists()
