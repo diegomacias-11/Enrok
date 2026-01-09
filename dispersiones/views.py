@@ -57,7 +57,7 @@ def dispersiones_lista(request):
         return redir
 
     dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
 
     cliente_id = request.GET.get("cliente") or ""
     if is_ejecutivo:
@@ -135,7 +135,7 @@ def agregar_dispersion(request):
     if redir and request.method != "POST":
         return redir
     back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
 
     if request.method == "POST":
         mes = int(request.POST.get("mes") or mes or datetime.now().month)
@@ -151,7 +151,7 @@ def agregar_dispersion(request):
 
 def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
     if is_ejecutivo and not (
         disp.cliente.ejecutivo_id == request.user.id
         or disp.cliente.ejecutivo2_id == request.user.id

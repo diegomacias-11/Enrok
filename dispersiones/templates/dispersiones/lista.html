@@ -97,6 +97,7 @@
     <th>Monto dispersión</th>
     <th>Comisión (%)</th>
     <th>Monto comisión</th>
+    <th>Comisión + IVA</th>
     <th>No. factura honorarios</th>
     {% if not is_ejecutivo %}
     <th>Ejecutivo</th>
@@ -121,15 +122,16 @@
       <td>{{ d.monto_dispersion|currency }}</td>
       <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
       <td>{{ d.monto_comision|currency }}</td>
+      <td>{{ d.monto_comision_iva|currency }}</td>
       <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
       {% if not is_ejecutivo %}
       <td>
-        {% with e1=d.cliente.ejecutivo e2=d.cliente.ejecutivo2 %}
+        {% with e1=d.ejecutivo e2=d.ejecutivo2 %}
           {% if e1 %}{{ e1.get_full_name|default:e1.username }}{% endif %}
           {% if e2 %}{% if e1 %} / {% endif %}{{ e2.get_full_name|default:e2.username }}{% endif %}
         {% endwith %}
       </td>
-      <td>{{ d.cliente.ejecutivos_apoyo.all|join:", " }}</td>
+      <td>{% with ap=d.ejecutivo_apoyo %}{% if ap %}{{ ap.get_full_name|default:ap.username }}{% endif %}{% endwith %}</td>
       {% endif %}
       <td>{{ d.estatus_proceso|default_if_none:"" }}</td>
       <td>{{ d.estatus_periodo|default_if_none:"" }}</td>
@@ -137,6 +139,6 @@
       <td>{{ d.comentarios|default_if_none:"" }}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="{% if not is_ejecutivo %}16{% else %}14{% endif %}">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if not is_ejecutivo %}17{% else %}15{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}

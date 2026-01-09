@@ -22,38 +22,49 @@
 
       <label for="{{ form.cliente.id_for_label }}">Cliente</label>
       {{ form.cliente|default_if_none:"" }}
-      {% if cliente_info %}
-        <div class="form-hint">
-          <div><strong>AC:</strong> {{ cliente_info.ac|default_if_none:"" }}</div>
-          <div><strong>Servicio:</strong> {{ cliente_info.servicio|default_if_none:"" }}</div>
-          <div><strong>Ejecutivo:</strong> {{ cliente_info.ejecutivo|default_if_none:"" }}</div>
-          {% if cliente_info.ejecutivo2 %}
-          <div><strong>Ejecutivo 2:</strong> {{ cliente_info.ejecutivo2|default_if_none:"" }}</div>
-          {% endif %}
-          <div><strong>Apoyos:</strong> {% if cliente_info.apoyos %}{{ cliente_info.apoyos|join:", " }}{% endif %}</div>
-          <div><strong>Comisión servicio:</strong> {{ cliente_info.comision_servicio|default_if_none:"" }}</div>
-        </div>
-      {% endif %}
+
+      <label>Servicio</label>
+      <input type="text" id="cliente-servicio" value="{{ cliente_info.servicio|default_if_none:'' }}" disabled>
+
+      <label>Comisión servicio</label>
+      <input type="text" id="cliente-comision" value="{{ cliente_info.comision_servicio|default_if_none:'' }}" disabled>
+
+      <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
+      {{ form.ejecutivo|default_if_none:"" }}
+
+      <label for="{{ form.ejecutivo2.id_for_label }}">Ejecutivo 2</label>
+      {{ form.ejecutivo2|default_if_none:"" }}
+
+      <label for="{{ form.ejecutivo_apoyo.id_for_label }}">Ejecutivo de apoyo</label>
+      {{ form.ejecutivo_apoyo|default_if_none:"" }}
 
       <label for="{{ form.comentarios.id_for_label }}">Comentarios</label>
       {{ form.comentarios|default_if_none:"" }}
     </div>
 
     <div class="form-col">
+      <label for="{{ form.num_periodo.id_for_label }}">No. periodo</label>
+      {{ form.num_periodo|default_if_none:"" }}
+
       <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
       <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
 
-      <label for="{{ form.facturadora.id_for_label }}">Facturadora</label>
-      {{ form.facturadora|default_if_none:"" }}
+      {% if dispersion %}
+      <label for="{{ form.monto_comision_iva.id_for_label }}">Comisión + IVA</label>
+      <div class="input-currency">{{ form.monto_comision_iva|default_if_none:"" }}</div>
+      {% endif %}
+
+      <label for="{{ form.ac.id_for_label }}">AC</label>
+      <input type="text" id="cliente-ac" value="{{ cliente_info.ac|default_if_none:'' }}" disabled>
 
       <label for="{{ form.num_factura.id_for_label }}">No. factura</label>
       {{ form.num_factura|default_if_none:"" }}
 
+      <label for="{{ form.facturadora.id_for_label }}">Facturadora</label>
+      {{ form.facturadora|default_if_none:"" }}
+
       <label for="{{ form.num_factura_honorarios.id_for_label }}">No. factura honorarios</label>
       {{ form.num_factura_honorarios|default_if_none:"" }}
-
-      <label for="{{ form.num_periodo.id_for_label }}">No. periodo</label>
-      {{ form.num_periodo|default_if_none:"" }}
     </div>
 
     <div class="form-col">
@@ -79,4 +90,38 @@
       Eliminar
     </button>
   {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    (function () {
+      var clienteSelect = document.getElementById("{{ form.cliente.id_for_label }}");
+      if (!clienteSelect) {
+        return;
+      }
+      var acInput = document.getElementById("cliente-ac");
+      var servicioInput = document.getElementById("cliente-servicio");
+      var comisionInput = document.getElementById("cliente-comision");
+      var ejecutivoSelect = document.getElementById("{{ form.ejecutivo.id_for_label }}");
+      var ejecutivo2Select = document.getElementById("{{ form.ejecutivo2.id_for_label }}");
+      var apoyoSelect = document.getElementById("{{ form.ejecutivo_apoyo.id_for_label }}");
+
+      function applyFromSelected() {
+        var opt = clienteSelect.options[clienteSelect.selectedIndex];
+        if (!opt) {
+          return;
+        }
+        var data = opt.dataset || {};
+        if (acInput) acInput.value = data.ac || "";
+        if (servicioInput) servicioInput.value = data.servicio || "";
+        if (comisionInput) comisionInput.value = data.comision || "";
+        if (ejecutivoSelect) ejecutivoSelect.value = data.ejecutivoId || "";
+        if (ejecutivo2Select) ejecutivo2Select.value = data.ejecutivo2Id || "";
+        if (apoyoSelect) apoyoSelect.value = data.apoyoId || "";
+      }
+
+      clienteSelect.addEventListener("change", applyFromSelected);
+      applyFromSelected();
+    })();
+  </script>
 {% endblock %}

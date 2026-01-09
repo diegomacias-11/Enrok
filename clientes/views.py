@@ -28,10 +28,6 @@ def clientes_lista(request):
     q = (request.GET.get("q") or "").strip()
     servicio = (request.GET.get("servicio") or "").strip()
     qs = Cliente.objects.all()
-    if _is_ejecutivo_restringido(request.user):
-        qs = qs.filter(
-            Q(ejecutivo=request.user) | Q(ejecutivo2=request.user) | Q(ejecutivos_apoyo=request.user)
-        ).distinct()
     if q:
         qs = qs.filter(razon_social__icontains=q)
     if servicio:

@@ -30,6 +30,12 @@ AC_CHOICES = [
     ("INACTIVO", "INACTIVO"),
 ]
 
+FACTURADORA_CHOICES = [
+    ("Anmara", "Anmara"),
+    ("Morwell", "Morwell"),
+    ("Onopko", "Onopko"),
+]
+
 ESTATUS_PROCESO_CHOICES = [
     ("Pendiente", "Pendiente"),
     ("Enviada", "Enviada"),
