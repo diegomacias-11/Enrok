@@ -94,7 +94,9 @@ class DispersionForm(forms.ModelForm):
         self.cliente_info = None
         User = get_user_model()
 
-        if "cliente" in self.fields and self._is_ejecutivo and not (self.user and self.user.is_superuser):
+        if "cliente" in self.fields and self.user and self.user.is_superuser:
+            self.fields["cliente"].queryset = Cliente.objects.all()
+        elif "cliente" in self.fields and self._is_ejecutivo:
             allowed = Cliente.objects.filter(
                 Q(ejecutivo=self.user) | Q(ejecutivo2=self.user) | Q(ejecutivos_apoyo=self.user)
             ).distinct()
