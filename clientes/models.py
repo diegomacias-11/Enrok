@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from alianzas.models import Alianza
@@ -13,6 +13,13 @@ class Cliente(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="clientes_ejecutivo",
+    )
+    ejecutivo2 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="clientes_ejecutivo2",
     )
     ejecutivos_apoyo = models.ManyToManyField(
         settings.AUTH_USER_MODEL,

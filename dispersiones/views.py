@@ -1,11 +1,34 @@
-from datetime import datetime
+﻿from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
+from django.contrib.auth import get_user_model, models as auth_models
 from .models import Dispersion
 from core.choices import ESTATUS_PROCESO_CHOICES, ESTATUS_PAGO_CHOICES
 from .forms import DispersionForm
 from clientes.models import Cliente
+
+
+User = get_user_model()
+
+
+def _user_in_groups(user, names):
+    if not user or not user.is_authenticated:
+        return False
+    return any(user.groups.filter(name__iexact=name).exists() for name in names)
+
+
+def _users_in_group(name: str):
+    try:
+        grupo = auth_models.Group.objects.get(name__iexact=name)
+    except auth_models.Group.DoesNotExist:
+        return User.objects.none()
+    return grupo.user_set.all()
+
+
+def _label_user(u):
+    name = f"{getattr(u, 'first_name', '')} {getattr(u, 'last_name', '')}".strip()
+    return name or getattr(u, "username", "")
 
 
 def _coerce_mes_anio(request):
@@ -34,17 +57,21 @@ def dispersiones_lista(request):
         return redir
 
     dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
-    is_ejecutivo = request.user.groups.filter(name__iexact="Ejecutivo").exists() if request.user.is_authenticated else False
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"])
 
     cliente_id = request.GET.get("cliente") or ""
     if is_ejecutivo:
         dispersiones = dispersiones.filter(
-            Q(cliente__ejecutivo=request.user) | Q(cliente__ejecutivos_apoyo=request.user)
+            Q(cliente__ejecutivo=request.user)
+            | Q(cliente__ejecutivo2=request.user)
+            | Q(cliente__ejecutivos_apoyo=request.user)
         ).distinct()
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         clientes_qs = Cliente.objects.filter(
-            Q(ejecutivo=request.user) | Q(ejecutivos_apoyo=request.user)
+            Q(ejecutivo=request.user)
+            | Q(ejecutivo2=request.user)
+            | Q(ejecutivos_apoyo=request.user)
         ).distinct()
         ejecutivo_id = apoyo_id = estatus_proceso = estatus_pago = ""
     else:
@@ -53,7 +80,9 @@ def dispersiones_lista(request):
         estatus_proceso = request.GET.get("estatus_proceso") or ""
         estatus_pago = request.GET.get("estatus_pago") or ""
         if ejecutivo_id:
-            dispersiones = dispersiones.filter(cliente__ejecutivo_id=ejecutivo_id)
+            dispersiones = dispersiones.filter(
+                Q(cliente__ejecutivo_id=ejecutivo_id) | Q(cliente__ejecutivo2_id=ejecutivo_id)
+            )
         if apoyo_id:
             dispersiones = dispersiones.filter(cliente__ejecutivos_apoyo__id=apoyo_id)
         if cliente_id:
@@ -71,8 +100,14 @@ def dispersiones_lista(request):
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ]
     meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
-    ejecutivos = Cliente.objects.values_list("ejecutivo_id", "ejecutivo__username").exclude(ejecutivo_id=None).distinct()
-    apoyos = Cliente.objects.values_list("ejecutivos_apoyo__id", "ejecutivos_apoyo__username").exclude(ejecutivos_apoyo__id=None).distinct()
+    ejecutivos = [
+        (u.id, _label_user(u))
+        for u in _users_in_group("Ejecutivo Jr").order_by("username")
+    ]
+    apoyos = [
+        (u.id, _label_user(u))
+        for u in _users_in_group("Ejecutivo Apoyo").order_by("username")
+    ]
     context = {
         "dispersiones": dispersiones,
         "mes": str(mes),
@@ -100,7 +135,7 @@ def agregar_dispersion(request):
     if redir and request.method != "POST":
         return redir
     back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
-    is_ejecutivo = request.user.groups.filter(name__iexact="Ejecutivo").exists() if request.user.is_authenticated else False
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"])
 
     if request.method == "POST":
         mes = int(request.POST.get("mes") or mes or datetime.now().month)
@@ -116,8 +151,12 @@ def agregar_dispersion(request):
 
 def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
-    is_ejecutivo = request.user.groups.filter(name__iexact="Ejecutivo").exists() if request.user.is_authenticated else False
-    if is_ejecutivo and not (disp.cliente.ejecutivo_id == request.user.id or disp.cliente.ejecutivos_apoyo.filter(id=request.user.id).exists()):
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"])
+    if is_ejecutivo and not (
+        disp.cliente.ejecutivo_id == request.user.id
+        or disp.cliente.ejecutivo2_id == request.user.id
+        or disp.cliente.ejecutivos_apoyo.filter(id=request.user.id).exists()
+    ):
         return redirect(reverse("dispersiones_list"))
     mes, anio, _ = _coerce_mes_anio(request)
     back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"

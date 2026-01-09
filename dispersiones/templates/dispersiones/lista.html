@@ -1,4 +1,4 @@
-{% extends "lista.html" %}
+﻿{% extends "lista.html" %}
 {% load cliente_extras %}
 
 {% block title %}Dispersiones{% endblock %}
@@ -123,7 +123,12 @@
       <td>{{ d.monto_comision|currency }}</td>
       <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
       {% if not is_ejecutivo %}
-      <td>{{ d.cliente.ejecutivo|default_if_none:"" }}</td>
+      <td>
+        {% with e1=d.cliente.ejecutivo e2=d.cliente.ejecutivo2 %}
+          {% if e1 %}{{ e1.get_full_name|default:e1.username }}{% endif %}
+          {% if e2 %}{% if e1 %} / {% endif %}{{ e2.get_full_name|default:e2.username }}{% endif %}
+        {% endwith %}
+      </td>
       <td>{{ d.cliente.ejecutivos_apoyo.all|join:", " }}</td>
       {% endif %}
       <td>{{ d.estatus_proceso|default_if_none:"" }}</td>

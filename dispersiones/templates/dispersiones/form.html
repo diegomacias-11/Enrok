@@ -1,4 +1,4 @@
-{% extends "form.html" %}
+﻿{% extends "form.html" %}
 
 {% block form_container_classes %}dispersiones-form{% endblock %}
 
@@ -27,6 +27,9 @@
           <div><strong>AC:</strong> {{ cliente_info.ac|default_if_none:"" }}</div>
           <div><strong>Servicio:</strong> {{ cliente_info.servicio|default_if_none:"" }}</div>
           <div><strong>Ejecutivo:</strong> {{ cliente_info.ejecutivo|default_if_none:"" }}</div>
+          {% if cliente_info.ejecutivo2 %}
+          <div><strong>Ejecutivo 2:</strong> {{ cliente_info.ejecutivo2|default_if_none:"" }}</div>
+          {% endif %}
           <div><strong>Apoyos:</strong> {% if cliente_info.apoyos %}{{ cliente_info.apoyos|join:", " }}{% endif %}</div>
           <div><strong>Comisión servicio:</strong> {{ cliente_info.comision_servicio|default_if_none:"" }}</div>
         </div>

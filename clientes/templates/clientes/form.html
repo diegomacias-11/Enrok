@@ -1,4 +1,4 @@
-{% extends "form.html" %}
+﻿{% extends "form.html" %}
 
 {% block form_container_classes %}clientes-form{% endblock %}
 
@@ -35,7 +35,10 @@
       <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
       {{ form.ejecutivo }}
 
-      <label for="{{ form.ejecutivos_apoyo.id_for_label }}">Ejecutivos de apoyo</label>
+      <label for="{{ form.ejecutivo2.id_for_label }}">Ejecutivo 2</label>
+      {{ form.ejecutivo2 }}
+
+      <label for="{{ form.ejecutivos_apoyo.id_for_label }}">Ejecutivo de apoyo</label>
       {{ form.ejecutivos_apoyo }}
     </div>
   </div>

@@ -1,9 +1,16 @@
-from calendar import monthrange
+﻿from calendar import monthrange
 from decimal import Decimal
 from django import forms
 from django.db.models import Q
 from clientes.models import Cliente
 from .models import Dispersion
+
+
+def _is_ejecutivo_restringido(user):
+    if not user or not user.is_authenticated:
+        return False
+    return user.groups.filter(name__iexact="Ejecutivo Jr").exists() or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
+
 
 class DispersionForm(forms.ModelForm):
     class Meta:
@@ -31,21 +38,19 @@ class DispersionForm(forms.ModelForm):
         self.anio = kwargs.pop("anio", None)
         super().__init__(*args, **kwargs)
 
-        self._is_ejecutivo = False
-        if self.user and hasattr(self.user, "groups"):
-            self._is_ejecutivo = self.user.groups.filter(name__iexact="Ejecutivo").exists()
+        self._is_ejecutivo = _is_ejecutivo_restringido(self.user)
         self.cliente_info = None
 
         if "cliente" in self.fields and self._is_ejecutivo:
             allowed = Cliente.objects.filter(
-                Q(ejecutivo=self.user) | Q(ejecutivos_apoyo=self.user)
+                Q(ejecutivo=self.user) | Q(ejecutivo2=self.user) | Q(ejecutivos_apoyo=self.user)
             ).distinct()
             self.fields["cliente"].queryset = allowed
 
         if "cliente" in self.fields:
             self.fields["cliente"].label_from_instance = (
-                lambda obj: f"{getattr(obj, 'razon_social', '')} – "
-                            f"{getattr(obj, 'get_servicio_display', lambda: getattr(obj,'servicio',''))()}"
+                lambda obj: f"{getattr(obj, 'razon_social', '')} - "
+                            f"{getattr(obj, 'get_servicio_display', lambda: getattr(obj, 'servicio', ''))()}"
             )
 
         cliente_obj = None
@@ -66,6 +71,7 @@ class DispersionForm(forms.ModelForm):
                 "ac": cliente_obj.get_ac_display() if hasattr(cliente_obj, "get_ac_display") else "",
                 "servicio": getattr(cliente_obj, "get_servicio_display", lambda: getattr(cliente_obj, "servicio", ""))(),
                 "ejecutivo": getattr(cliente_obj, "ejecutivo", None),
+                "ejecutivo2": getattr(cliente_obj, "ejecutivo2", None),
                 "apoyos": list(cliente_obj.ejecutivos_apoyo.all()) if hasattr(cliente_obj, "ejecutivos_apoyo") else [],
                 "comision_servicio": pct_display,
             }

@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404
+﻿from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.db.models import Q
 from .models import Cliente
 from core.choices import SERVICIO_CHOICES
 from .forms import ClienteForm
@@ -7,10 +8,20 @@ from django.contrib import messages
 from decimal import Decimal
 
 
+def _is_ejecutivo_restringido(user):
+    if not user or not user.is_authenticated:
+        return False
+    return user.groups.filter(name__iexact="Ejecutivo Jr").exists() or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
+
+
 def clientes_lista(request):
     q = (request.GET.get("q") or "").strip()
     servicio = (request.GET.get("servicio") or "").strip()
     qs = Cliente.objects.all()
+    if _is_ejecutivo_restringido(request.user):
+        qs = qs.filter(
+            Q(ejecutivo=request.user) | Q(ejecutivo2=request.user) | Q(ejecutivos_apoyo=request.user)
+        ).distinct()
     if q:
         qs = qs.filter(razon_social__icontains=q)
     if servicio:
@@ -23,7 +34,7 @@ def clientes_lista(request):
 
 def agregar_cliente(request):
     back_url = request.GET.get("next") or reverse("clientes_list")
-    is_ejecutivo = request.user.is_authenticated and request.user.groups.filter(name__iexact="Ejecutivo").exists()
+    is_ejecutivo = _is_ejecutivo_restringido(request.user)
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, user=request.user)
@@ -38,7 +49,7 @@ def agregar_cliente(request):
 def editar_cliente(request, id: int):
     cliente = get_object_or_404(Cliente, pk=id)
     back_url = request.GET.get("next") or reverse("clientes_list")
-    is_ejecutivo = request.user.is_authenticated and request.user.groups.filter(name__iexact="Ejecutivo").exists()
+    is_ejecutivo = _is_ejecutivo_restringido(request.user)
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, instance=cliente, user=request.user)
@@ -47,7 +58,6 @@ def editar_cliente(request, id: int):
             return redirect(back_url)
     else:
         form = ClienteForm(instance=cliente, user=request.user)
-        # Quitar advertencia en GET: ahora la validación se hace en el formulario y bloquea guardado
     return render(request, "clientes/form.html", {"form": form, "cliente": cliente, "back_url": back_url, "is_ejecutivo": is_ejecutivo})
 
 
