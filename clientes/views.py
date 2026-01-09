@@ -14,6 +14,16 @@ def _is_ejecutivo_restringido(user):
     return user.groups.filter(name__iexact="Ejecutivo Jr").exists() or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
 
 
+def _is_ejecutivo_permisos(user):
+    if not user or not user.is_authenticated:
+        return False
+    return (
+        user.groups.filter(name__iexact="Ejecutivo Jr").exists()
+        or user.groups.filter(name__iexact="Ejecutivo Sr").exists()
+        or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
+    )
+
+
 def clientes_lista(request):
     q = (request.GET.get("q") or "").strip()
     servicio = (request.GET.get("servicio") or "").strip()
@@ -34,7 +44,7 @@ def clientes_lista(request):
 
 def agregar_cliente(request):
     back_url = request.GET.get("next") or reverse("clientes_list")
-    is_ejecutivo = _is_ejecutivo_restringido(request.user)
+    is_ejecutivo = _is_ejecutivo_permisos(request.user)
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, user=request.user)
@@ -49,7 +59,7 @@ def agregar_cliente(request):
 def editar_cliente(request, id: int):
     cliente = get_object_or_404(Cliente, pk=id)
     back_url = request.GET.get("next") or reverse("clientes_list")
-    is_ejecutivo = _is_ejecutivo_restringido(request.user)
+    is_ejecutivo = _is_ejecutivo_permisos(request.user)
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, instance=cliente, user=request.user)

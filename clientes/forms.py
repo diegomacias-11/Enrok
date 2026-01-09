@@ -98,7 +98,7 @@ class ClienteForm(forms.ModelForm):
             self.fields["comision_servicio"].required = False
             self.fields["comision_servicio"].disabled = True
 
-        if _user_in_groups(self.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"]):
+        if _user_in_groups(self.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"]):
             for field in self.fields.values():
                 field.disabled = True
                 field.required = False
