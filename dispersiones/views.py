@@ -58,6 +58,8 @@ def dispersiones_lista(request):
 
     dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    if request.user.is_authenticated and request.user.is_superuser:
+        is_ejecutivo = False
 
     cliente_id = request.GET.get("cliente") or ""
     if is_ejecutivo:
@@ -65,6 +67,9 @@ def dispersiones_lista(request):
             Q(cliente__ejecutivo=request.user)
             | Q(cliente__ejecutivo2=request.user)
             | Q(cliente__ejecutivos_apoyo=request.user)
+            | Q(ejecutivo=request.user)
+            | Q(ejecutivo2=request.user)
+            | Q(ejecutivo_apoyo=request.user)
         ).distinct()
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
@@ -72,6 +77,9 @@ def dispersiones_lista(request):
             Q(ejecutivo=request.user)
             | Q(ejecutivo2=request.user)
             | Q(ejecutivos_apoyo=request.user)
+            | Q(dispersion__ejecutivo=request.user)
+            | Q(dispersion__ejecutivo2=request.user)
+            | Q(dispersion__ejecutivo_apoyo=request.user)
         ).distinct()
         ejecutivo_id = apoyo_id = estatus_proceso = estatus_pago = ""
     else:
@@ -136,6 +144,8 @@ def agregar_dispersion(request):
         return redir
     back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    if request.user.is_authenticated and request.user.is_superuser:
+        is_ejecutivo = False
 
     if request.method == "POST":
         mes = int(request.POST.get("mes") or mes or datetime.now().month)
@@ -152,10 +162,15 @@ def agregar_dispersion(request):
 def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    if request.user.is_authenticated and request.user.is_superuser:
+        is_ejecutivo = False
     if is_ejecutivo and not (
         disp.cliente.ejecutivo_id == request.user.id
         or disp.cliente.ejecutivo2_id == request.user.id
         or disp.cliente.ejecutivos_apoyo.filter(id=request.user.id).exists()
+        or disp.ejecutivo_id == request.user.id
+        or disp.ejecutivo2_id == request.user.id
+        or disp.ejecutivo_apoyo_id == request.user.id
     ):
         return redirect(reverse("dispersiones_list"))
     mes, anio, _ = _coerce_mes_anio(request)
