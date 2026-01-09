@@ -39,6 +39,7 @@ class ClienteForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         if "ejecutivo" in self.fields:
             try:
@@ -67,6 +68,11 @@ class ClienteForm(forms.ModelForm):
         if "comision_servicio" in self.fields:
             self.fields["comision_servicio"].required = False
             self.fields["comision_servicio"].disabled = True
+        if self.user and hasattr(self.user, "groups"):
+            if self.user.groups.filter(name__iexact="Ejecutivo").exists():
+                for field in self.fields.values():
+                    field.disabled = True
+                    field.required = False
         if self.instance and getattr(self.instance, "pk", None) and not self.is_bound:
             for i in range(1, 13):
                 key = f"comision{i}"

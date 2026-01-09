@@ -23,30 +23,32 @@ def clientes_lista(request):
 
 def agregar_cliente(request):
     back_url = request.GET.get("next") or reverse("clientes_list")
+    is_ejecutivo = request.user.is_authenticated and request.user.groups.filter(name__iexact="Ejecutivo").exists()
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
-        form = ClienteForm(request.POST)
+        form = ClienteForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
             return redirect(back_url)
     else:
-        form = ClienteForm()
-    return render(request, "clientes/form.html", {"form": form, "back_url": back_url})
+        form = ClienteForm(user=request.user)
+    return render(request, "clientes/form.html", {"form": form, "back_url": back_url, "is_ejecutivo": is_ejecutivo})
 
 
 def editar_cliente(request, id: int):
     cliente = get_object_or_404(Cliente, pk=id)
     back_url = request.GET.get("next") or reverse("clientes_list")
+    is_ejecutivo = request.user.is_authenticated and request.user.groups.filter(name__iexact="Ejecutivo").exists()
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
-        form = ClienteForm(request.POST, instance=cliente)
+        form = ClienteForm(request.POST, instance=cliente, user=request.user)
         if form.is_valid():
             form.save()
             return redirect(back_url)
     else:
-        form = ClienteForm(instance=cliente)
+        form = ClienteForm(instance=cliente, user=request.user)
         # Quitar advertencia en GET: ahora la validación se hace en el formulario y bloquea guardado
-    return render(request, "clientes/form.html", {"form": form, "cliente": cliente, "back_url": back_url})
+    return render(request, "clientes/form.html", {"form": form, "cliente": cliente, "back_url": back_url, "is_ejecutivo": is_ejecutivo})
 
 
 def eliminar_cliente(request, id: int):

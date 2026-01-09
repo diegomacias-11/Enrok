@@ -16,7 +16,7 @@
   {% endif %}
 
   <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">  {% if form.non_field_errors %}  <div class="form-alert">{{ form.non_field_errors }}</div>  {% endif %}
-  <div class="form-grid">
+  <div class="form-grid form-grid-primary">
     <div class="form-col">
       <label for="{{ form.razon_social.id_for_label }}">Razón Social</label>
       {{ form.razon_social }}
@@ -24,83 +24,78 @@
       <label for="{{ form.ac.id_for_label }}">AC</label>
       {{ form.ac }}
 
-      <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
-      {{ form.ejecutivo }}
-
-      <label for="{{ form.ejecutivos_apoyo.id_for_label }}">Ejecutivos de apoyo</label>
-      {{ form.ejecutivos_apoyo }}
-
       <label for="{{ form.servicio.id_for_label }}">Servicio</label>
       {{ form.servicio }}
 
       <label for="{{ form.comision_servicio.id_for_label }}">Comisión por servicio (%)</label>
       {{ form.comision_servicio }}      {% if form.comision_servicio.errors %}      <div class="form-alert">{{ form.comision_servicio.errors }}</div>      {% endif %}
     </div>
-    
-    <div class="form-col">
-      <label>Comisionista 1</label>
-      {{ form.comisionista1 }}
-      <label>Comisionista 2</label>
-      {{ form.comisionista2 }}
-      <label>Comisionista 3</label>
-      {{ form.comisionista3 }}
-      <label>Comisionista 4</label>
-      {{ form.comisionista4 }}
-      <label>Comisionista 5</label>
-      {{ form.comisionista5 }}
-      <label>Comisionista 6</label>
-      {{ form.comisionista6 }}
-      <label>Comisionista 7</label>
-      {{ form.comisionista7 }}
-      <label>Comisionista 8</label>
-      {{ form.comisionista8 }}
-      <label>Comisionista 9</label>
-      {{ form.comisionista9 }}
-      <label>Comisionista 10</label>
-      {{ form.comisionista10 }}
-      <label>Comisionista 11</label>
-      {{ form.comisionista11 }}
-      <label>Comisionista 12</label>
-      {{ form.comisionista12 }}
-    </div>
 
     <div class="form-col">
-      <label>Comisión 1 (%)</label>
-      {{ form.comision1 }}
-      <label>Comisión 2 (%)</label>
-      {{ form.comision2 }}
-      <label>Comisión 3 (%)</label>
-      {{ form.comision3 }}
-      <label>Comisión 4 (%)</label>
-      {{ form.comision4 }}
-      <label>Comisión 5 (%)</label>
-      {{ form.comision5 }}
-      <label>Comisión 6 (%)</label>
-      {{ form.comision6 }}
-      <label>Comisión 7 (%)</label>
-      {{ form.comision7 }}
-      <label>Comisión 8 (%)</label>
-      {{ form.comision8 }}
-      <label>Comisión 9 (%)</label>
-      {{ form.comision9 }}
-      <label>Comisión 10 (%)</label>
-      {{ form.comision10 }}
-      <label>Comisión 11 (%)</label>
-      {{ form.comision11 }}
-      <label>Comisión 12 (%)</label>
-      {{ form.comision12 }}
+      <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
+      {{ form.ejecutivo }}
+
+      <label for="{{ form.ejecutivos_apoyo.id_for_label }}">Ejecutivos de apoyo</label>
+      {{ form.ejecutivos_apoyo }}
     </div>
   </div>
-{% endblock %}
 
-{% block extra_actions %}
-  {% if cliente %}
-    <button type="submit"
-            class="btn-delete"
-            formaction="{% url 'clientes_delete' cliente.id %}"
-            formmethod="post"
-            onclick="return confirm('¿Eliminar este cliente?');">
-      Eliminar
-    </button>
+  {% if not is_ejecutivo %}
+    <hr class="form-sep">
+    <div class="form-grid form-grid-commissions">
+      <div class="form-col">
+        <label>Comisionista 1</label>
+        {{ form.comisionista1 }}
+        <label>Comisionista 2</label>
+        {{ form.comisionista2 }}
+        <label>Comisionista 3</label>
+        {{ form.comisionista3 }}
+        <label>Comisionista 4</label>
+        {{ form.comisionista4 }}
+        <label>Comisionista 5</label>
+        {{ form.comisionista5 }}
+        <label>Comisionista 6</label>
+        {{ form.comisionista6 }}
+        <label>Comisionista 7</label>
+        {{ form.comisionista7 }}
+        <label>Comisionista 8</label>
+        {{ form.comisionista8 }}
+        <label>Comisionista 9</label>
+        {{ form.comisionista9 }}
+        <label>Comisionista 10</label>
+        {{ form.comisionista10 }}
+        <label>Comisionista 11</label>
+        {{ form.comisionista11 }}
+        <label>Comisionista 12</label>
+        {{ form.comisionista12 }}
+      </div>
+
+      <div class="form-col">
+        <label>Comisión 1 (%)</label>
+        {{ form.comision1 }}
+        <label>Comisión 2 (%)</label>
+        {{ form.comision2 }}
+        <label>Comisión 3 (%)</label>
+        {{ form.comision3 }}
+        <label>Comisión 4 (%)</label>
+        {{ form.comision4 }}
+        <label>Comisión 5 (%)</label>
+        {{ form.comision5 }}
+        <label>Comisión 6 (%)</label>
+        {{ form.comision6 }}
+        <label>Comisión 7 (%)</label>
+        {{ form.comision7 }}
+        <label>Comisión 8 (%)</label>
+        {{ form.comision8 }}
+        <label>Comisión 9 (%)</label>
+        {{ form.comision9 }}
+        <label>Comisión 10 (%)</label>
+        {{ form.comision10 }}
+        <label>Comisión 11 (%)</label>
+        {{ form.comision11 }}
+        <label>Comisión 12 (%)</label>
+        {{ form.comision12 }}
+      </div>
+    </div>
   {% endif %}
 {% endblock %}

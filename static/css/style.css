@@ -735,6 +735,12 @@ main {
 .clientes-form .form-grid {
   grid-template-columns: 1fr 1fr 1fr;
 }
+.clientes-form .form-grid-primary {
+  grid-template-columns: 1fr 1fr;
+}
+.clientes-form .form-grid-commissions {
+  grid-template-columns: 1fr 1fr;
+}
 
 
 .form-container li label + input,
