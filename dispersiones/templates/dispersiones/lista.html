@@ -91,14 +91,13 @@
     <th class="sticky-1 col-actions">Acciones</th>
     <th class="sticky-2 col-fecha">Fecha</th>
     <th class="sticky-3">Cliente</th>
+    <th>No. periodo</th>
     <th>Servicio</th>
     <th>Comisión (%)</th>
     {% if not is_ejecutivo %}
     <th>Ejecutivo</th>
     <th>Apoyo</th>
     {% endif %}
-    <th>Comentarios</th>
-    <th>No. periodo</th>
     <th>Monto dispersión</th>
     <th>Monto comisión</th>
     <th>Comisión + IVA</th>
@@ -109,6 +108,7 @@
     <th>Estatus proceso</th>
     <th>Estatus periodo</th>
     <th>Estatus pago</th>
+    <th>Comentarios</th>
   </tr>
 {% endblock %}
 
@@ -119,6 +119,7 @@
       <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Editar</a></td>
       <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
       <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
+      <td>{{ d.num_periodo|default_if_none:"" }}</td>
       <td>{{ d.servicio|default_if_none:"" }}</td>
       <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
       {% if not is_ejecutivo %}
@@ -130,8 +131,6 @@
       </td>
       <td>{% with ap=d.ejecutivo_apoyo %}{% if ap %}{{ ap.get_full_name|default:ap.username }}{% endif %}{% endwith %}</td>
       {% endif %}
-      <td>{{ d.comentarios|default_if_none:"" }}</td>
-      <td>{{ d.num_periodo|default_if_none:"" }}</td>
       <td>{{ d.monto_dispersion|currency }}</td>
       <td>{{ d.monto_comision|currency }}</td>
       <td>{{ d.monto_comision_iva|currency }}</td>
@@ -142,6 +141,7 @@
       <td>{{ d.estatus_proceso|default_if_none:"" }}</td>
       <td>{{ d.estatus_periodo|default_if_none:"" }}</td>
       <td>{{ d.estatus_pago|default_if_none:"" }}</td>
+      <td>{{ d.comentarios|default_if_none:"" }}</td>
     </tr>
   {% empty %}
     <tr><td colspan="{% if not is_ejecutivo %}20{% else %}18{% endif %}">Sin dispersiones en el periodo.</td></tr>
