@@ -114,15 +114,15 @@ class DispersionForm(forms.ModelForm):
         User = get_user_model()
 
         if "cliente" in self.fields and self.user and self.user.is_superuser:
-            self.fields["cliente"].queryset = Cliente.objects.all()
+            self.fields["cliente"].queryset = Cliente.objects.all().order_by("razon_social")
         elif "cliente" in self.fields and self._is_ejecutivo:
             if _can_ver_todos_clientes(self.user):
-                self.fields["cliente"].queryset = Cliente.objects.all()
+                self.fields["cliente"].queryset = Cliente.objects.all().order_by("razon_social")
             else:
                 allowed = Cliente.objects.filter(
                     Q(ejecutivo=self.user) | Q(ejecutivo2=self.user) | Q(ejecutivo_apoyo=self.user)
                 ).distinct()
-                self.fields["cliente"].queryset = allowed
+                self.fields["cliente"].queryset = allowed.order_by("razon_social")
 
         if "cliente" in self.fields:
             self.fields["cliente"].label_from_instance = (
