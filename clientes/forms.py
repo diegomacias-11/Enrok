@@ -42,7 +42,7 @@ class ClienteForm(forms.ModelForm):
             "ac",
             "ejecutivo",
             "ejecutivo2",
-            "ejecutivos_apoyo",
+            "ejecutivo_apoyo",
             "servicio",
             "comision_servicio",
             *[f"comisionista{i}" for i in range(1, 13)],
@@ -51,7 +51,7 @@ class ClienteForm(forms.ModelForm):
         widgets = {
             **{f"comision{i}": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}) for i in range(1, 13)},
             "comision_servicio": forms.NumberInput(attrs={"step": "any", "inputmode": "decimal"}),
-            "ejecutivos_apoyo": forms.Select(),
+            "ejecutivo_apoyo": forms.Select(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -84,17 +84,17 @@ class ClienteForm(forms.ModelForm):
             self.fields["ejecutivo2"].label_from_instance = _label_user
             self.fields["ejecutivo2"].required = False
 
-        if "ejecutivos_apoyo" in self.fields:
+        if "ejecutivo_apoyo" in self.fields:
             exclude_ids = [i for i in (exec1_id, exec2_id) if i]
             apoyo_filtered = apoyo_qs.exclude(id__in=exclude_ids) if exclude_ids else apoyo_qs
-            self.fields["ejecutivos_apoyo"] = forms.ModelChoiceField(
+            self.fields["ejecutivo_apoyo"] = forms.ModelChoiceField(
                 queryset=apoyo_filtered.order_by("username"),
                 required=False,
                 empty_label="---------",
                 widget=forms.Select(),
-                label=self.fields["ejecutivos_apoyo"].label,
+                label=self.fields["ejecutivo_apoyo"].label,
             )
-            self.fields["ejecutivos_apoyo"].label_from_instance = _label_user
+            self.fields["ejecutivo_apoyo"].label_from_instance = _label_user
 
         if "comision_servicio" in self.fields:
             self.fields["comision_servicio"].required = False
@@ -145,13 +145,13 @@ class ClienteForm(forms.ModelForm):
         exec2_obj = cleaned.get("ejecutivo2")
         exec_id = exec_obj.id if exec_obj else None
         exec2_id = exec2_obj.id if exec2_obj else None
-        apoyo = cleaned.get("ejecutivos_apoyo")
+        apoyo = cleaned.get("ejecutivo_apoyo")
 
         if exec_id and exec2_id and exec_id == exec2_id:
             self.add_error("ejecutivo2", "Ejecutivo 2 no puede ser el mismo que Ejecutivo 1.")
 
         if apoyo and apoyo.id in {exec_id, exec2_id}:
-            self.add_error("ejecutivos_apoyo", "El apoyo no puede ser el mismo que los ejecutivos principales.")
+            self.add_error("ejecutivo_apoyo", "El apoyo no puede ser el mismo que los ejecutivos principales.")
 
         total_comisionistas = Decimal("0")
         for i in range(1, 13):
@@ -169,23 +169,4 @@ class ClienteForm(forms.ModelForm):
         return cleaned
 
     def save(self, commit=True):
-        apoyo = self.cleaned_data.get("ejecutivos_apoyo")
-        obj = super().save(commit=False)
-        if commit:
-            obj.save()
-            if apoyo:
-                obj.ejecutivos_apoyo.set([apoyo])
-            else:
-                obj.ejecutivos_apoyo.clear()
-        else:
-            self._pending_apoyo = apoyo
-        return obj
-
-    def save_m2m(self):
-        super().save_m2m()
-        apoyo = getattr(self, "_pending_apoyo", None)
-        if apoyo is not None:
-            if apoyo:
-                self.instance.ejecutivos_apoyo.set([apoyo])
-            else:
-                self.instance.ejecutivos_apoyo.clear()
+        return super().save(commit=commit)

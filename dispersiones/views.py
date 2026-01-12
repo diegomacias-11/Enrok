@@ -20,6 +20,18 @@ def _user_in_groups(user, names):
     return any(user.groups.filter(name__iexact=name).exists() for name in names)
 
 
+def _can_ver_todos_clientes(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return True
+    return (
+        user.groups.filter(name__iexact="Ejecutivo Sr").exists()
+        or user.groups.filter(name__iexact="Direccion Operaciones").exists()
+        or user.groups.filter(name__iexact="Dirección Operaciones").exists()
+    )
+
+
 def _users_in_group(name: str):
     try:
         grupo = auth_models.Group.objects.get(name__iexact=name)
@@ -65,24 +77,30 @@ def dispersiones_lista(request):
 
     cliente_id = request.GET.get("cliente") or ""
     if is_ejecutivo:
+        puede_ver_todos = _can_ver_todos_clientes(request.user)
         dispersiones = dispersiones.filter(
             Q(cliente__ejecutivo=request.user)
             | Q(cliente__ejecutivo2=request.user)
-            | Q(cliente__ejecutivos_apoyo=request.user)
+            | Q(cliente__ejecutivo_apoyo=request.user)
             | Q(ejecutivo=request.user)
             | Q(ejecutivo2=request.user)
             | Q(ejecutivo_apoyo=request.user)
         ).distinct()
+        if puede_ver_todos:
+            dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
-        clientes_qs = Cliente.objects.filter(
-            Q(ejecutivo=request.user)
-            | Q(ejecutivo2=request.user)
-            | Q(ejecutivos_apoyo=request.user)
-            | Q(dispersion__ejecutivo=request.user)
-            | Q(dispersion__ejecutivo2=request.user)
-            | Q(dispersion__ejecutivo_apoyo=request.user)
-        ).distinct()
+        if puede_ver_todos:
+            clientes_qs = Cliente.objects.all()
+        else:
+            clientes_qs = Cliente.objects.filter(
+                Q(ejecutivo=request.user)
+                | Q(ejecutivo2=request.user)
+                | Q(ejecutivo_apoyo=request.user)
+                | Q(dispersion__ejecutivo=request.user)
+                | Q(dispersion__ejecutivo2=request.user)
+                | Q(dispersion__ejecutivo_apoyo=request.user)
+            ).distinct()
         ejecutivo_id = apoyo_id = estatus_proceso = estatus_pago = ""
     else:
         ejecutivo_id = request.GET.get("ejecutivo") or ""
@@ -94,7 +112,7 @@ def dispersiones_lista(request):
                 Q(cliente__ejecutivo_id=ejecutivo_id) | Q(cliente__ejecutivo2_id=ejecutivo_id)
             )
         if apoyo_id:
-            dispersiones = dispersiones.filter(cliente__ejecutivos_apoyo__id=apoyo_id)
+            dispersiones = dispersiones.filter(cliente__ejecutivo_apoyo_id=apoyo_id)
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         if estatus_proceso:
@@ -169,7 +187,7 @@ def editar_dispersion(request, id: int):
     if is_ejecutivo and not (
         disp.cliente.ejecutivo_id == request.user.id
         or disp.cliente.ejecutivo2_id == request.user.id
-        or disp.cliente.ejecutivos_apoyo.filter(id=request.user.id).exists()
+        or disp.cliente.ejecutivo_apoyo_id == request.user.id
         or disp.ejecutivo_id == request.user.id
         or disp.ejecutivo2_id == request.user.id
         or disp.ejecutivo_apoyo_id == request.user.id

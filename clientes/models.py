@@ -21,9 +21,11 @@ class Cliente(models.Model):
         on_delete=models.SET_NULL,
         related_name="clientes_ejecutivo2",
     )
-    ejecutivos_apoyo = models.ManyToManyField(
+    ejecutivo_apoyo = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        null=True,
         blank=True,
+        on_delete=models.SET_NULL,
         related_name="clientes_apoyo",
     )
     ac = models.CharField(max_length=20, choices=AC_CHOICES, null=True, blank=True)

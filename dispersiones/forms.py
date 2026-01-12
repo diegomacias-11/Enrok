@@ -19,6 +19,18 @@ def _is_ejecutivo_restringido(user):
     )
 
 
+def _can_ver_todos_clientes(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return True
+    return (
+        user.groups.filter(name__iexact="Ejecutivo Sr").exists()
+        or user.groups.filter(name__iexact="Direccion Operaciones").exists()
+        or user.groups.filter(name__iexact="Dirección Operaciones").exists()
+    )
+
+
 class ClienteSelect(forms.Select):
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
@@ -41,12 +53,7 @@ class ClienteSelect(forms.Select):
             comision = ""
         ejecutivo_id = getattr(obj, "ejecutivo_id", "") or ""
         ejecutivo2_id = getattr(obj, "ejecutivo2_id", "") or ""
-        apoyo_id = ""
-        try:
-            apoyo = obj.ejecutivos_apoyo.first()
-            apoyo_id = getattr(apoyo, "id", "") or ""
-        except Exception:
-            apoyo_id = ""
+        apoyo_id = getattr(obj, "ejecutivo_apoyo_id", "") or ""
         option["attrs"].update(
             {
                 "data-ac": ac,
@@ -99,10 +106,13 @@ class DispersionForm(forms.ModelForm):
         if "cliente" in self.fields and self.user and self.user.is_superuser:
             self.fields["cliente"].queryset = Cliente.objects.all()
         elif "cliente" in self.fields and self._is_ejecutivo:
-            allowed = Cliente.objects.filter(
-                Q(ejecutivo=self.user) | Q(ejecutivo2=self.user) | Q(ejecutivos_apoyo=self.user)
-            ).distinct()
-            self.fields["cliente"].queryset = allowed
+            if _can_ver_todos_clientes(self.user):
+                self.fields["cliente"].queryset = Cliente.objects.all()
+            else:
+                allowed = Cliente.objects.filter(
+                    Q(ejecutivo=self.user) | Q(ejecutivo2=self.user) | Q(ejecutivo_apoyo=self.user)
+                ).distinct()
+                self.fields["cliente"].queryset = allowed
 
         if "cliente" in self.fields:
             self.fields["cliente"].label_from_instance = (
@@ -129,7 +139,7 @@ class DispersionForm(forms.ModelForm):
                 "servicio": getattr(cliente_obj, "get_servicio_display", lambda: getattr(cliente_obj, "servicio", ""))(),
                 "ejecutivo": getattr(cliente_obj, "ejecutivo", None),
                 "ejecutivo2": getattr(cliente_obj, "ejecutivo2", None),
-                "apoyos": list(cliente_obj.ejecutivos_apoyo.all()) if hasattr(cliente_obj, "ejecutivos_apoyo") else [],
+                "apoyos": [cliente_obj.ejecutivo_apoyo] if getattr(cliente_obj, "ejecutivo_apoyo", None) else [],
                 "comision_servicio": pct_display,
             }
 
@@ -148,11 +158,7 @@ class DispersionForm(forms.ModelForm):
                     elif field_name == "ejecutivo2":
                         self.initial[field_name] = getattr(cliente_obj, "ejecutivo2_id", None)
                     elif field_name == "ejecutivo_apoyo":
-                        try:
-                            apoyo = cliente_obj.ejecutivos_apoyo.first()
-                        except Exception:
-                            apoyo = None
-                        self.initial[field_name] = getattr(apoyo, "id", None)
+                        self.initial[field_name] = getattr(cliente_obj, "ejecutivo_apoyo_id", None)
 
         if self.instance and getattr(self.instance, "pk", None):
             for fname in ("cliente", "monto_dispersion"):

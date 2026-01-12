@@ -52,7 +52,7 @@
     <td>{% with exec=c.ejecutivo %}{% if exec %}{{ exec.get_full_name|default:exec.username }}{% endif %}{% endwith %}</td>
     <td>{% with exec2=c.ejecutivo2 %}{% if exec2 %}{{ exec2.get_full_name|default:exec2.username }}{% endif %}{% endwith %}</td>
     <td>
-      {% with apoyo=c.ejecutivos_apoyo.all|first %}
+      {% with apoyo=c.ejecutivo_apoyo %}
         {% if apoyo %}{{ apoyo.get_full_name|default:apoyo.username }}{% endif %}
       {% endwith %}
     </td>

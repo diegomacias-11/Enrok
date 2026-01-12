@@ -57,12 +57,7 @@ class Dispersion(models.Model):
         if not self.ejecutivo2_id and getattr(self, "cliente_id", None):
             self.ejecutivo2 = getattr(self.cliente, "ejecutivo2", None)
         if not self.ejecutivo_apoyo_id and getattr(self, "cliente_id", None):
-            apoyo = None
-            try:
-                apoyo = self.cliente.ejecutivos_apoyo.first()
-            except Exception:
-                apoyo = None
-            self.ejecutivo_apoyo = apoyo
+            self.ejecutivo_apoyo = getattr(self.cliente, "ejecutivo_apoyo", None)
         rate = None
         try:
             # Preferimos comision_servicio (fracción 0..1) si existe en el cliente
