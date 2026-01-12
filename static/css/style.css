@@ -1513,24 +1513,9 @@ textarea::placeholder {
   min-width: 120px !important;
 }
 
-/* Extra compacto para dispersiones */
-.filter-container .dispersiones-filter .filter-block {
-  min-width: 90px !important;
-}
-.filter-container .dispersiones-filter input,
-.filter-container .dispersiones-filter select {
-  font-size: 0.75rem !important;
-  padding: 0.2rem 0.35rem !important;
-  min-width: 90px !important;
-  height: 28px !important;
-}
-.filter-container .dispersiones-filter label {
-  font-size: 0.75rem !important;
-  margin-bottom: 0.1rem !important;
-}
-.filter-container .dispersiones-filter .btn-filter {
-  font-size: 0.75rem !important;
-  padding: 0.2rem 0.45rem !important;
+/* Dispersiones: limitar el ancho del filtro de cliente */
+.filter-container .dispersiones-filter #f_cliente {
+  max-width: 180px;
 }
 
 @media (max-width: 900px) {

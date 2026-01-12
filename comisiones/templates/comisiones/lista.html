@@ -71,7 +71,7 @@
       <td class="sticky-2">{{ r.comisionista__nombre|default_if_none:"" }}</td>
       <td>{{ r.total|default_if_none:""|currency }}</td>
       <td>{{ r.liberadas|default_if_none:""|currency }}</td>
-      <td>{{ r.pagos|default_if_none:""|currency }}</td>
+      <td>{% if r.pagos and r.pagos != 0 %}{{ r.pagos|currency }}{% endif %}</td>
       <td>{{ r.pendiente|default_if_none:""|currency }}</td>
     </tr>
   {% empty %}
