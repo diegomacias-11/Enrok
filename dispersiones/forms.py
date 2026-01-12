@@ -2,6 +2,7 @@
 from decimal import Decimal
 from django import forms
 from django.db.models import Q
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from clientes.models import Cliente
 from .models import Dispersion
@@ -185,7 +186,11 @@ class DispersionForm(forms.ModelForm):
             last_day = f"{int(self.anio):04d}-{int(self.mes):02d}-{last_dom:02d}"
             self.fields["fecha"].widget.attrs.update({"min": first_day, "max": last_day})
             if not self.initial.get("fecha") and not (self.instance and self.instance.pk):
-                self.initial["fecha"] = first_day
+                today = timezone.localdate()
+                if today.month == int(self.mes) and today.year == int(self.anio):
+                    self.initial["fecha"] = today.isoformat()
+                else:
+                    self.initial["fecha"] = first_day
 
         if self._is_ejecutivo and "estatus_pago" in self.fields:
             self.fields["estatus_pago"].disabled = True

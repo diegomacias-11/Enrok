@@ -1,4 +1,4 @@
-﻿{% extends "lista.html" %}
+{% extends "lista.html" %}
 {% load cliente_extras %}
 
 {% block title %}Dispersiones{% endblock %}
@@ -92,23 +92,26 @@
     <th class="sticky-2 col-fecha">Fecha</th>
     <th class="sticky-3">Cliente</th>
     <th>Servicio</th>
-    <th>Facturadora</th>
-    <th>No. factura</th>
-    <th>Monto dispersión</th>
     <th>Comisión (%)</th>
-    <th>Monto comisión</th>
-    <th>Comisión + IVA</th>
-    <th>No. factura honorarios</th>
     {% if not is_ejecutivo %}
     <th>Ejecutivo</th>
-    <th>Apoyos</th>
+    <th>Apoyo</th>
     {% endif %}
+    <th>Comentarios</th>
+    <th>No. periodo</th>
+    <th>Monto dispersión</th>
+    <th>Monto comisión</th>
+    <th>Comisión + IVA</th>
+    <th>AC</th>
+    <th>No. factura</th>
+    <th>Facturadora</th>
+    <th>No. factura honorarios</th>
     <th>Estatus proceso</th>
     <th>Estatus periodo</th>
     <th>Estatus pago</th>
-    <th>Comentarios</th>
   </tr>
 {% endblock %}
+
 
 {% block tabla_body %}
   {% for d in dispersiones %}
@@ -117,13 +120,7 @@
       <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
       <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
       <td>{{ d.servicio|default_if_none:"" }}</td>
-      <td>{{ d.facturadora|default_if_none:"" }}</td>
-      <td>{{ d.num_factura|default_if_none:"" }}</td>
-      <td>{{ d.monto_dispersion|currency }}</td>
       <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
-      <td>{{ d.monto_comision|currency }}</td>
-      <td>{{ d.monto_comision_iva|currency }}</td>
-      <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
       {% if not is_ejecutivo %}
       <td>
         {% with e1=d.ejecutivo e2=d.ejecutivo2 %}
@@ -133,12 +130,20 @@
       </td>
       <td>{% with ap=d.ejecutivo_apoyo %}{% if ap %}{{ ap.get_full_name|default:ap.username }}{% endif %}{% endwith %}</td>
       {% endif %}
+      <td>{{ d.comentarios|default_if_none:"" }}</td>
+      <td>{{ d.num_periodo|default_if_none:"" }}</td>
+      <td>{{ d.monto_dispersion|currency }}</td>
+      <td>{{ d.monto_comision|currency }}</td>
+      <td>{{ d.monto_comision_iva|currency }}</td>
+      <td>{{ d.cliente.get_ac_display|default_if_none:"" }}</td>
+      <td>{{ d.num_factura|default_if_none:"" }}</td>
+      <td>{{ d.facturadora|default_if_none:"" }}</td>
+      <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
       <td>{{ d.estatus_proceso|default_if_none:"" }}</td>
       <td>{{ d.estatus_periodo|default_if_none:"" }}</td>
       <td>{{ d.estatus_pago|default_if_none:"" }}</td>
-      <td>{{ d.comentarios|default_if_none:"" }}</td>
     </tr>
   {% empty %}
-    <tr><td colspan="{% if not is_ejecutivo %}17{% else %}15{% endif %}">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if not is_ejecutivo %}20{% else %}18{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}
