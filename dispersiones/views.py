@@ -103,11 +103,7 @@ def dispersiones_lista(request):
         estatus_proceso = request.GET.get("estatus_proceso") or ""
         estatus_pago = request.GET.get("estatus_pago") or ""
         if ejecutivo_id:
-            dispersiones = dispersiones.filter(
-                Q(cliente__ejecutivo_id=ejecutivo_id)
-                | Q(cliente__ejecutivo2_id=ejecutivo_id)
-                | Q(ejecutivo_id=ejecutivo_id)
-            )
+            dispersiones = dispersiones.filter(ejecutivo_id=ejecutivo_id)
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         if estatus_proceso:
