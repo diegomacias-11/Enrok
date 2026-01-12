@@ -159,7 +159,9 @@ class DispersionForm(forms.ModelForm):
                 )
                 self.fields[field_name].disabled = True
                 self.fields[field_name].required = False
-                if not self.instance.pk and cliente_obj:
+                if self.instance and getattr(self.instance, "pk", None):
+                    self.initial[field_name] = getattr(self.instance, f"{field_name}_id", None)
+                elif cliente_obj:
                     if field_name == "ejecutivo":
                         self.initial[field_name] = getattr(cliente_obj, "ejecutivo_id", None)
                     elif field_name == "ejecutivo2":

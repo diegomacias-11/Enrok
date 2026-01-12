@@ -105,6 +105,7 @@
       var ejecutivoSelect = document.getElementById("{{ form.ejecutivo.id_for_label }}");
       var ejecutivo2Select = document.getElementById("{{ form.ejecutivo2.id_for_label }}");
       var apoyoSelect = document.getElementById("{{ form.ejecutivo_apoyo.id_for_label }}");
+      var isEditing = {{ dispersion|yesno:"true,false" }};
 
       function applyFromSelected() {
         var opt = clienteSelect.options[clienteSelect.selectedIndex];
@@ -115,9 +116,15 @@
         if (acInput) acInput.value = data.ac || "";
         if (servicioInput) servicioInput.value = data.servicio || "";
         if (comisionInput) comisionInput.value = data.comision || "";
-        if (ejecutivoSelect) ejecutivoSelect.value = data.ejecutivoId || "";
-        if (ejecutivo2Select) ejecutivo2Select.value = data.ejecutivo2Id || "";
-        if (apoyoSelect) apoyoSelect.value = data.apoyoId || "";
+        if (ejecutivoSelect && !isEditing && !ejecutivoSelect.value) {
+          ejecutivoSelect.value = data.ejecutivoId || "";
+        }
+        if (ejecutivo2Select && !isEditing && !ejecutivo2Select.value) {
+          ejecutivo2Select.value = data.ejecutivo2Id || "";
+        }
+        if (apoyoSelect && !isEditing && !apoyoSelect.value) {
+          apoyoSelect.value = data.apoyoId || "";
+        }
       }
 
       clienteSelect.addEventListener("change", applyFromSelected);
