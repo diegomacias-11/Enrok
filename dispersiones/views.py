@@ -83,8 +83,6 @@ def dispersiones_lista(request):
             | Q(cliente__ejecutivo2=request.user)
             | Q(cliente__ejecutivo_apoyo=request.user)
             | Q(ejecutivo=request.user)
-            | Q(ejecutivo2=request.user)
-            | Q(ejecutivo_apoyo=request.user)
         ).distinct()
         if puede_ver_todos:
             dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
@@ -98,21 +96,18 @@ def dispersiones_lista(request):
                 | Q(ejecutivo2=request.user)
                 | Q(ejecutivo_apoyo=request.user)
                 | Q(dispersion__ejecutivo=request.user)
-                | Q(dispersion__ejecutivo2=request.user)
-                | Q(dispersion__ejecutivo_apoyo=request.user)
             ).distinct()
-        ejecutivo_id = apoyo_id = estatus_proceso = estatus_pago = ""
+        ejecutivo_id = estatus_proceso = estatus_pago = ""
     else:
         ejecutivo_id = request.GET.get("ejecutivo") or ""
-        apoyo_id = request.GET.get("apoyo") or ""
         estatus_proceso = request.GET.get("estatus_proceso") or ""
         estatus_pago = request.GET.get("estatus_pago") or ""
         if ejecutivo_id:
             dispersiones = dispersiones.filter(
-                Q(cliente__ejecutivo_id=ejecutivo_id) | Q(cliente__ejecutivo2_id=ejecutivo_id)
+                Q(cliente__ejecutivo_id=ejecutivo_id)
+                | Q(cliente__ejecutivo2_id=ejecutivo_id)
+                | Q(ejecutivo_id=ejecutivo_id)
             )
-        if apoyo_id:
-            dispersiones = dispersiones.filter(cliente__ejecutivo_apoyo_id=apoyo_id)
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         if estatus_proceso:
@@ -128,14 +123,12 @@ def dispersiones_lista(request):
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ]
     meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
-    ejecutivos = [
-        (u.id, _label_user(u))
-        for u in _users_in_group("Ejecutivo Jr").order_by("username")
-    ]
-    apoyos = [
-        (u.id, _label_user(u))
-        for u in _users_in_group("Ejecutivo Apoyo").order_by("username")
-    ]
+    ejecutivos_qs = (
+        _users_in_group("Ejecutivo Jr")
+        | _users_in_group("Ejecutivo Sr")
+        | _users_in_group("Ejecutivo Apoyo")
+    ).order_by("username").distinct()
+    ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
     context = {
         "dispersiones": dispersiones,
         "mes": str(mes),
@@ -145,9 +138,7 @@ def dispersiones_lista(request):
         "mes_nombre": meses_nombres[mes],
         "is_ejecutivo": is_ejecutivo,
         "ejecutivos": ejecutivos,
-        "apoyos": apoyos,
         "f_ejecutivo": ejecutivo_id if not is_ejecutivo else "",
-        "f_apoyo": apoyo_id if not is_ejecutivo else "",
         "f_cliente": cliente_id,
         "f_estatus_proceso": estatus_proceso if not is_ejecutivo else "",
         "f_estatus_pago": estatus_pago if not is_ejecutivo else "",
@@ -189,8 +180,6 @@ def editar_dispersion(request, id: int):
         or disp.cliente.ejecutivo2_id == request.user.id
         or disp.cliente.ejecutivo_apoyo_id == request.user.id
         or disp.ejecutivo_id == request.user.id
-        or disp.ejecutivo2_id == request.user.id
-        or disp.ejecutivo_apoyo_id == request.user.id
     ):
         return redirect(reverse("dispersiones_list"))
     mes, anio, _ = _coerce_mes_anio(request)

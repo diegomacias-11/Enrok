@@ -32,12 +32,6 @@
       <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
       {{ form.ejecutivo|default_if_none:"" }}
 
-      <label for="{{ form.ejecutivo2.id_for_label }}">Ejecutivo 2</label>
-      {{ form.ejecutivo2|default_if_none:"" }}
-
-      <label for="{{ form.ejecutivo_apoyo.id_for_label }}">Ejecutivo de apoyo</label>
-      {{ form.ejecutivo_apoyo|default_if_none:"" }}
-
       <label for="{{ form.comentarios.id_for_label }}">Comentarios</label>
       {{ form.comentarios|default_if_none:"" }}
     </div>
@@ -103,8 +97,6 @@
       var servicioInput = document.getElementById("cliente-servicio");
       var comisionInput = document.getElementById("cliente-comision");
       var ejecutivoSelect = document.getElementById("{{ form.ejecutivo.id_for_label }}");
-      var ejecutivo2Select = document.getElementById("{{ form.ejecutivo2.id_for_label }}");
-      var apoyoSelect = document.getElementById("{{ form.ejecutivo_apoyo.id_for_label }}");
       var isEditing = {{ dispersion|yesno:"true,false" }};
 
       function applyFromSelected() {
@@ -118,12 +110,6 @@
         if (comisionInput) comisionInput.value = data.comision || "";
         if (ejecutivoSelect && !isEditing && !ejecutivoSelect.value) {
           ejecutivoSelect.value = data.ejecutivoId || "";
-        }
-        if (ejecutivo2Select && !isEditing && !ejecutivo2Select.value) {
-          ejecutivo2Select.value = data.ejecutivo2Id || "";
-        }
-        if (apoyoSelect && !isEditing && !apoyoSelect.value) {
-          apoyoSelect.value = data.apoyoId || "";
         }
       }
 

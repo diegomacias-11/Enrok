@@ -62,16 +62,12 @@ class ClienteSelect(forms.Select):
             servicio = str(getattr(obj, "servicio", ""))
         comision = _format_comision_display(obj)
         ejecutivo_id = getattr(obj, "ejecutivo_id", "") or ""
-        ejecutivo2_id = getattr(obj, "ejecutivo2_id", "") or ""
-        apoyo_id = getattr(obj, "ejecutivo_apoyo_id", "") or ""
         option["attrs"].update(
             {
                 "data-ac": ac,
                 "data-servicio": servicio,
                 "data-comision": comision,
                 "data-ejecutivo-id": str(ejecutivo_id),
-                "data-ejecutivo2-id": str(ejecutivo2_id),
-                "data-apoyo-id": str(apoyo_id),
             }
         )
         return option
@@ -86,8 +82,6 @@ class DispersionForm(forms.ModelForm):
             "fecha",
             "cliente",
             "ejecutivo",
-            "ejecutivo2",
-            "ejecutivo_apoyo",
             "facturadora",
             "num_factura",
             "monto_dispersion",
@@ -145,13 +139,10 @@ class DispersionForm(forms.ModelForm):
                 "razon_social": cliente_obj.razon_social,
                 "ac": cliente_obj.get_ac_display() if hasattr(cliente_obj, "get_ac_display") else "",
                 "servicio": getattr(cliente_obj, "get_servicio_display", lambda: getattr(cliente_obj, "servicio", ""))(),
-                "ejecutivo": getattr(cliente_obj, "ejecutivo", None),
-                "ejecutivo2": getattr(cliente_obj, "ejecutivo2", None),
-                "apoyos": [cliente_obj.ejecutivo_apoyo] if getattr(cliente_obj, "ejecutivo_apoyo", None) else [],
                 "comision_servicio": _format_comision_display(cliente_obj),
             }
 
-        for field_name in ("ejecutivo", "ejecutivo2", "ejecutivo_apoyo"):
+        for field_name in ("ejecutivo",):
             if field_name in self.fields:
                 self.fields[field_name].queryset = User.objects.all().order_by("username")
                 self.fields[field_name].label_from_instance = (
@@ -162,13 +153,8 @@ class DispersionForm(forms.ModelForm):
                 self.fields[field_name].required = False
                 if self.instance and getattr(self.instance, "pk", None):
                     self.initial[field_name] = getattr(self.instance, f"{field_name}_id", None)
-                elif cliente_obj:
-                    if field_name == "ejecutivo":
-                        self.initial[field_name] = getattr(cliente_obj, "ejecutivo_id", None)
-                    elif field_name == "ejecutivo2":
-                        self.initial[field_name] = getattr(cliente_obj, "ejecutivo2_id", None)
-                    elif field_name == "ejecutivo_apoyo":
-                        self.initial[field_name] = getattr(cliente_obj, "ejecutivo_apoyo_id", None)
+                elif self.user and getattr(self.user, "is_authenticated", False):
+                    self.initial[field_name] = getattr(self.user, "id", None)
 
         if self.instance and getattr(self.instance, "pk", None):
             for fname in ("cliente", "monto_dispersion"):
@@ -212,3 +198,11 @@ class DispersionForm(forms.ModelForm):
             else:
                 cleaned["estatus_pago"] = self.fields["estatus_pago"].initial or "Pendiente"
         return cleaned
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if not getattr(obj, "ejecutivo_id", None) and self.user and getattr(self.user, "is_authenticated", False):
+            obj.ejecutivo = self.user
+        if commit:
+            obj.save()
+        return obj

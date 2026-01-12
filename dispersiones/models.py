@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal, InvalidOperation
 from django.conf import settings
-from django.contrib.auth import get_user_model, models as auth_models
 from clientes.models import Cliente
 from core.choices import (
     ESTATUS_PROCESO_CHOICES,
@@ -20,20 +19,6 @@ class Dispersion(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="dispersiones_ejecutivo",
-    )
-    ejecutivo2 = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="dispersiones_ejecutivo2",
-    )
-    ejecutivo_apoyo = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="dispersiones_apoyo",
     )
     servicio = models.CharField(max_length=50)
     facturadora = models.CharField(max_length=100, blank=True, null=True, choices=FACTURADORA_CHOICES)
@@ -53,20 +38,6 @@ class Dispersion(models.Model):
         return f"{self.cliente} - {self.facturadora} - {self.fecha}"
 
     def save(self, *args, **kwargs):
-        if not self.ejecutivo_id and getattr(self, "cliente_id", None):
-            self.ejecutivo = getattr(self.cliente, "ejecutivo", None)
-            if not self.ejecutivo and not getattr(self.cliente, "ejecutivo2_id", None) and not getattr(self.cliente, "ejecutivo_apoyo_id", None):
-                try:
-                    grupo = auth_models.Group.objects.get(name__iexact="Ejecutivo Sr")
-                    sr_user = grupo.user_set.order_by("id").first()
-                except auth_models.Group.DoesNotExist:
-                    sr_user = None
-                if sr_user:
-                    self.ejecutivo = sr_user
-        if not self.ejecutivo2_id and getattr(self, "cliente_id", None):
-            self.ejecutivo2 = getattr(self.cliente, "ejecutivo2", None)
-        if not self.ejecutivo_apoyo_id and getattr(self, "cliente_id", None):
-            self.ejecutivo_apoyo = getattr(self.cliente, "ejecutivo_apoyo", None)
         rate = None
         try:
             # Preferimos comision_servicio (fracción 0..1) si existe en el cliente
