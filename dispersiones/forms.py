@@ -31,6 +31,20 @@ def _can_ver_todos_clientes(user):
     )
 
 
+def _format_comision_display(cliente):
+    try:
+        pct_fraction = Decimal(str(cliente.comision_servicio or "0"))
+    except Exception:
+        return ""
+    rate_percent = (pct_fraction * Decimal("100"))
+    try:
+        if getattr(cliente, "ac", None) == "CONFEDIN":
+            rate_percent = max(Decimal("0"), rate_percent - Decimal("0.2"))
+    except Exception:
+        pass
+    return f"{rate_percent.quantize(Decimal('0.01'))}%"
+
+
 class ClienteSelect(forms.Select):
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
@@ -45,12 +59,7 @@ class ClienteSelect(forms.Select):
             servicio = obj.get_servicio_display()
         except Exception:
             servicio = str(getattr(obj, "servicio", ""))
-        comision = ""
-        try:
-            pct = obj.comision_servicio or Decimal("0")
-            comision = f"{(Decimal(pct) * Decimal('100')).quantize(Decimal('0.01'))}%"
-        except Exception:
-            comision = ""
+        comision = _format_comision_display(obj)
         ejecutivo_id = getattr(obj, "ejecutivo_id", "") or ""
         ejecutivo2_id = getattr(obj, "ejecutivo2_id", "") or ""
         apoyo_id = getattr(obj, "ejecutivo_apoyo_id", "") or ""
@@ -131,8 +140,6 @@ class DispersionForm(forms.ModelForm):
             except Exception:
                 cliente_obj = None
         if cliente_obj:
-            pct = cliente_obj.comision_servicio or Decimal("0")
-            pct_display = f"{(Decimal(pct) * Decimal('100')).quantize(Decimal('0.01'))}%" if pct is not None else ""
             self.cliente_info = {
                 "razon_social": cliente_obj.razon_social,
                 "ac": cliente_obj.get_ac_display() if hasattr(cliente_obj, "get_ac_display") else "",
@@ -140,7 +147,7 @@ class DispersionForm(forms.ModelForm):
                 "ejecutivo": getattr(cliente_obj, "ejecutivo", None),
                 "ejecutivo2": getattr(cliente_obj, "ejecutivo2", None),
                 "apoyos": [cliente_obj.ejecutivo_apoyo] if getattr(cliente_obj, "ejecutivo_apoyo", None) else [],
-                "comision_servicio": pct_display,
+                "comision_servicio": _format_comision_display(cliente_obj),
             }
 
         for field_name in ("ejecutivo", "ejecutivo2", "ejecutivo_apoyo"):
