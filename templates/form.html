@@ -8,7 +8,7 @@
   {% block back_link %}{% endblock %}
 
   <div class="form-container {% block form_container_classes %}{% endblock %}">
-    <form method="post">
+    <form method="post" class="js-disable-submit">
       {% csrf_token %}
       {% block form_fields %}
         <!-- Aquí van los campos específicos del formulario hijo -->
@@ -18,4 +18,18 @@
       </form>
   </div>
   </main>
+  <script>
+    (function () {
+      var form = document.querySelector(".js-disable-submit");
+      if (!form) {
+        return;
+      }
+      form.addEventListener("submit", function () {
+        var buttons = form.querySelectorAll("button[type='submit'], input[type='submit']");
+        buttons.forEach(function (btn) {
+          btn.disabled = true;
+        });
+      });
+    })();
+  </script>
 {% endblock %}

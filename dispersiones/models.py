@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal, InvalidOperation
 from django.conf import settings
+from django.contrib.auth import get_user_model, models as auth_models
 from clientes.models import Cliente
 from core.choices import (
     ESTATUS_PROCESO_CHOICES,
@@ -54,6 +55,14 @@ class Dispersion(models.Model):
     def save(self, *args, **kwargs):
         if not self.ejecutivo_id and getattr(self, "cliente_id", None):
             self.ejecutivo = getattr(self.cliente, "ejecutivo", None)
+            if not self.ejecutivo and not getattr(self.cliente, "ejecutivo2_id", None) and not getattr(self.cliente, "ejecutivo_apoyo_id", None):
+                try:
+                    grupo = auth_models.Group.objects.get(name__iexact="Ejecutivo Sr")
+                    sr_user = grupo.user_set.order_by("id").first()
+                except auth_models.Group.DoesNotExist:
+                    sr_user = None
+                if sr_user:
+                    self.ejecutivo = sr_user
         if not self.ejecutivo2_id and getattr(self, "cliente_id", None):
             self.ejecutivo2 = getattr(self.cliente, "ejecutivo2", None)
         if not self.ejecutivo_apoyo_id and getattr(self, "cliente_id", None):
