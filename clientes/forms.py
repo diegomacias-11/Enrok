@@ -10,6 +10,14 @@ def _percent_to_fraction(val):
     return (Decimal(val) / Decimal("100")).quantize(PERCENT_Q)
 
 
+def _format_percent_display(val):
+    percent = (Decimal(val) * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
+    text = format(percent, "f")
+    if "." in text:
+        text = text.rstrip("0").rstrip(".")
+    return text
+
+
 User = get_user_model()
 
 
@@ -116,15 +124,13 @@ class ClienteForm(forms.ModelForm):
                 key = f"comision{i}"
                 val = getattr(self.instance, key, None)
                 if val is not None:
-                    percent = (Decimal(val) * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
-                    self.initial[key] = format(percent, "f")
+                    self.initial[key] = _format_percent_display(val)
             total = Decimal("0")
             for i in range(1, 13):
                 val = getattr(self.instance, f"comision{i}", None)
                 if val is not None:
                     total += Decimal(val)
-            percent = (total * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
-            self.initial["comision_servicio"] = format(percent, "f")
+            self.initial["comision_servicio"] = _format_percent_display(total)
         elif self.is_bound:
             total = Decimal("0")
             for i in range(1, 13):
@@ -132,11 +138,11 @@ class ClienteForm(forms.ModelForm):
                 if val in (None, ""):
                     continue
                 try:
-                    total += _percent_to_fraction(val)
+                    dec = Decimal(val)
+                    total += _percent_to_fraction(dec) if dec > 1 else dec
                 except Exception:
                     continue
-            percent = (total * Decimal(100)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
-            self.initial["comision_servicio"] = format(percent, "f")
+            self.initial["comision_servicio"] = _format_percent_display(total)
         for i in range(1, 13):
             f = f"comision{i}"
             if f in self.fields:
@@ -162,13 +168,28 @@ class ClienteForm(forms.ModelForm):
         total_comisionistas = Decimal("0")
         for i in range(1, 13):
             key = f"comision{i}"
-            val = cleaned.get(key)
-            if val in (None, ""):
+            if key not in self.data:
+                val = cleaned.get(key)
+                if val in (None, ""):
+                    continue
+                try:
+                    dec = Decimal(val)
+                except Exception:
+                    continue
+                cleaned[key] = dec
+                total_comisionistas += dec
+                continue
+            raw = self.data.get(key)
+            if raw in (None, ""):
                 continue
             try:
-                dec = _percent_to_fraction(val)
+                dec = Decimal(raw)
             except Exception:
                 continue
+            if dec > 1:
+                dec = _percent_to_fraction(dec)
+            else:
+                dec = dec.quantize(PERCENT_Q)
             cleaned[key] = dec
             total_comisionistas += dec
         cleaned["comision_servicio"] = total_comisionistas
