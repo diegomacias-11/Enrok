@@ -172,6 +172,7 @@ def dispersiones_kanban(request):
             by_cliente[key].append(
                 {
                     "cliente": d.cliente.razon_social or "",
+                    "id": d.id,
                     "monto": d.monto_dispersion,
                     "fecha": d.fecha,
                 }
