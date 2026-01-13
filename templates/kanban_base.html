@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Kanban{% endblock %}
+
+{% block content %}
+<main>
+  <section class="filter-container">
+    {% block filtros %}{% endblock %}
+  </section>
+
+  <div class="kanban-wrapper">
+    {% block kanban_content %}{% endblock %}
+  </div>
+</main>
+{% endblock %}

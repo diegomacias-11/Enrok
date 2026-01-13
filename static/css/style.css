@@ -1518,6 +1518,117 @@ textarea::placeholder {
   max-width: 180px;
 }
 
+/* Kanban layout */
+.kanban-wrapper {
+  width: 100%;
+}
+.kanban-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, 1fr);
+  gap: 16px;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.kanban-column {
+  background: #e8eef5;
+  border: 1px solid #c7d5e5;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.kanban-column.status-pendiente {
+  background: #f3b0b0;
+  border-color: #e29191;
+}
+.kanban-column.status-pagado {
+  background: #b8d9b3;
+  border-color: #9cc89c;
+}
+.kanban-column-title {
+  font-weight: 700;
+  color: #1f2a3d;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.kanban-area {
+  border: 1px solid #c7d5e5;
+  border-radius: 6px;
+  background: #fff;
+  margin-bottom: 10px;
+  padding: 8px;
+}
+.kanban-area-title {
+  font-weight: 600;
+  color: #0f4c75;
+  margin-bottom: 6px;
+  text-align: center;
+}
+.kanban-card {
+  border: 1px solid #d4dde7;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: #f8fbff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow-wrap: anywhere;
+}
+.kanban-card-body {
+  margin-top: 6px;
+}
+.kanban-task {
+  font-weight: 600;
+  color: #1f2a3d;
+  overflow-wrap: anywhere;
+}
+.kanban-meta {
+  font-size: 0.85rem;
+  color: #556575;
+}
+.kanban-empty {
+  text-align: center;
+  color: #6a7a8a;
+  padding: 8px 0;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  width: 100%;
+  column-gap: 0.75rem;
+}
+.filter-slot {
+  display: flex;
+  align-items: center;
+}
+.filter-slot-left {
+  justify-content: flex-start;
+  justify-self: start;
+}
+.filter-slot-center {
+  justify-content: center;
+  justify-self: center;
+}
+.filter-slot-right {
+  justify-content: flex-end;
+  justify-self: end;
+}
+.filter-bar .btn-primary {
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+.filter-slot-left .btn-primary {
+  margin-right: auto !important;
+}
+.filter-slot-right .btn-primary {
+  margin-left: auto !important;
+}
+
 @media (max-width: 900px) {
   .filter-container .filter-form-simple {
     justify-content: center !important;

@@ -145,6 +145,65 @@ def dispersiones_lista(request):
     return render(request, "dispersiones/lista.html", context)
 
 
+def dispersiones_kanban(request):
+    if not request.user.is_authenticated:
+        return redirect(reverse("login"))
+    if not (
+        request.user.is_superuser
+        or request.user.groups.filter(name__iexact="Dirección Operaciones").exists()
+        or request.user.groups.filter(name__iexact="Direccion Operaciones").exists()
+    ):
+        return redirect(reverse("dispersiones_list"))
+
+    mes, anio, redir = _coerce_mes_anio(request)
+    if redir:
+        return redir
+
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
+
+    grouped = []
+    for estatus in ("Pendiente", "Pagado"):
+        items = qs.filter(estatus_pago=estatus)
+        by_cliente = {}
+        for d in items:
+            key = (d.cliente.razon_social or "").strip().upper()
+            if key not in by_cliente:
+                by_cliente[key] = []
+            by_cliente[key].append(
+                {
+                    "cliente": d.cliente.razon_social or "",
+                    "monto": d.monto_dispersion,
+                    "fecha": d.fecha,
+                }
+            )
+        clientes = [
+            {"cliente": cliente or "Sin cliente", "items": regs}
+            for cliente, regs in sorted(by_cliente.items())
+        ]
+        grouped.append(
+            {
+                "titulo": estatus,
+                "status_class": "status-pendiente" if estatus == "Pendiente" else "status-pagado",
+                "clientes": clientes,
+            }
+        )
+
+    meses_nombres = [
+        "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ]
+    meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
+    context = {
+        "kanban_data": grouped,
+        "mes": str(mes),
+        "anio": str(anio),
+        "mes_nombre": meses_nombres[mes],
+        "meses": list(range(1, 13)),
+        "meses_choices": meses_choices,
+    }
+    return render(request, "dispersiones/kanban.html", context)
+
+
 def agregar_dispersion(request):
     mes, anio, redir = _coerce_mes_anio(request)
     if redir and request.method != "POST":
