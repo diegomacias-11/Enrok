@@ -139,7 +139,7 @@ class ClienteForm(forms.ModelForm):
                     continue
                 try:
                     dec = Decimal(val)
-                    total += _percent_to_fraction(dec) if dec > 1 else dec
+                    total += _percent_to_fraction(dec)
                 except Exception:
                     continue
             self.initial["comision_servicio"] = _format_percent_display(total)
@@ -186,10 +186,7 @@ class ClienteForm(forms.ModelForm):
                 dec = Decimal(raw)
             except Exception:
                 continue
-            if dec > 1:
-                dec = _percent_to_fraction(dec)
-            else:
-                dec = dec.quantize(PERCENT_Q)
+            dec = _percent_to_fraction(dec)
             cleaned[key] = dec
             total_comisionistas += dec
         cleaned["comision_servicio"] = total_comisionistas
