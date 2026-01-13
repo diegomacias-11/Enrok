@@ -105,8 +105,9 @@ class ClienteForm(forms.ModelForm):
                 field.disabled = True
                 field.required = False
         elif _user_in_groups(self.user, ["Ejecutivo Sr"]):
+            editable = {"ac", "ejecutivo", "ejecutivo_apoyo"}
             for name, field in self.fields.items():
-                if name != "ac":
+                if name not in editable:
                     field.disabled = True
                     field.required = False
 
