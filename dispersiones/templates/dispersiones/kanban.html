@@ -54,8 +54,9 @@
               {% for item in grupo.items %}
                 <div class="kanban-card">
                   <div class="kanban-card-body">
-                    <div class="kanban-task">{{ item.cliente }}</div>
-                    <div class="kanban-meta">{{ item.fecha|date:"d/m/Y" }} - {{ item.monto|currency }}</div>
+                    <div class="kanban-task">{{ item.fecha|date:"d/m/Y" }}</div>
+                    <div class="kanban-meta">{{ item.monto|currency }}</div>
+                    <div class="kanban-honorarios">No. factura honorarios: {{ item.num_factura_honorarios|default_if_none:"" }}</div>
                     <a class="btn-detalle" href="{% url 'dispersiones_edit' item.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a>
                   </div>
                 </div>

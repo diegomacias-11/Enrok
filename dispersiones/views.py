@@ -175,6 +175,7 @@ def dispersiones_kanban(request):
                     "id": d.id,
                     "monto": d.monto_dispersion,
                     "fecha": d.fecha,
+                    "num_factura_honorarios": d.num_factura_honorarios,
                 }
             )
         clientes = [

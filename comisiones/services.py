@@ -69,7 +69,8 @@ def generar_comisiones_para_dispersion(instance: Dispersion) -> None:
         comisionista = getattr(cliente, com_field, None)
         pct = getattr(cliente, pct_field, None)
         if comisionista and pct is not None and Decimal(pct) > 0:
-            monto = (Decimal(pct) * Decimal(instance.monto_dispersion)).quantize(Decimal("0.01"))
+            monto_base = Decimal(instance.monto_comision or 0)
+            monto = (Decimal(pct) * monto_base).quantize(Decimal("0.01"))
             Comision.objects.create(
                 dispersion=instance,
                 cliente=cliente,

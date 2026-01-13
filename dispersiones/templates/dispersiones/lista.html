@@ -134,7 +134,7 @@
         {% endwith %}
       </td>
       {% endif %}
-      <td>{{ d.monto_dispersión|currency }}</td>
+      <td>{{ d.monto_dispersion|currency }}</td>
       <td>{{ d.monto_comision|currency }}</td>
       <td>{{ d.monto_comision_iva|currency }}</td>
       <td>{{ d.cliente.get_ac_display|default_if_none:"" }}</td>
