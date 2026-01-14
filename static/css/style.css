@@ -1689,8 +1689,7 @@ textarea::placeholder {
 }
 
 .filter-bar {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
   width: 100%;
   column-gap: 0.75rem;
@@ -1706,10 +1705,12 @@ textarea::placeholder {
 .filter-slot-center {
   justify-content: center;
   justify-self: center;
+  flex: 1 1 auto;
 }
 .filter-slot-right {
   justify-content: flex-end;
   justify-self: end;
+  margin-left: auto;
 }
 .filter-bar .btn-primary {
   position: static !important;
