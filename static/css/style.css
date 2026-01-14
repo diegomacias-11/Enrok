@@ -552,6 +552,8 @@ form input[type="checkbox"]:checked::after {
 }
 .dispersiones-form .form-grid-contabilidad .form-col {
   align-items: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Sticky first two columns across all tables */
