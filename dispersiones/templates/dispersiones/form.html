@@ -17,27 +17,29 @@
   <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
 
   {% if is_contabilidad %}
-    <div class="form-grid">
+    <div class="form-grid form-grid-contabilidad">
       <div class="form-col">
         <label for="{{ form.fecha.id_for_label }}">Fecha</label>
-        {{ form.fecha }}
+        <input type="text" value="{% if dispersion %}{{ dispersion.fecha|date:"d/m/Y" }}{% endif %}" disabled>
 
         <label for="{{ form.cliente.id_for_label }}">Cliente</label>
-        {{ form.cliente|default_if_none:"" }}
+        <input type="text" value="{% if dispersion %}{{ dispersion.cliente.razon_social|default_if_none:'' }}{% endif %}" disabled>
 
         <label>Comisión (%)</label>
         <input type="text" value="{% if dispersion %}{{ dispersion.comision_porcentaje|floatformat:2 }}%{% endif %}" disabled>
 
         <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
-        <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
+        <div class="input-currency has-symbol-value">
+          <input type="text" value="{% if dispersion %}{{ dispersion.monto_dispersion|currency }}{% endif %}" disabled>
+        </div>
 
         <label>Monto comisión</label>
-        <div class="input-currency">
+        <div class="input-currency has-symbol-value">
           <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision|currency }}{% endif %}" disabled>
         </div>
 
         <label>Comisión + IVA</label>
-        <div class="input-currency">
+        <div class="input-currency has-symbol-value">
           <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision_iva|currency }}{% endif %}" disabled>
         </div>
 
@@ -79,11 +81,6 @@
 
         <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
         <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
-
-        {% if dispersion %}
-        <label for="{{ form.monto_comision_iva.id_for_label }}">Comisión + IVA</label>
-        <div class="input-currency">{{ form.monto_comision_iva|default_if_none:"" }}</div>
-        {% endif %}
 
         <label for="{{ form.ac.id_for_label }}">AC</label>
         <input type="text" id="cliente-ac" value="{{ cliente_info.ac|default_if_none:'' }}" disabled>

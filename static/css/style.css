@@ -547,6 +547,13 @@ form input[type="checkbox"]:checked::after {
   transform: translateX(2px);
 }
 
+.dispersiones-form .form-grid-contabilidad {
+  justify-items: center;
+}
+.dispersiones-form .form-grid-contabilidad .form-col {
+  align-items: center;
+}
+
 /* Sticky first two columns across all tables */
 .table { --sticky-col-1: 9.5rem; --sticky-col-2: 8.5rem; }
 .table th.sticky-1, .table td.sticky-1 {
@@ -1478,6 +1485,13 @@ form input[type="checkbox"]:checked::after {
   padding-left: 1.2rem;
   text-align: center;
 }
+.input-currency.has-symbol-value::before {
+  content: "";
+}
+.input-currency.has-symbol-value input {
+  padding-left: 0.6rem;
+}
+
 
 /* Center all inputs across the app */
 input,
