@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.contrib.auth import get_user_model, models as auth_models
 from .models import Dispersion
-from core.choices import ESTATUS_PROCESO_CHOICES, ESTATUS_PAGO_CHOICES
+from core.choices import ESTATUS_PAGO_CHOICES
 from .forms import DispersionForm
 from clientes.models import Cliente
 
@@ -66,6 +66,12 @@ def _coerce_mes_anio(request):
 
 
 def dispersiones_lista(request):
+    is_contabilidad = (
+        request.user.is_authenticated
+        and not request.user.is_superuser
+        and request.user.groups.filter(name__iexact="Contabilidad").exists()
+    )
+
     mes, anio, redir = _coerce_mes_anio(request)
     if redir:
         return redir
@@ -75,43 +81,53 @@ def dispersiones_lista(request):
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
 
-    cliente_id = request.GET.get("cliente") or ""
-    if is_ejecutivo:
-        puede_ver_todos = _can_ver_todos_clientes(request.user)
-        dispersiones = dispersiones.filter(
-            Q(cliente__ejecutivo=request.user)
-            | Q(cliente__ejecutivo2=request.user)
-            | Q(cliente__ejecutivo_apoyo=request.user)
-            | Q(ejecutivo=request.user)
-        ).distinct()
-        if puede_ver_todos:
-            dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
-        if cliente_id:
-            dispersiones = dispersiones.filter(cliente_id=cliente_id)
-        if puede_ver_todos:
-            clientes_qs = Cliente.objects.all()
-        else:
-            clientes_qs = Cliente.objects.filter(
-                Q(ejecutivo=request.user)
-                | Q(ejecutivo2=request.user)
-                | Q(ejecutivo_apoyo=request.user)
-                | Q(dispersion__ejecutivo=request.user)
-            ).distinct()
-        ejecutivo_id = estatus_proceso = estatus_pago = ""
-    else:
-        ejecutivo_id = request.GET.get("ejecutivo") or ""
-        estatus_proceso = request.GET.get("estatus_proceso") or ""
-        estatus_pago = request.GET.get("estatus_pago") or ""
-        if ejecutivo_id:
-            dispersiones = dispersiones.filter(ejecutivo_id=ejecutivo_id)
-        if cliente_id:
-            dispersiones = dispersiones.filter(cliente_id=cliente_id)
-        if estatus_proceso:
-            dispersiones = dispersiones.filter(estatus_proceso=estatus_proceso)
-        if estatus_pago:
-            dispersiones = dispersiones.filter(estatus_pago=estatus_pago)
-        dispersiones = dispersiones.distinct()
+    if is_contabilidad:
+        is_ejecutivo = False
+        cliente_id = ""
+        ejecutivo_id = ""
+        estatus_pago = ""
+        factura_solicitada = ""
+        dispersiones = dispersiones.filter(factura_solicitada=True).distinct()
         clientes_qs = Cliente.objects.all()
+    else:
+        cliente_id = request.GET.get("cliente") or ""
+        if is_ejecutivo:
+            puede_ver_todos = _can_ver_todos_clientes(request.user)
+            dispersiones = dispersiones.filter(
+                Q(cliente__ejecutivo=request.user)
+                | Q(cliente__ejecutivo2=request.user)
+                | Q(cliente__ejecutivo_apoyo=request.user)
+                | Q(ejecutivo=request.user)
+            ).distinct()
+            if puede_ver_todos:
+                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
+            if cliente_id:
+                dispersiones = dispersiones.filter(cliente_id=cliente_id)
+            if puede_ver_todos:
+                clientes_qs = Cliente.objects.all()
+            else:
+                clientes_qs = Cliente.objects.filter(
+                    Q(ejecutivo=request.user)
+                    | Q(ejecutivo2=request.user)
+                    | Q(ejecutivo_apoyo=request.user)
+                    | Q(dispersion__ejecutivo=request.user)
+                ).distinct()
+            ejecutivo_id = estatus_pago = ""
+            factura_solicitada = request.GET.get("factura_solicitada") or ""
+            if factura_solicitada in ("0", "1"):
+                dispersiones = dispersiones.filter(factura_solicitada=(factura_solicitada == "1"))
+        else:
+            ejecutivo_id = request.GET.get("ejecutivo") or ""
+            estatus_pago = ""
+            factura_solicitada = request.GET.get("factura_solicitada") or ""
+            if ejecutivo_id:
+                dispersiones = dispersiones.filter(ejecutivo_id=ejecutivo_id)
+            if cliente_id:
+                dispersiones = dispersiones.filter(cliente_id=cliente_id)
+            if factura_solicitada in ("0", "1"):
+                dispersiones = dispersiones.filter(factura_solicitada=(factura_solicitada == "1"))
+            dispersiones = dispersiones.distinct()
+            clientes_qs = Cliente.objects.all()
 
     # Nombre de mes en español
     meses_nombres = [
@@ -132,13 +148,13 @@ def dispersiones_lista(request):
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
         "mes_nombre": meses_nombres[mes],
+        "is_contabilidad": is_contabilidad,
         "is_ejecutivo": is_ejecutivo,
         "ejecutivos": ejecutivos,
         "f_ejecutivo": ejecutivo_id if not is_ejecutivo else "",
         "f_cliente": cliente_id,
-        "f_estatus_proceso": estatus_proceso if not is_ejecutivo else "",
-        "f_estatus_pago": estatus_pago if not is_ejecutivo else "",
-        "estatus_proceso_choices": ESTATUS_PROCESO_CHOICES,
+        "f_factura_solicitada": factura_solicitada,
+        "f_estatus_pago": "",
         "estatus_pago_choices": ESTATUS_PAGO_CHOICES,
         "clientes": clientes_qs.order_by("razon_social"),
     }
@@ -200,6 +216,7 @@ def dispersiones_kanban(request):
         "mes": str(mes),
         "anio": str(anio),
         "mes_nombre": meses_nombres[mes],
+        "is_contabilidad": is_contabilidad,
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
     }

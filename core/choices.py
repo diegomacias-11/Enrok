@@ -7,6 +7,7 @@
     ("CheckUp", "CheckUp"),
     ("Contabilidad", "Contabilidad"),
     ("Hidrocarburos", "Hidrocarburos"),
+    ("Laboral", "Laboral"),
     ("Marketing", "Marketing"),
     ("Monederos", "Monederos"),
     ("Mutualink", "Mutualink"),
@@ -25,6 +26,7 @@
 AC_CHOICES = [
     ("CONFEDIN", "CONFEDIN"),
     ("CAMARENCE", "CAMARENCE"),
+    ("HATRES", "HATRES"),
     ("SERVIARUGA", "SERVIARUGA"),
     ("ZAMORA", "ZAMORA"),
     ("INACTIVO", "INACTIVO"),
@@ -54,4 +56,9 @@ ESTATUS_PERIODO_CHOICES = [
 ESTATUS_PAGO_CHOICES = [
     ("Pendiente", "Pendiente"),
     ("Pagado", "Pagado"),
+]
+
+FORMA_PAGO_CHOICES = [
+    ("PPD", "PPD"),
+    ("PUE", "PUE"),
 ]

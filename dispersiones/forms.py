@@ -20,6 +20,14 @@ def _is_ejecutivo_restringido(user):
     )
 
 
+def _is_contabilidad(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return False
+    return user.groups.filter(name__iexact="Contabilidad").exists()
+
+
 def _can_ver_todos_clientes(user):
     if not user or not user.is_authenticated:
         return False
@@ -82,7 +90,6 @@ class DispersionForm(forms.ModelForm):
             "fecha",
             "cliente",
             "ejecutivo",
-            "facturadora",
             "num_factura",
             "monto_dispersion",
             "num_factura_honorarios",
@@ -91,6 +98,7 @@ class DispersionForm(forms.ModelForm):
             "estatus_periodo",
             "comentarios",
             "estatus_pago",
+            "factura_solicitada",
         ]
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),
@@ -104,6 +112,7 @@ class DispersionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self._is_ejecutivo = _is_ejecutivo_restringido(self.user)
+        self._is_contabilidad = _is_contabilidad(self.user)
         self.cliente_info = None
         User = get_user_model()
 
@@ -182,6 +191,15 @@ class DispersionForm(forms.ModelForm):
             self.fields["estatus_pago"].disabled = True
             if self.instance and getattr(self.instance, "pk", None):
                 self.initial["estatus_pago"] = self.instance.estatus_pago
+
+        if self._is_contabilidad:
+            for name, field in self.fields.items():
+                if name != "num_factura_honorarios":
+                    field.disabled = True
+                    field.required = False
+        elif "num_factura_honorarios" in self.fields:
+            self.fields["num_factura_honorarios"].disabled = True
+            self.fields["num_factura_honorarios"].required = False
 
     def clean_fecha(self):
         fecha = self.cleaned_data.get("fecha")

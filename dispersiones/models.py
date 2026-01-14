@@ -8,6 +8,7 @@ from core.choices import (
     ESTATUS_PERIODO_CHOICES,
     ESTATUS_PAGO_CHOICES,
     FACTURADORA_CHOICES,
+    FORMA_PAGO_CHOICES,
 )
 
 class Dispersion(models.Model):
@@ -28,6 +29,8 @@ class Dispersion(models.Model):
     monto_comision = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     monto_comision_iva = models.DecimalField(max_digits=12, decimal_places=2, editable=False, null=True, blank=True)
     num_factura_honorarios = models.CharField(max_length=100, blank=True, null=True)
+    factura_solicitada = models.BooleanField(default=False)
+    forma_pago = models.CharField(max_length=100, choices=FORMA_PAGO_CHOICES, null=True, blank=True)
     estatus_proceso = models.CharField(max_length=20, choices=ESTATUS_PROCESO_CHOICES, default="Pendiente")
     comentarios = models.CharField(max_length=255, blank=True, null=True)
     num_periodo = models.CharField(max_length=50, blank=True, null=True)
@@ -70,6 +73,15 @@ class Dispersion(models.Model):
                 self.servicio = str(self.cliente.servicio)
             except Exception:
                 pass
+        # Copiar facturadora y forma de pago del cliente
+        try:
+            self.facturadora = self.cliente.facturadora
+        except Exception:
+            pass
+        try:
+            self.forma_pago = self.cliente.forma_pago
+        except Exception:
+            pass
 
         # Calcular montos
         if self.monto_dispersion is None:

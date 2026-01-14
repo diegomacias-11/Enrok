@@ -52,6 +52,8 @@ class ClienteForm(forms.ModelForm):
             "ejecutivo2",
             "ejecutivo_apoyo",
             "servicio",
+            "facturadora",
+            "forma_pago",
             "comision_servicio",
             *[f"comisionista{i}" for i in range(1, 13)],
             *[f"comision{i}" for i in range(1, 13)],
@@ -113,7 +115,13 @@ class ClienteForm(forms.ModelForm):
                 field.disabled = True
                 field.required = False
         elif _user_in_groups(self.user, ["Ejecutivo Sr"]):
-            editable = {"razon_social", "ac", "ejecutivo", "ejecutivo_apoyo"}
+            editable = {"razon_social", "ac", "facturadora", "forma_pago", "ejecutivo", "ejecutivo_apoyo"}
+            for name, field in self.fields.items():
+                if name not in editable:
+                    field.disabled = True
+                    field.required = False
+        elif _user_in_groups(self.user, ["Dirección Operaciones", "Direccion Operaciones"]):
+            editable = {"razon_social", "ac", "facturadora", "forma_pago", "ejecutivo", "ejecutivo_apoyo"}
             for name, field in self.fields.items():
                 if name not in editable:
                     field.disabled = True

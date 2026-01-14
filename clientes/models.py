@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.db import models
 from alianzas.models import Alianza
-from core.choices import AC_CHOICES, SERVICIO_CHOICES
+from core.choices import AC_CHOICES, SERVICIO_CHOICES, FACTURADORA_CHOICES, FORMA_PAGO_CHOICES
 
 
 class Cliente(models.Model):
@@ -30,6 +30,8 @@ class Cliente(models.Model):
     )
     ac = models.CharField(max_length=20, choices=AC_CHOICES, null=True, blank=True)
     servicio = models.CharField(max_length=50, choices=SERVICIO_CHOICES)
+    facturadora = models.CharField(max_length=100, choices=FACTURADORA_CHOICES, null=True, blank=True)
+    forma_pago = models.CharField(max_length=100, choices=FORMA_PAGO_CHOICES, null=True, blank=True)
     # Comision global por servicio (0..1 almacenado)
     # Permite alta precision (hasta 6 decimales tras convertir a fraccion)
     comision_servicio = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)

@@ -502,6 +502,50 @@ main {
   min-width: 100%;
   border-collapse: collapse;
 }
+.table input[type="checkbox"],
+form input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffcf56;
+  border-radius: 3px;
+  background: #ffffff;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  opacity: 1;
+}
+.table input[type="checkbox"]::after,
+form input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid #003b71;
+  border-bottom: 2px solid #003b71;
+  transform: translateX(-50%) rotate(45deg) scale(0);
+  transform-origin: center;
+  transition: transform 0.08s ease-in-out;
+}
+.table input[type="checkbox"]:checked,
+form input[type="checkbox"]:checked {
+  background: #ffcf56;
+}
+.table input[type="checkbox"]:checked::after,
+form input[type="checkbox"]:checked::after {
+  transform: translateX(-50%) rotate(45deg) scale(1);
+}
+.table input[type="checkbox"] {
+  margin: 0 auto;
+}
+.dispersiones-form .form-col input[type="checkbox"] {
+  display: block;
+  margin: 0 auto;
+  transform: translateX(2px);
+}
 
 /* Sticky first two columns across all tables */
 .table { --sticky-col-1: 9.5rem; --sticky-col-2: 8.5rem; }

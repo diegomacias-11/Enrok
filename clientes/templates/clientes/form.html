@@ -27,6 +27,12 @@
       <label for="{{ form.servicio.id_for_label }}">Servicio</label>
       {{ form.servicio }}
 
+      <label for="{{ form.facturadora.id_for_label }}">Facturadora</label>
+      {{ form.facturadora }}
+
+      <label for="{{ form.forma_pago.id_for_label }}">Forma de pago</label>
+      {{ form.forma_pago }}
+
       <label for="{{ form.comision_servicio.id_for_label }}">Comisión por servicio (%)</label>
       {{ form.comision_servicio }}      {% if form.comision_servicio.errors %}      <div class="form-alert">{{ form.comision_servicio.errors }}</div>      {% endif %}
     </div>

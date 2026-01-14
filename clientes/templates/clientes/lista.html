@@ -33,6 +33,8 @@
     <th class="sticky-1 col-actions">Acciones</th>
     <th class="sticky-2">Razón Social</th>
     <th>AC</th>
+    <th>Facturadora</th>
+    <th>Forma de pago</th>
     <th>Ejecutivo</th>
     <th>Ejecutivo 2</th>
     <th>Ejecutivo de apoyo</th>
@@ -49,6 +51,8 @@
     </td>
     <td class="sticky-2">{{ c.razon_social|default_if_none:"" }}</td>
     <td>{{ c.get_ac_display|default_if_none:"" }}</td>
+    <td>{{ c.facturadora|default_if_none:"" }}</td>
+    <td>{{ c.get_forma_pago_display|default_if_none:"" }}</td>
     <td>{% with exec=c.ejecutivo %}{% if exec %}{{ exec.get_full_name|default:exec.username }}{% endif %}{% endwith %}</td>
     <td>{% with exec2=c.ejecutivo2 %}{% if exec2 %}{{ exec2.get_full_name|default:exec2.username }}{% endif %}{% endwith %}</td>
     <td>
@@ -60,6 +64,6 @@
     <td>{% if c.comision_servicio is not None %}{{ c.comision_servicio|pct:3 }}{% endif %}</td>
   </tr>
   {% empty %}
-  <tr><td colspan="8">No hay clientes registrados.</td></tr>
+  <tr><td colspan="10">No hay clientes registrados.</td></tr>
   {% endfor %}
 {% endblock %}

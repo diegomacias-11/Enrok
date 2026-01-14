@@ -31,6 +31,9 @@
          class="{% if 'clientes' in request.path %}active{% endif %}">Clientes</a>
       <a href="{% url 'dispersiones_list' %}"
          class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
+    {% elif user.is_authenticated and user|has_group:"Contabilidad" %}
+      <a href="{% url 'dispersiones_list' %}"
+         class="{% if 'dispersiones' in request.path %}active{% endif %}">Facturas</a>
     {% else %}
       <a href="{% url 'alianzas_list' %}"
          class="{% if 'alianzas' in request.path %}active{% endif %}">Alianzas</a>
