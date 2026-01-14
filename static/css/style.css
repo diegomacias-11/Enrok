@@ -548,12 +548,15 @@ form input[type="checkbox"]:checked::after {
 }
 
 .dispersiones-form .form-grid-contabilidad {
+  grid-template-columns: 1fr;
   justify-items: center;
+  width: 100%;
 }
 .dispersiones-form .form-grid-contabilidad .form-col {
   align-items: center;
   margin-left: auto;
   margin-right: auto;
+  justify-self: center;
 }
 
 /* Sticky first two columns across all tables */
