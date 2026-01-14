@@ -289,9 +289,10 @@ def editar_dispersion(request, id: int):
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(instance=disp, mes=mes, anio=anio, user=request.user)
+    template_name = "dispersiones/form_contabilidad.html" if is_contabilidad else "dispersiones/form.html"
     return render(
         request,
-        "dispersiones/form.html",
+        template_name,
         {
             "form": form,
             "dispersion": disp,

@@ -1,0 +1,67 @@
+{% extends "form.html" %}
+{% load cliente_extras %}
+
+{% block form_container_classes %}dispersiones-form dispersiones-form-conta{% endblock %}
+
+{% block title %}Editar Dispersión{% endblock %}
+
+{% block back_link %}
+  <section class="filter-container">
+    <a href="{{ back_url|default_if_none:'' }}" class="btn-filter">Volver</a>
+  </section>
+{% endblock %}
+
+{% block form_fields %}
+  <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">
+  <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
+  <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
+
+  <div class="form-grid form-grid-contabilidad">
+    <div class="form-col">
+      <label>Fecha</label>
+      <input type="text" value="{% if dispersion %}{{ dispersion.fecha|date:"d/m/Y" }}{% endif %}" disabled>
+
+      <label>Cliente</label>
+      <input type="text" value="{% if dispersion %}{{ dispersion.cliente.razon_social|default_if_none:'' }}{% endif %}" disabled>
+
+      <label>Comisión (%)</label>
+      <input type="text" value="{% if dispersion %}{{ dispersion.comision_porcentaje|floatformat:2 }}%{% endif %}" disabled>
+
+      <label>Monto dispersión</label>
+      <div class="input-currency has-symbol-value">
+        <input type="text" value="{% if dispersion %}{{ dispersion.monto_dispersion|currency }}{% endif %}" disabled>
+      </div>
+
+      <label>Monto comisión</label>
+      <div class="input-currency has-symbol-value">
+        <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision|currency }}{% endif %}" disabled>
+      </div>
+
+      <label>Comisión + IVA</label>
+      <div class="input-currency has-symbol-value">
+        <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision_iva|currency }}{% endif %}" disabled>
+      </div>
+
+      <label>Facturadora</label>
+      <input type="text" value="{% if dispersion %}{{ dispersion.facturadora|default_if_none:'' }}{% endif %}" disabled>
+
+      <label>Forma de pago</label>
+      <input type="text" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% endif %}" disabled>
+
+      <label for="{{ form.num_factura_honorarios.id_for_label }}">No. factura honorarios</label>
+      {{ form.num_factura_honorarios|default_if_none:"" }}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_actions %}
+  {% if dispersion %}
+    <button type="submit"
+            class="btn-delete"
+            formaction="{% url 'dispersiones_delete' dispersion.id %}"
+            formmethod="post"
+            onclick="return confirm('¿Eliminar esta dispersión?');">
+      Eliminar
+    </button>
+  {% endif %}
+{% endblock %}

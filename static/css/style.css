@@ -547,12 +547,12 @@ form input[type="checkbox"]:checked::after {
   transform: translateX(2px);
 }
 
-.dispersiones-form .form-grid-contabilidad {
+.dispersiones-form-conta .form-grid-contabilidad {
   grid-template-columns: 1fr;
   justify-items: center;
   width: 100%;
 }
-.dispersiones-form .form-grid-contabilidad .form-col {
+.dispersiones-form-conta .form-grid-contabilidad .form-col {
   align-items: center;
   margin-left: auto;
   margin-right: auto;
