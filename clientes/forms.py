@@ -67,6 +67,9 @@ class ClienteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
+        # Default: require all fields, then relax exceptions below.
+        for field in self.fields.values():
+            field.required = True
         if "ac" in self.fields:
             self.fields["ac"].empty_label = "---------"
 
@@ -109,6 +112,16 @@ class ClienteForm(forms.ModelForm):
         if "comision_servicio" in self.fields:
             self.fields["comision_servicio"].required = False
             self.fields["comision_servicio"].disabled = True
+        for i in range(1, 13):
+            f = f"comisionista{i}"
+            if f in self.fields:
+                self.fields[f].required = False
+            f = f"comision{i}"
+            if f in self.fields:
+                self.fields[f].required = False
+        for f in ("ejecutivo", "ejecutivo2", "ejecutivo_apoyo"):
+            if f in self.fields:
+                self.fields[f].required = False
 
         if _user_in_groups(self.user, ["Ejecutivo Jr", "Ejecutivo Apoyo"]):
             for field in self.fields.values():
