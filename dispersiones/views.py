@@ -76,7 +76,7 @@ def dispersiones_lista(request):
     if redir:
         return redir
 
-    dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
+    dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
@@ -91,6 +91,7 @@ def dispersiones_lista(request):
         clientes_qs = Cliente.objects.all()
     else:
         cliente_id = request.GET.get("cliente") or ""
+        ejecutivo_id = request.GET.get("ejecutivo") or ""
         if is_ejecutivo:
             puede_ver_todos = _can_ver_todos_clientes(request.user)
             dispersiones = dispersiones.filter(
@@ -100,7 +101,7 @@ def dispersiones_lista(request):
                 | Q(ejecutivo=request.user)
             ).distinct()
             if puede_ver_todos:
-                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
+                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
             if cliente_id:
                 dispersiones = dispersiones.filter(cliente_id=cliente_id)
             if puede_ver_todos:
@@ -112,12 +113,13 @@ def dispersiones_lista(request):
                     | Q(ejecutivo_apoyo=request.user)
                     | Q(dispersion__ejecutivo=request.user)
                 ).distinct()
-            ejecutivo_id = estatus_pago = ""
+            estatus_pago = ""
             factura_solicitada = request.GET.get("factura_solicitada") or ""
+            if ejecutivo_id:
+                dispersiones = dispersiones.filter(ejecutivo_id=ejecutivo_id)
             if factura_solicitada in ("0", "1"):
                 dispersiones = dispersiones.filter(factura_solicitada=(factura_solicitada == "1"))
         else:
-            ejecutivo_id = request.GET.get("ejecutivo") or ""
             estatus_pago = ""
             factura_solicitada = request.GET.get("factura_solicitada") or ""
             if ejecutivo_id:
@@ -151,7 +153,7 @@ def dispersiones_lista(request):
         "is_contabilidad": is_contabilidad,
         "is_ejecutivo": is_ejecutivo,
         "ejecutivos": ejecutivos,
-        "f_ejecutivo": ejecutivo_id if not is_ejecutivo else "",
+        "f_ejecutivo": ejecutivo_id,
         "f_cliente": cliente_id,
         "f_factura_solicitada": factura_solicitada,
         "f_estatus_pago": "",
@@ -175,7 +177,7 @@ def dispersiones_kanban(request):
     if redir:
         return redir
 
-    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("fecha")
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
 
     grouped = []
     for estatus in ("Pendiente", "Pagado"):

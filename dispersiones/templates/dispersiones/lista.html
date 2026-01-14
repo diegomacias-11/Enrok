@@ -46,7 +46,6 @@
               {% endfor %}
             </select>
           </div>
-          {% if not is_ejecutivo %}
             <span class="filter-separator" aria-hidden="true"></span>
             <div class="filter-block">
               <label for="f_ejecutivo">Ejecutivo</label>
@@ -59,6 +58,7 @@
             </div>
             <span class="filter-separator" aria-hidden="true"></span>
             <div class="filter-block">
+          {% if not is_ejecutivo %}
               <label for="f_factura_solicitada">Factura solicitada</label>
               <select id="f_factura_solicitada" name="factura_solicitada">
                 <option value="">Todos</option>
@@ -110,9 +110,7 @@
       <th>No. periodo</th>
       <th>Servicio</th>
       <th>Comisión (%)</th>
-      {% if not is_ejecutivo %}
       <th>Ejecutivo</th>
-      {% endif %}
       <th>Monto dispersión</th>
       <th>Monto comisión</th>
       <th>Comisión + IVA</th>
@@ -149,13 +147,11 @@
         <td>{{ d.num_periodo|default_if_none:"" }}</td>
         <td>{{ d.servicio|default_if_none:"" }}</td>
         <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
-        {% if not is_ejecutivo %}
         <td>
           {% with e1=d.ejecutivo %}
             {% if e1 %}{{ e1.get_full_name|default:e1.username }}{% endif %}
           {% endwith %}
         </td>
-        {% endif %}
         <td>{{ d.monto_dispersion|currency }}</td>
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
@@ -173,7 +169,7 @@
       {% endif %}
     </tr>
   {% empty %}
-    <tr><td colspan="{% if is_contabilidad %}10{% elif not is_ejecutivo %}19{% else %}18{% endif %}">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if is_contabilidad %}10{% else %}19{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}
 
