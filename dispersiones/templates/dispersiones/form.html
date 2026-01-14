@@ -32,10 +32,14 @@
         <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
 
         <label>Monto comisión</label>
-        <div class="input-currency">{% if dispersion %}{{ dispersion.monto_comision|currency }}{% endif %}</div>
+        <div class="input-currency">
+          <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision|currency }}{% endif %}" disabled>
+        </div>
 
         <label>Comisión + IVA</label>
-        <div class="input-currency">{% if dispersion %}{{ dispersion.monto_comision_iva|currency }}{% endif %}</div>
+        <div class="input-currency">
+          <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision_iva|currency }}{% endif %}" disabled>
+        </div>
 
         <label>Facturadora</label>
         <input type="text" value="{% if dispersion %}{{ dispersion.facturadora|default_if_none:'' }}{% endif %}" disabled>
