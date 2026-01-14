@@ -763,6 +763,14 @@ form input[type="checkbox"]:checked::after {
   
   max-width: 400px;
 }
+.form-container input:disabled,
+.form-container select:disabled,
+.form-container textarea:disabled {
+  background-color: #f3f6fa;
+  color: #6b7a8c;
+  border-color: #c6d3e2;
+  opacity: 1;
+}
 
 
 .form-container input:focus,

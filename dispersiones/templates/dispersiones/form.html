@@ -1,4 +1,5 @@
 ﻿{% extends "form.html" %}
+{% load cliente_extras %}
 
 {% block form_container_classes %}dispersiones-form{% endblock %}
 
@@ -15,65 +16,101 @@
   <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
   <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
 
-  <div class="form-grid">
-    <div class="form-col">
-      <label for="{{ form.fecha.id_for_label }}">Fecha</label>
-      {{ form.fecha }}
+  {% if is_contabilidad %}
+    <div class="form-grid">
+      <div class="form-col">
+        <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+        {{ form.fecha }}
 
-      <label for="{{ form.cliente.id_for_label }}">Cliente</label>
-      {{ form.cliente|default_if_none:"" }}
+        <label for="{{ form.cliente.id_for_label }}">Cliente</label>
+        {{ form.cliente|default_if_none:"" }}
 
-      <label>Servicio</label>
-      <input type="text" id="cliente-servicio" value="{{ cliente_info.servicio|default_if_none:'' }}" disabled>
+        <label>Comisión (%)</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.comision_porcentaje|floatformat:2 }}%{% endif %}" disabled>
 
-      <label>Comisión servicio</label>
-      <input type="text" id="cliente-comision" value="{{ cliente_info.comision_servicio|default_if_none:'' }}" disabled>
+        <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
+        <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
 
-      <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
-      {{ form.ejecutivo|default_if_none:"" }}
+        <label>Monto comisión</label>
+        <div class="input-currency">{% if dispersion %}{{ dispersion.monto_comision|currency }}{% endif %}</div>
 
-      <label for="{{ form.comentarios.id_for_label }}">Comentarios</label>
-      {{ form.comentarios|default_if_none:"" }}
+        <label>Comisión + IVA</label>
+        <div class="input-currency">{% if dispersion %}{{ dispersion.monto_comision_iva|currency }}{% endif %}</div>
+
+        <label>Facturadora</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.facturadora|default_if_none:'' }}{% endif %}" disabled>
+
+        <label>Forma de pago</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% endif %}" disabled>
+
+        <label for="{{ form.num_factura_honorarios.id_for_label }}">No. factura honorarios</label>
+        {{ form.num_factura_honorarios|default_if_none:"" }}
+      </div>
     </div>
+  {% else %}
+    <div class="form-grid">
+      <div class="form-col">
+        <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+        {{ form.fecha }}
 
-    <div class="form-col">
-      <label for="{{ form.num_periodo.id_for_label }}">No. periodo</label>
-      {{ form.num_periodo|default_if_none:"" }}
+        <label for="{{ form.cliente.id_for_label }}">Cliente</label>
+        {{ form.cliente|default_if_none:"" }}
 
-      <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
-      <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
+        <label>Servicio</label>
+        <input type="text" id="cliente-servicio" value="{{ cliente_info.servicio|default_if_none:'' }}" disabled>
 
-      {% if dispersion %}
-      <label for="{{ form.monto_comision_iva.id_for_label }}">Comisión + IVA</label>
-      <div class="input-currency">{{ form.monto_comision_iva|default_if_none:"" }}</div>
-      {% endif %}
+        <label>Comisión servicio</label>
+        <input type="text" id="cliente-comision" value="{{ cliente_info.comision_servicio|default_if_none:'' }}" disabled>
 
-      <label for="{{ form.ac.id_for_label }}">AC</label>
-      <input type="text" id="cliente-ac" value="{{ cliente_info.ac|default_if_none:'' }}" disabled>
+        <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
+        {{ form.ejecutivo|default_if_none:"" }}
+
+        <label for="{{ form.comentarios.id_for_label }}">Comentarios</label>
+        {{ form.comentarios|default_if_none:"" }}
+      </div>
+
+      <div class="form-col">
+        <label for="{{ form.num_periodo.id_for_label }}">No. periodo</label>
+        {{ form.num_periodo|default_if_none:"" }}
+
+        <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
+        <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
+
+        {% if dispersion %}
+        <label for="{{ form.monto_comision_iva.id_for_label }}">Comisión + IVA</label>
+        <div class="input-currency">{{ form.monto_comision_iva|default_if_none:"" }}</div>
+        {% endif %}
+
+        <label for="{{ form.ac.id_for_label }}">AC</label>
+        <input type="text" id="cliente-ac" value="{{ cliente_info.ac|default_if_none:'' }}" disabled>
 
       <label for="{{ form.num_factura.id_for_label }}">No. factura</label>
       {{ form.num_factura|default_if_none:"" }}
 
+      <label>Facturadora</label>
+      <input type="text" id="cliente-facturadora" value="{{ cliente_info.facturadora|default_if_none:'' }}" disabled>
+
       <label for="{{ form.num_factura_honorarios.id_for_label }}">No. factura honorarios</label>
       {{ form.num_factura_honorarios|default_if_none:"" }}
+      </div>
+
+      <div class="form-col">
+        <label for="{{ form.estatus_proceso.id_for_label }}">Estatus proceso</label>
+        {{ form.estatus_proceso|default_if_none:"" }}
+
+        <label for="{{ form.estatus_periodo.id_for_label }}">Estatus periodo</label>
+        {{ form.estatus_periodo|default_if_none:"" }}
+
+        <label for="{{ form.estatus_pago.id_for_label }}">Estatus pago</label>
+        {{ form.estatus_pago|default_if_none:"" }}
+
+        {% if dispersion %}
+        <label for="{{ form.factura_solicitada.id_for_label }}">Factura solicitada</label>
+        {{ form.factura_solicitada|default_if_none:"" }}
+        {% endif %}
+      </div>
     </div>
-
-    <div class="form-col">
-      <label for="{{ form.estatus_proceso.id_for_label }}">Estatus proceso</label>
-      {{ form.estatus_proceso|default_if_none:"" }}
-
-      <label for="{{ form.estatus_periodo.id_for_label }}">Estatus periodo</label>
-      {{ form.estatus_periodo|default_if_none:"" }}
-
-      <label for="{{ form.estatus_pago.id_for_label }}">Estatus pago</label>
-      {{ form.estatus_pago|default_if_none:"" }}
-
-      {% if dispersion %}
-      <label for="{{ form.factura_solicitada.id_for_label }}">Factura solicitada</label>
-      {{ form.factura_solicitada|default_if_none:"" }}
-      {% endif %}
-    </div>
-  </div>
+  {% endif %}
 {% endblock %}
 
 {% block extra_actions %}
@@ -98,6 +135,7 @@
       var acInput = document.getElementById("cliente-ac");
       var servicioInput = document.getElementById("cliente-servicio");
       var comisionInput = document.getElementById("cliente-comision");
+      var facturadoraInput = document.getElementById("cliente-facturadora");
       var ejecutivoSelect = document.getElementById("{{ form.ejecutivo.id_for_label }}");
       var isEditing = {{ dispersion|yesno:"true,false" }};
 
@@ -110,6 +148,7 @@
         if (acInput) acInput.value = data.ac || "";
         if (servicioInput) servicioInput.value = data.servicio || "";
         if (comisionInput) comisionInput.value = data.comision || "";
+        if (facturadoraInput) facturadoraInput.value = data.facturadora || "";
         if (ejecutivoSelect && !isEditing && !ejecutivoSelect.value) {
           ejecutivoSelect.value = data.ejecutivoId || "";
         }

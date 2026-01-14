@@ -229,8 +229,15 @@ def agregar_dispersion(request):
         return redir
     back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    is_contabilidad = (
+        request.user.is_authenticated
+        and not request.user.is_superuser
+        and request.user.groups.filter(name__iexact="Contabilidad").exists()
+    )
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
+    if is_contabilidad:
+        return redirect(back_url)
 
     if request.method == "POST":
         mes = int(request.POST.get("mes") or mes or datetime.now().month)
@@ -241,12 +248,29 @@ def agregar_dispersion(request):
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(mes=mes, anio=anio, user=request.user)
-    return render(request, "dispersiones/form.html", {"form": form, "back_url": back_url, "mes": mes, "anio": anio, "is_ejecutivo": is_ejecutivo, "cliente_info": form.cliente_info})
+    return render(
+        request,
+        "dispersiones/form.html",
+        {
+            "form": form,
+            "back_url": back_url,
+            "mes": mes,
+            "anio": anio,
+            "is_ejecutivo": is_ejecutivo,
+            "is_contabilidad": is_contabilidad,
+            "cliente_info": form.cliente_info,
+        },
+    )
 
 
 def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    is_contabilidad = (
+        request.user.is_authenticated
+        and not request.user.is_superuser
+        and request.user.groups.filter(name__iexact="Contabilidad").exists()
+    )
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
     if is_ejecutivo and not (
@@ -265,7 +289,20 @@ def editar_dispersion(request, id: int):
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(instance=disp, mes=mes, anio=anio, user=request.user)
-    return render(request, "dispersiones/form.html", {"form": form, "dispersion": disp, "back_url": back_url, "mes": mes, "anio": anio, "is_ejecutivo": is_ejecutivo, "cliente_info": form.cliente_info})
+    return render(
+        request,
+        "dispersiones/form.html",
+        {
+            "form": form,
+            "dispersion": disp,
+            "back_url": back_url,
+            "mes": mes,
+            "anio": anio,
+            "is_ejecutivo": is_ejecutivo,
+            "is_contabilidad": is_contabilidad,
+            "cliente_info": form.cliente_info,
+        },
+    )
 
 
 def eliminar_dispersion(request, id: int):

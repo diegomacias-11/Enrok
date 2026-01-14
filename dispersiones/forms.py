@@ -75,6 +75,7 @@ class ClienteSelect(forms.Select):
                 "data-ac": ac,
                 "data-servicio": servicio,
                 "data-comision": comision,
+                "data-facturadora": getattr(obj, "facturadora", "") or "",
                 "data-ejecutivo-id": str(ejecutivo_id),
             }
         )
@@ -149,6 +150,7 @@ class DispersionForm(forms.ModelForm):
                 "ac": cliente_obj.get_ac_display() if hasattr(cliente_obj, "get_ac_display") else "",
                 "servicio": getattr(cliente_obj, "get_servicio_display", lambda: getattr(cliente_obj, "servicio", ""))(),
                 "comision_servicio": _format_comision_display(cliente_obj),
+                "facturadora": getattr(cliente_obj, "facturadora", "") or "",
             }
 
         for field_name in ("ejecutivo",):
@@ -197,7 +199,7 @@ class DispersionForm(forms.ModelForm):
                 if name != "num_factura_honorarios":
                     field.disabled = True
                     field.required = False
-        elif "num_factura_honorarios" in self.fields:
+        elif "num_factura_honorarios" in self.fields and not getattr(self.user, "is_superuser", False):
             self.fields["num_factura_honorarios"].disabled = True
             self.fields["num_factura_honorarios"].required = False
 
