@@ -1,7 +1,6 @@
 ﻿SERVICIO_CHOICES = [
     ("Pendiente", "Pendiente"),
     ("Otros", "Otros"),
-    ("Todos", "Todos"),
     ("Fiscal", "Fiscal"),
     ("Auto-ahorro", "Auto-ahorro"),
     ("CheckUp", "CheckUp"),
