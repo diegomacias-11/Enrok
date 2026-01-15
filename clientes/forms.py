@@ -127,7 +127,7 @@ class ClienteForm(forms.ModelForm):
             for field in self.fields.values():
                 field.disabled = True
                 field.required = False
-            editable = {"ac", "facturadora", "forma_pago"}
+            editable = {"razon_social","ac", "facturadora", "forma_pago"}
             for name in editable:
                 if name in self.fields:
                     self.fields[name].disabled = False
