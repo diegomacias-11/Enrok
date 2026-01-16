@@ -1641,6 +1641,15 @@ textarea::placeholder {
   color: #1f2a3d;
   margin-bottom: 8px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+.kanban-column-count {
+  font-size: 0.85rem;
+  color: #24364a;
 }
 .kanban-period {
   border: 1px dashed #c7d5e5;

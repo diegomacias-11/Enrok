@@ -65,7 +65,10 @@
   <div class="kanban-board">
     {% for bloque in kanban_data %}
       <div class="kanban-column {% if bloque.status_class %}{{ bloque.status_class }}{% endif %}">
-        <div class="kanban-column-title">{{ bloque.titulo }}</div>
+        <div class="kanban-column-title">
+          <span>{{ bloque.titulo }}</span>
+          <span class="kanban-column-count">Total: {{ bloque.card_count }}</span>
+        </div>
         {% for periodo in bloque.periodos %}
           <details class="kanban-period">
             <summary class="kanban-period-title">

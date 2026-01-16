@@ -315,11 +315,13 @@ def dispersiones_kanban_ejecutivos(request):
             ]
             card_count = sum(len(grupo["items"]) for grupo in clientes)
             periodos.append({"titulo": periodo, "clientes": clientes, "card_count": card_count})
+        total_count = sum(periodo["card_count"] for periodo in periodos)
         grouped.append(
             {
                 "titulo": estatus,
                 "status_class": status_classes.get(estatus, ""),
                 "periodos": periodos,
+                "card_count": total_count,
             }
         )
 
