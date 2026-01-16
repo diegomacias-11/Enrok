@@ -56,6 +56,7 @@
     <span class="filter-separator" aria-hidden="true"></span>
     <div class="filter-actions">
       <button type="submit" class="btn-filter">Filtrar</button>
+      <a href="{% url 'comisiones_list' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
     </div>
   </form>
   <a href="{% url 'comisiones_pago_add' %}?mes={{ mes }}&anio={{ anio }}" class="btn-primary">Registrar pago</a>
