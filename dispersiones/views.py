@@ -166,6 +166,11 @@ def dispersiones_lista(request):
 def dispersiones_kanban(request):
     if not request.user.is_authenticated:
         return redirect(reverse("login"))
+    is_contabilidad = (
+        request.user.is_authenticated
+        and not request.user.is_superuser
+        and request.user.groups.filter(name__iexact="Contabilidad").exists()
+    )
     if not (
         request.user.is_superuser
         or request.user.groups.filter(name__iexact="Dirección Operaciones").exists()
