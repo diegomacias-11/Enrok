@@ -1,4 +1,4 @@
-﻿from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from django import forms
 from django.contrib.auth import get_user_model, models as auth_models
 from .models import Cliente
@@ -138,7 +138,7 @@ class ClienteForm(forms.ModelForm):
                     field.disabled = True
                     field.required = False
         elif _user_in_groups(self.user, ["Dirección Operaciones", "Direccion Operaciones"]):
-            editable = {"razon_social", "ac", "facturadora", "forma_pago", "ejecutivo", "ejecutivo_apoyo"}
+            editable = set(self.fields.keys()) - {"comision_servicio"}
             for name, field in self.fields.items():
                 if name not in editable:
                     field.disabled = True
@@ -219,3 +219,4 @@ class ClienteForm(forms.ModelForm):
 
     def save(self, commit=True):
         return super().save(commit=commit)
+

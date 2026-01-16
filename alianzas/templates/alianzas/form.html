@@ -21,6 +21,34 @@
       {{ form.correo_electronico }}
     </div>
   </div>
+  {% if alianza %}
+    <hr class="form-sep">
+    <div class="form-meta">Clientes</div>
+    {% if clientes_rel %}
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in clientes_rel %}
+              <tr>
+                <td>{{ c.razon_social|default_if_none:"" }}</td>
+                <td>
+                  <a class="btn-detalle" href="{% url 'clientes_edit' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="form-meta">Sin clientes</div>
+    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block extra_actions %}
