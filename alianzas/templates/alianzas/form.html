@@ -30,6 +30,7 @@
           <thead>
             <tr>
               <th>Cliente</th>
+              <th>Servicio</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -37,6 +38,7 @@
             {% for c in clientes_rel %}
               <tr>
                 <td>{{ c.razon_social|default_if_none:"" }}</td>
+                <td>{{ c.get_servicio_display|default_if_none:"" }}</td>
                 <td>
                   <a class="btn-detalle" href="{% url 'clientes_edit' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
                 </td>
