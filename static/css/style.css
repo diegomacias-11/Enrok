@@ -1624,10 +1624,35 @@ textarea::placeholder {
   background: #b8d9b3;
   border-color: #9cc89c;
 }
+.kanban-column.status-proceso-pendiente {
+  background: #f3b0b0;
+  border-color: #e29191;
+}
+.kanban-column.status-proceso-enviada {
+  background: #f5e2a8;
+  border-color: #e6cf7c;
+}
+.kanban-column.status-proceso-aplicada {
+  background: #b8d9b3;
+  border-color: #9cc89c;
+}
 .kanban-column-title {
   font-weight: 700;
   color: #1f2a3d;
   margin-bottom: 8px;
+  text-align: center;
+}
+.kanban-period {
+  border: 1px dashed #c7d5e5;
+  border-radius: 6px;
+  background: #f6f8fb;
+  margin-bottom: 10px;
+  padding: 6px;
+}
+.kanban-period-title {
+  font-weight: 600;
+  color: #1f2a3d;
+  margin-bottom: 6px;
   text-align: center;
 }
 .kanban-area {
@@ -1713,12 +1738,15 @@ textarea::placeholder {
   margin-left: auto;
 }
 .filter-bar .btn-primary {
-  position: static !important;
-  right: auto !important;
-  top: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-}
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+.filter-slot-left .btn-view + .btn-view {
+    margin-left: 1.1rem;
+  }
 .filter-slot-left .btn-primary {
   margin-right: auto !important;
 }

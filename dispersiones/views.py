@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.contrib.auth import get_user_model, models as auth_models
 from .models import Dispersion
-from core.choices import ESTATUS_PAGO_CHOICES
+from core.choices import ESTATUS_PAGO_CHOICES, ESTATUS_PERIODO_CHOICES, ESTATUS_PROCESO_CHOICES
 from .forms import DispersionForm
 from clientes.models import Cliente
 
@@ -183,6 +183,12 @@ def dispersiones_kanban(request):
         return redir
 
     qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
+    ejecutivo_id = request.GET.get("ejecutivo") or ""
+    factura_solicitada = request.GET.get("factura_solicitada") or ""
+    if ejecutivo_id:
+        qs = qs.filter(ejecutivo_id=ejecutivo_id)
+    if factura_solicitada in ("0", "1"):
+        qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
 
     grouped = []
     for estatus in ("Pendiente", "Pagado"):
@@ -218,6 +224,12 @@ def dispersiones_kanban(request):
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ]
     meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
+    ejecutivos_qs = (
+        _users_in_group("Ejecutivo Jr")
+        | _users_in_group("Ejecutivo Sr")
+        | _users_in_group("Ejecutivo Apoyo")
+    ).order_by("username").distinct()
+    ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
     context = {
         "kanban_data": grouped,
         "mes": str(mes),
@@ -226,8 +238,114 @@ def dispersiones_kanban(request):
         "is_contabilidad": is_contabilidad,
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
+        "ejecutivos": ejecutivos,
+        "f_ejecutivo": ejecutivo_id,
+        "f_factura_solicitada": factura_solicitada,
     }
     return render(request, "dispersiones/kanban.html", context)
+
+
+def dispersiones_kanban_ejecutivos(request):
+    if not request.user.is_authenticated:
+        return redirect(reverse("login"))
+    is_contabilidad = (
+        request.user.is_authenticated
+        and not request.user.is_superuser
+        and request.user.groups.filter(name__iexact="Contabilidad").exists()
+    )
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    if is_contabilidad:
+        return redirect(reverse("dispersiones_list"))
+    if not (is_ejecutivo or request.user.is_superuser):
+        return redirect(reverse("dispersiones_list"))
+
+    mes, anio, redir = _coerce_mes_anio(request)
+    if redir:
+        return redir
+
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
+    if is_ejecutivo and not request.user.is_superuser:
+        puede_ver_todos = _can_ver_todos_clientes(request.user)
+        if not puede_ver_todos:
+            qs = qs.filter(
+                Q(cliente__ejecutivo=request.user)
+                | Q(cliente__ejecutivo2=request.user)
+                | Q(cliente__ejecutivo_apoyo=request.user)
+                | Q(ejecutivo=request.user)
+            ).distinct()
+    ejecutivo_id = request.GET.get("ejecutivo") or ""
+    factura_solicitada = request.GET.get("factura_solicitada") or ""
+    if ejecutivo_id:
+        qs = qs.filter(ejecutivo_id=ejecutivo_id)
+    if factura_solicitada in ("0", "1"):
+        qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
+
+    status_classes = {
+        "Pendiente": "status-proceso-pendiente",
+        "Enviada": "status-proceso-enviada",
+        "Aplicada": "status-proceso-aplicada",
+    }
+    grouped = []
+    proceso_order = [key for key, _ in ESTATUS_PROCESO_CHOICES]
+    periodo_order = [key for key, _ in ESTATUS_PERIODO_CHOICES]
+    for estatus in proceso_order:
+        items_proceso = qs.filter(estatus_proceso=estatus)
+        periodos = []
+        for periodo in periodo_order:
+            items_periodo = items_proceso.filter(estatus_periodo=periodo)
+            if not items_periodo.exists():
+                continue
+            by_cliente = {}
+            for d in items_periodo:
+                key = (d.cliente.razon_social or "").strip().upper()
+                if key not in by_cliente:
+                    by_cliente[key] = []
+                by_cliente[key].append(
+                    {
+                        "cliente": d.cliente.razon_social or "",
+                        "id": d.id,
+                        "monto": d.monto_dispersion,
+                        "fecha": d.fecha,
+                        "num_factura_honorarios": d.num_factura_honorarios,
+                    }
+                )
+            clientes = [
+                {"cliente": cliente or "Sin cliente", "items": regs}
+                for cliente, regs in sorted(by_cliente.items())
+            ]
+            periodos.append({"titulo": periodo, "clientes": clientes})
+        grouped.append(
+            {
+                "titulo": estatus,
+                "status_class": status_classes.get(estatus, ""),
+                "periodos": periodos,
+            }
+        )
+
+    meses_nombres = [
+        "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ]
+    meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
+    ejecutivos_qs = (
+        _users_in_group("Ejecutivo Jr")
+        | _users_in_group("Ejecutivo Sr")
+        | _users_in_group("Ejecutivo Apoyo")
+    ).order_by("username").distinct()
+    ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
+    context = {
+        "kanban_data": grouped,
+        "mes": str(mes),
+        "anio": str(anio),
+        "mes_nombre": meses_nombres[mes],
+        "is_contabilidad": is_contabilidad,
+        "meses": list(range(1, 13)),
+        "meses_choices": meses_choices,
+        "ejecutivos": ejecutivos,
+        "f_ejecutivo": ejecutivo_id,
+        "f_factura_solicitada": factura_solicitada,
+    }
+    return render(request, "dispersiones/kanban_ejecutivos.html", context)
 
 
 def agregar_dispersion(request):

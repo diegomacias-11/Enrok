@@ -9,8 +9,15 @@
   <div class="filter-bar">
     <div class="filter-slot filter-slot-left">
       {% if not is_contabilidad %}
-        {% if user.is_superuser or user|has_group:"Dirección Operaciones" or user|has_group:"Direccion Operaciones" %}
+        {% if user.is_superuser %}
+          <span style="display: inline-flex; gap: 14px;">
+            <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban' %}?mes={{ mes }}&anio={{ anio }}">Vista Direc.</a>
+            <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban_ejecutivos' %}?mes={{ mes }}&anio={{ anio }}">Vista Ejec.</a>
+          </span>
+        {% elif user|has_group:"Dirección Operaciones" or user|has_group:"Direccion Operaciones" %}
           <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
+        {% elif user|has_group:"Ejecutivo Jr" or user|has_group:"Ejecutivo Sr" or user|has_group:"Ejecutivo Apoyo" %}
+          <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban_ejecutivos' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
         {% endif %}
       {% endif %}
     </div>

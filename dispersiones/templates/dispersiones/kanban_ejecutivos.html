@@ -1,7 +1,7 @@
 {% extends "kanban_base.html" %}
 {% load cliente_extras %}
 
-{% block title %}Dispersiones (Kanban){% endblock %}
+{% block title %}Dispersiones (Kanban Ejecutivos){% endblock %}
 
 {% block filtros %}
   <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
@@ -27,7 +27,7 @@
         </div>
         <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-block">
-          <label for="anio">Año</label>
+          <label for="anio">Anio</label>
           <input type="number" id="anio" name="anio" value="{{ anio|default_if_none:'' }}" min="2000" max="2100">
         </div>
         <span class="filter-separator" aria-hidden="true"></span>
@@ -52,7 +52,7 @@
         <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-actions">
           <button type="submit" class="btn-filter">Filtrar</button>
-          <a href="{% url 'dispersiones_kanban' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
+          <a href="{% url 'dispersiones_kanban_ejecutivos' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
         </div>
       </form>
     </div>
@@ -66,18 +66,27 @@
     {% for bloque in kanban_data %}
       <div class="kanban-column {% if bloque.status_class %}{{ bloque.status_class }}{% endif %}">
         <div class="kanban-column-title">{{ bloque.titulo }}</div>
-        {% for grupo in bloque.clientes %}
-          <div class="kanban-area">
-            <div class="kanban-area-title">{{ grupo.cliente }}</div>
-            {% if grupo.items %}
-              {% for item in grupo.items %}
-                <div class="kanban-card">
-                  <div class="kanban-card-body">
-                    <div class="kanban-task">{{ item.fecha|date:"d/m/Y" }}</div>
-                    <div class="kanban-meta">{{ item.monto|currency }}</div>
-                    <div class="kanban-honorarios">No. factura honorarios: {{ item.num_factura_honorarios|default_if_none:"" }}</div>
-                    <a class="btn-detalle" href="{% url 'dispersiones_edit' item.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a>
-                  </div>
+        {% for periodo in bloque.periodos %}
+          <div class="kanban-period">
+            <div class="kanban-period-title">{{ periodo.titulo }}</div>
+            {% if periodo.clientes %}
+              {% for grupo in periodo.clientes %}
+                <div class="kanban-area">
+                  <div class="kanban-area-title">{{ grupo.cliente }}</div>
+                  {% if grupo.items %}
+                    {% for item in grupo.items %}
+                      <div class="kanban-card">
+                        <div class="kanban-card-body">
+                          <div class="kanban-task">{{ item.fecha|date:"d/m/Y" }}</div>
+                          <div class="kanban-meta">{{ item.monto|currency }}</div>
+                          <div class="kanban-honorarios">No. factura honorarios: {{ item.num_factura_honorarios|default_if_none:"" }}</div>
+                          <a class="btn-detalle" href="{% url 'dispersiones_edit' item.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="kanban-empty">Sin registros</div>
+                  {% endif %}
                 </div>
               {% endfor %}
             {% else %}
