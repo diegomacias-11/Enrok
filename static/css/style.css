@@ -1650,10 +1650,32 @@ textarea::placeholder {
   padding: 6px;
 }
 .kanban-period-title {
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #e7edf6;
   color: #1f2a3d;
-  margin-bottom: 6px;
-  text-align: center;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  list-style: none;
+}
+.kanban-period-title::-webkit-details-marker {
+  display: none;
+}
+.kanban-period-title::marker {
+  content: "";
+}
+.kanban-period-name {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.kanban-period-count {
+  font-size: 0.85rem;
+  color: #24364a;
 }
 .kanban-area {
   border: 1px solid #c7d5e5;

@@ -67,8 +67,11 @@
       <div class="kanban-column {% if bloque.status_class %}{{ bloque.status_class }}{% endif %}">
         <div class="kanban-column-title">{{ bloque.titulo }}</div>
         {% for periodo in bloque.periodos %}
-          <div class="kanban-period">
-            <div class="kanban-period-title">{{ periodo.titulo }}</div>
+          <details class="kanban-period">
+            <summary class="kanban-period-title">
+              <span class="kanban-period-name">{{ periodo.titulo }}</span>
+              <span class="kanban-period-count">No. dispersiones: {{ periodo.card_count }}</span>
+            </summary>
             {% if periodo.clientes %}
               {% for grupo in periodo.clientes %}
                 <div class="kanban-area">
@@ -92,7 +95,7 @@
             {% else %}
               <div class="kanban-empty">Sin registros</div>
             {% endif %}
-          </div>
+          </details>
         {% endfor %}
       </div>
     {% empty %}
