@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Sum, Q, Count
+from clientes.models import Cliente
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
@@ -56,13 +57,17 @@ def comisiones_lista(request):
 
     # Listado por comisionista con total del periodo
     qs_periodo = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio)
+    cliente_id = request.GET.get("cliente") or ""
+    if cliente_id:
+        qs_periodo = qs_periodo.filter(cliente_id=cliente_id)
     resumen = list(qs_periodo \
         .values('comisionista_id', 'comisionista__nombre') \
         .annotate(total=Sum('monto'), liberadas=Sum('monto', filter=Q(liberada=True))) \
         .order_by('comisionista__nombre'))
 
     # Pagos registrados para el periodo
-    pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio) \
+    com_ids = list(qs_periodo.values_list('comisionista_id', flat=True).distinct())
+    pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id__in=com_ids) \
         .values('comisionista_id').annotate(pagos=Sum('monto'))
     pagos_map = {p['comisionista_id']: p['pagos'] for p in pagos}
     for r in resumen:
@@ -73,9 +78,11 @@ def comisiones_lista(request):
     # Totales de la hoja (mes filtrado)
     total_periodo = qs_periodo.aggregate(v=Sum('monto'))['v'] or 0
     total_liberado = qs_periodo.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0
-    total_pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio).aggregate(v=Sum('monto'))['v'] or 0
+    total_pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id__in=com_ids) \
+        .aggregate(v=Sum('monto'))['v'] or 0
     total_pendiente = total_liberado - total_pagos
 
+    clientes_qs = Cliente.objects.filter(comision__periodo_mes=mes, comision__periodo_anio=anio).distinct()
     meses_choices = [(i, MESES_NOMBRES[i]) for i in range(1, 13)]
     context = {
         'mes': str(mes),
@@ -88,6 +95,8 @@ def comisiones_lista(request):
         'total_liberado': total_liberado,
         'total_pagos': total_pagos,
         'total_pendiente': total_pendiente,
+        'clientes': clientes_qs.order_by('razon_social'),
+        'f_cliente': cliente_id,
     }
     return render(request, 'comisiones/lista.html', context)
 
