@@ -663,13 +663,17 @@ form input[type="checkbox"]:checked::after {
 
 /* Metrics bar under title (gold, 4 columns) */
 .metrics-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: .25rem;
-  width: 100%;
-  align-items: center;
-  margin-bottom: .35rem;
-}
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .25rem;
+    width: 100%;
+    align-items: center;
+    margin-bottom: .35rem;
+  }
+.metrics-row.metrics-row-compact {
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: .15rem;
+  }
 .metrics-row .metric { text-align: center; color: #ffcf56; }
 .metrics-row .metric + .metric { border-left: 1px solid #ffcf56; }
 .metrics-row .metric-label { font-weight: 700; opacity: .95; }

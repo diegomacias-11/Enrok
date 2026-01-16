@@ -1,7 +1,7 @@
 ﻿from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib.auth import get_user_model, models as auth_models
 from .models import Dispersion
 from core.choices import ESTATUS_PAGO_CHOICES, ESTATUS_PERIODO_CHOICES, ESTATUS_PROCESO_CHOICES
@@ -185,10 +185,19 @@ def dispersiones_kanban(request):
     qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
     ejecutivo_id = request.GET.get("ejecutivo") or ""
     factura_solicitada = request.GET.get("factura_solicitada") or ""
+    cliente_id = request.GET.get("cliente") or ""
+    if cliente_id:
+        qs = qs.filter(cliente_id=cliente_id)
     if ejecutivo_id:
         qs = qs.filter(ejecutivo_id=ejecutivo_id)
     if factura_solicitada in ("0", "1"):
         qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
+    clientes_qs = Cliente.objects.all()
+    totals = qs.aggregate(
+        total_dispersado=Sum("monto_dispersion"),
+        total_facturado=Sum("monto_comision_iva"),
+    )
+    total_dispersiones = qs.count()
 
     grouped = []
     for estatus in ("Pendiente", "Pagado"):
@@ -241,6 +250,11 @@ def dispersiones_kanban(request):
         "ejecutivos": ejecutivos,
         "f_ejecutivo": ejecutivo_id,
         "f_factura_solicitada": factura_solicitada,
+        "clientes": clientes_qs.order_by("razon_social"),
+        "f_cliente": cliente_id,
+        "total_dispersiones": total_dispersiones,
+        "total_dispersado": totals["total_dispersado"] or 0,
+        "total_facturado": totals["total_facturado"] or 0,
     }
     return render(request, "dispersiones/kanban.html", context)
 
@@ -273,12 +287,30 @@ def dispersiones_kanban_ejecutivos(request):
                 | Q(cliente__ejecutivo_apoyo=request.user)
                 | Q(ejecutivo=request.user)
             ).distinct()
+            clientes_qs = Cliente.objects.filter(
+                Q(ejecutivo=request.user)
+                | Q(ejecutivo2=request.user)
+                | Q(ejecutivo_apoyo=request.user)
+                | Q(dispersion__ejecutivo=request.user)
+            ).distinct()
+        else:
+            clientes_qs = Cliente.objects.all()
+    else:
+        clientes_qs = Cliente.objects.all()
     ejecutivo_id = request.GET.get("ejecutivo") or ""
     factura_solicitada = request.GET.get("factura_solicitada") or ""
+    cliente_id = request.GET.get("cliente") or ""
+    if cliente_id:
+        qs = qs.filter(cliente_id=cliente_id)
     if ejecutivo_id:
         qs = qs.filter(ejecutivo_id=ejecutivo_id)
     if factura_solicitada in ("0", "1"):
         qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
+    totals = qs.aggregate(
+        total_dispersado=Sum("monto_dispersion"),
+        total_facturado=Sum("monto_comision_iva"),
+    )
+    total_dispersiones = qs.count()
 
     status_classes = {
         "Pendiente": "status-proceso-pendiente",
@@ -347,6 +379,11 @@ def dispersiones_kanban_ejecutivos(request):
         "ejecutivos": ejecutivos,
         "f_ejecutivo": ejecutivo_id,
         "f_factura_solicitada": factura_solicitada,
+        "clientes": clientes_qs.order_by("razon_social"),
+        "f_cliente": cliente_id,
+        "total_dispersiones": total_dispersiones,
+        "total_dispersado": totals["total_dispersado"] or 0,
+        "total_facturado": totals["total_facturado"] or 0,
     }
     return render(request, "dispersiones/kanban_ejecutivos.html", context)
 

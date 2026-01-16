@@ -5,12 +5,26 @@
 
 {% block filtros %}
   <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
+  <div class="metrics-row metrics-row-compact">
+    <div class="metric">
+      <div class="metric-label">Total dispersiones</div>
+      <div class="metric-value">{{ total_dispersiones|default_if_none:"0" }}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total dispersado</div>
+      <div class="metric-value">{{ total_dispersado|default_if_none:""|currency }}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Monto facturado</div>
+      <div class="metric-value">{{ total_facturado|default_if_none:""|currency }}</div>
+    </div>
+  </div>
   <div class="filter-bar">
     <div class="filter-slot filter-slot-left">
       <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_list' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
     </div>
     <div class="filter-slot filter-slot-center">
-      <form method="get" class="filter-form-simple kanban-filter">
+      <form method="get" class="filter-form-simple kanban-filter dispersiones-filter">
         <div class="filter-block">
           <label for="mes">Mes</label>
           <select id="mes" name="mes">
@@ -29,6 +43,16 @@
         <div class="filter-block">
           <label for="anio">Anio</label>
           <input type="number" id="anio" name="anio" value="{{ anio|default_if_none:'' }}" min="2000" max="2100">
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="f_cliente">Cliente</label>
+          <select id="f_cliente" name="cliente">
+            <option value="">Todos</option>
+            {% for c in clientes %}
+              <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social }}</option>
+            {% endfor %}
+          </select>
         </div>
         <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-block">
