@@ -16,8 +16,6 @@ def _is_ejecutivo_restringido(user):
     return (
         user.groups.filter(name__iexact="Ejecutivo Jr").exists()
         or user.groups.filter(name__iexact="Ejecutivo Sr").exists()
-        or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
-        or user.groups.filter(name__iexact="Apoyo").exists()
     )
 
 def _is_apoyo(user):
@@ -25,7 +23,7 @@ def _is_apoyo(user):
         return False
     if getattr(user, "is_superuser", False):
         return False
-    return user.groups.filter(name__iexact="Apoyo").exists()
+    return user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
 
 
 def _can_edit_estatus_pago(user):
@@ -56,7 +54,6 @@ def _can_ver_todos_clientes(user):
     return (
         user.groups.filter(name__iexact="Ejecutivo Sr").exists()
         or user.groups.filter(name__iexact="Direccion Operaciones").exists()
-        or user.groups.filter(name__iexact="Apoyo").exists()
         or user.groups.filter(name__iexact="Dirección Operaciones").exists()
     )
 
