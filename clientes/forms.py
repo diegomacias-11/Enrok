@@ -176,6 +176,12 @@ class ClienteForm(forms.ModelForm):
         self.fields["comision_servicio"].widget.attrs["step"] = "any"
         self.fields["comision_servicio"].widget.attrs["inputmode"] = "decimal"
 
+    def clean_razon_social(self):
+        value = self.cleaned_data.get("razon_social", "")
+        if not value:
+            return value
+        return " ".join(value.split())
+
     def clean(self):
         cleaned = super().clean()
         exec_obj = cleaned.get("ejecutivo")
