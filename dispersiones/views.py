@@ -82,16 +82,17 @@ def dispersiones_lista(request):
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
 
+    cliente_id = request.GET.get("cliente") or ""
     if is_contabilidad:
         is_ejecutivo = False
-        cliente_id = ""
         ejecutivo_id = ""
         estatus_pago = ""
         factura_solicitada = ""
         dispersiones = dispersiones.filter(factura_solicitada=True).distinct()
+        if cliente_id:
+            dispersiones = dispersiones.filter(cliente_id=cliente_id)
         clientes_qs = Cliente.objects.all()
     else:
-        cliente_id = request.GET.get("cliente") or ""
         ejecutivo_id = request.GET.get("ejecutivo") or ""
         if is_ejecutivo:
             puede_ver_todos = _can_ver_todos_clientes(request.user)
@@ -387,6 +388,75 @@ def dispersiones_kanban_ejecutivos(request):
         "total_facturado": totals["total_facturado"] or 0,
     }
     return render(request, "dispersiones/kanban_ejecutivos.html", context)
+
+
+def dispersiones_kanban_contabilidad(request):
+    if not request.user.is_authenticated:
+        return redirect(reverse("login"))
+    is_contabilidad = (
+        request.user.is_authenticated
+        and not request.user.is_superuser
+        and request.user.groups.filter(name__iexact="Contabilidad").exists()
+    )
+    if not is_contabilidad:
+        return redirect(reverse("dispersiones_list"))
+
+    mes, anio, redir = _coerce_mes_anio(request)
+    if redir:
+        return redir
+
+    cliente_id = request.GET.get("cliente") or ""
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio, factura_solicitada=True).order_by("-fecha")
+    if cliente_id:
+        qs = qs.filter(cliente_id=cliente_id)
+
+    grouped = []
+    pendientes_qs = qs.filter(Q(num_factura_honorarios__isnull=True) | Q(num_factura_honorarios=""))
+    completadas_qs = qs.exclude(Q(num_factura_honorarios__isnull=True) | Q(num_factura_honorarios=""))
+    for titulo, items in (("Pendientes", pendientes_qs), ("Completadas", completadas_qs)):
+        by_cliente = {}
+        for d in items:
+            key = (d.cliente.razon_social or "").strip().upper()
+            if key not in by_cliente:
+                by_cliente[key] = []
+            by_cliente[key].append(
+                {
+                    "cliente": d.cliente.razon_social or "",
+                    "id": d.id,
+                    "monto": d.monto_comision_iva,
+                    "fecha": d.fecha,
+                    "num_factura_honorarios": d.num_factura_honorarios,
+                }
+            )
+        clientes = [
+            {"cliente": cliente or "Sin cliente", "items": regs}
+            for cliente, regs in sorted(by_cliente.items())
+        ]
+        grouped.append(
+            {
+                "titulo": titulo,
+                "status_class": "status-pendiente" if titulo == "Pendientes" else "status-pagado",
+                "clientes": clientes,
+            }
+        )
+
+    meses_nombres = [
+        "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ]
+    meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
+    clientes_qs = Cliente.objects.all()
+    context = {
+        "kanban_data": grouped,
+        "mes": str(mes),
+        "anio": str(anio),
+        "mes_nombre": meses_nombres[mes],
+        "meses": list(range(1, 13)),
+        "meses_choices": meses_choices,
+        "clientes": clientes_qs.order_by("razon_social"),
+        "f_cliente": cliente_id,
+    }
+    return render(request, "dispersiones/kanban_contabilidad.html", context)
 
 
 def agregar_dispersion(request):

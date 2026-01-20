@@ -35,7 +35,6 @@ def _can_edit_estatus_pago(user):
         return True
     return (
         user.groups.filter(name__iexact="Ejecutivo Sr").exists()
-        or user.groups.filter(name__iexact="Direcci?n Operaciones").exists()
         or user.groups.filter(name__iexact="Direccion Operaciones").exists()
     )
 

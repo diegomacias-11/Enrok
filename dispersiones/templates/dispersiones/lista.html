@@ -8,7 +8,9 @@
   <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
   <div class="filter-bar">
     <div class="filter-slot filter-slot-left">
-      {% if not is_contabilidad %}
+      {% if is_contabilidad %}
+        <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban_contabilidad' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
+      {% else %}
         {% if user.is_superuser or user|has_group:"Ejecutivo Sr" %}
           <span style="display: inline-flex; gap: 14px;">
             <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban' %}?mes={{ mes }}&anio={{ anio }}">Vista Direc.</a>
@@ -42,20 +44,20 @@
           <label for="anio">Año</label>
           <input type="number" id="anio" name="anio" value="{{ anio|default_if_none:'' }}" min="2000" max="2100">
         </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="f_cliente">Cliente</label>
+          <select id="f_cliente" name="cliente">
+            <option value="">Todos</option>
+            {% for c in clientes %}
+              <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social }}</option>
+            {% endfor %}
+          </select>
+        </div>
         {% if not is_contabilidad %}
           <span class="filter-separator" aria-hidden="true"></span>
           <div class="filter-block">
-            <label for="f_cliente">Cliente</label>
-            <select id="f_cliente" name="cliente">
-              <option value="">Todos</option>
-              {% for c in clientes %}
-                <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social }}</option>
-              {% endfor %}
-            </select>
-          </div>
-            <span class="filter-separator" aria-hidden="true"></span>
-            <div class="filter-block">
-              <label for="f_ejecutivo">Ejecutivo</label>
+            <label for="f_ejecutivo">Ejecutivo</label>
               <select id="f_ejecutivo" name="ejecutivo">
                 <option value="">Todos</option>
                 {% for id, name in ejecutivos %}
