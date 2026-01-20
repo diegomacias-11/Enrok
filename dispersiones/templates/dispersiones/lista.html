@@ -9,14 +9,14 @@
   <div class="filter-bar">
     <div class="filter-slot filter-slot-left">
       {% if not is_contabilidad %}
-        {% if user.is_superuser %}
+        {% if user.is_superuser or user|has_group:"Ejecutivo Sr" %}
           <span style="display: inline-flex; gap: 14px;">
             <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban' %}?mes={{ mes }}&anio={{ anio }}">Vista Direc.</a>
             <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban_ejecutivos' %}?mes={{ mes }}&anio={{ anio }}">Vista Ejec.</a>
           </span>
         {% elif user|has_group:"Dirección Operaciones" or user|has_group:"Direccion Operaciones" %}
           <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
-        {% elif user|has_group:"Ejecutivo Jr" or user|has_group:"Ejecutivo Sr" or user|has_group:"Ejecutivo Apoyo" %}
+        {% elif user|has_group:"Ejecutivo Jr" or user|has_group:"Ejecutivo Apoyo" %}
           <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_kanban_ejecutivos' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
         {% endif %}
       {% endif %}
@@ -64,8 +64,8 @@
               </select>
             </div>
             <span class="filter-separator" aria-hidden="true"></span>
+            {% if not is_contabilidad %}
             <div class="filter-block">
-          {% if not is_ejecutivo %}
               <label for="f_factura_solicitada">Factura solicitada</label>
               <select id="f_factura_solicitada" name="factura_solicitada">
                 <option value="">Todos</option>
@@ -73,7 +73,7 @@
                 <option value="0" {% if f_factura_solicitada == "0" %}selected{% endif %}>No</option>
               </select>
             </div>
-          {% endif %}
+            {% endif %}
         {% endif %}
         <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-actions">

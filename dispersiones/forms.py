@@ -17,7 +17,28 @@ def _is_ejecutivo_restringido(user):
         user.groups.filter(name__iexact="Ejecutivo Jr").exists()
         or user.groups.filter(name__iexact="Ejecutivo Sr").exists()
         or user.groups.filter(name__iexact="Ejecutivo Apoyo").exists()
+        or user.groups.filter(name__iexact="Apoyo").exists()
     )
+
+def _is_apoyo(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return False
+    return user.groups.filter(name__iexact="Apoyo").exists()
+
+
+def _can_edit_estatus_pago(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return True
+    return (
+        user.groups.filter(name__iexact="Ejecutivo Sr").exists()
+        or user.groups.filter(name__iexact="Direcci?n Operaciones").exists()
+        or user.groups.filter(name__iexact="Direccion Operaciones").exists()
+    )
+
 
 
 def _is_contabilidad(user):
@@ -113,6 +134,7 @@ class DispersionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self._is_ejecutivo = _is_ejecutivo_restringido(self.user)
+        self._is_apoyo = _is_apoyo(self.user)
         self._is_contabilidad = _is_contabilidad(self.user)
         self.cliente_info = None
         User = get_user_model()
@@ -189,7 +211,7 @@ class DispersionForm(forms.ModelForm):
                 else:
                     self.initial["fecha"] = first_day
 
-        if self._is_ejecutivo and "estatus_pago" in self.fields:
+        if self._is_ejecutivo and "estatus_pago" in self.fields and not _can_edit_estatus_pago(self.user):
             self.fields["estatus_pago"].disabled = True
             if self.instance and getattr(self.instance, "pk", None):
                 self.initial["estatus_pago"] = self.instance.estatus_pago
@@ -202,6 +224,12 @@ class DispersionForm(forms.ModelForm):
         elif "num_factura_honorarios" in self.fields and not getattr(self.user, "is_superuser", False):
             self.fields["num_factura_honorarios"].disabled = True
             self.fields["num_factura_honorarios"].required = False
+        if self._is_apoyo:
+            allowed = {"estatus_proceso", "estatus_periodo"}
+            for name, field in self.fields.items():
+                if name not in allowed:
+                    field.disabled = True
+                    field.required = False
 
     def clean_fecha(self):
         fecha = self.cleaned_data.get("fecha")
@@ -212,11 +240,16 @@ class DispersionForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        if self._is_ejecutivo:
+        if self._is_ejecutivo and not _can_edit_estatus_pago(self.user):
             if self.instance and getattr(self.instance, "pk", None):
                 cleaned["estatus_pago"] = self.instance.estatus_pago
             else:
                 cleaned["estatus_pago"] = self.fields["estatus_pago"].initial or "Pendiente"
+        if self._is_apoyo and self.instance and getattr(self.instance, "pk", None):
+            allowed = {"estatus_proceso", "estatus_periodo"}
+            for name in self.fields.keys():
+                if name not in allowed:
+                    cleaned[name] = getattr(self.instance, name)
         return cleaned
 
     def save(self, commit=True):

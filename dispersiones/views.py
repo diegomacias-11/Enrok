@@ -77,7 +77,7 @@ def dispersiones_lista(request):
         return redir
 
     dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo", "Apoyo"])
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
 
@@ -267,7 +267,7 @@ def dispersiones_kanban_ejecutivos(request):
         and not request.user.is_superuser
         and request.user.groups.filter(name__iexact="Contabilidad").exists()
     )
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo", "Apoyo"])
     if is_contabilidad:
         return redirect(reverse("dispersiones_list"))
     if not (is_ejecutivo or request.user.is_superuser):
@@ -336,7 +336,7 @@ def dispersiones_kanban_ejecutivos(request):
                     {
                         "cliente": d.cliente.razon_social or "",
                         "id": d.id,
-                        "monto": d.monto_dispersion,
+                        "monto": d.monto_comision,
                         "fecha": d.fecha,
                         "num_factura_honorarios": d.num_factura_honorarios,
                     }
@@ -393,7 +393,7 @@ def agregar_dispersion(request):
     if redir and request.method != "POST":
         return redir
     back_url = request.GET.get("next") or f"{reverse('dispersiones_list')}?mes={mes}&anio={anio}"
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo", "Apoyo"])
     is_contabilidad = (
         request.user.is_authenticated
         and not request.user.is_superuser
@@ -430,7 +430,8 @@ def agregar_dispersion(request):
 
 def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
-    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
+    is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo", "Apoyo"])
+    is_apoyo = _user_in_groups(request.user, ["Apoyo"])
     is_contabilidad = (
         request.user.is_authenticated
         and not request.user.is_superuser
@@ -438,7 +439,7 @@ def editar_dispersion(request, id: int):
     )
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
-    if is_ejecutivo and not (
+    if is_ejecutivo and not is_apoyo and not (
         disp.cliente.ejecutivo_id == request.user.id
         or disp.cliente.ejecutivo2_id == request.user.id
         or disp.cliente.ejecutivo_apoyo_id == request.user.id
