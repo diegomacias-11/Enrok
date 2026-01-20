@@ -56,10 +56,14 @@
   <div class="kanban-board">
     {% for bloque in kanban_data %}
       <div class="kanban-column {% if bloque.status_class %}{{ bloque.status_class }}{% endif %}">
-        <div class="kanban-column-title">{{ bloque.titulo }}</div>
+        <div class="kanban-column-title">
+          <button type="button" class="btn-filter btn-expand-toggle" data-action="toggle">Extender</button>
+          <span class="kanban-column-name">{{ bloque.titulo }}</span>
+          <span class="kanban-column-count">Total: {{ bloque.card_count }}</span>
+        </div>
         {% for grupo in bloque.clientes %}
           <details class="kanban-area">
-            <summary class="kanban-area-title">{{ grupo.cliente }}</summary>
+            <summary class="kanban-area-title kanban-area-title-bar"><span class="kanban-area-name">{{ grupo.cliente }}</span><span class="kanban-area-count">Total: {{ grupo.card_count }}</span></summary>
             {% if grupo.items %}
               {% for item in grupo.items %}
                 <div class="kanban-card">
@@ -82,4 +86,29 @@
       <div class="kanban-empty">Sin dispersiones</div>
     {% endfor %}
   </div>
+  <script>
+    (function () {
+      function toggleColumn(button) {
+        var column = button.closest(".kanban-column");
+        if (!column) {
+          return;
+        }
+        var details = column.querySelectorAll("details.kanban-area");
+        if (!details.length) {
+          return;
+        }
+        var shouldOpen = button.textContent.trim().toLowerCase() === "extender";
+        details.forEach(function (el) {
+          el.open = shouldOpen;
+        });
+        button.textContent = shouldOpen ? "Retraer" : "Extender";
+      }
+
+      document.querySelectorAll(".btn-expand-toggle").forEach(function (button) {
+        button.addEventListener("click", function () {
+          toggleColumn(button);
+        });
+      });
+    })();
+  </script>
 {% endblock %}

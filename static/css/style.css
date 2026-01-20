@@ -1644,16 +1644,26 @@ textarea::placeholder {
   font-weight: 700;
   color: #1f2a3d;
   margin-bottom: 8px;
-  text-align: center;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  text-align: left;
+  column-gap: 8px;
+  text-align: center;
 }
 .kanban-column-count {
   font-size: 0.85rem;
   color: #24364a;
+}
+.kanban-column-name {
+  justify-self: center;
+  text-align: center;
+}
+.kanban-column-title .btn-expand-toggle {
+  justify-self: start;
+  margin: 0;
+}
+.kanban-column-title .kanban-column-count {
+  justify-self: end;
 }
 .kanban-period {
   border: 1px dashed #c7d5e5;
@@ -1709,6 +1719,17 @@ textarea::placeholder {
   color: #0f4c75;
   margin-bottom: 6px;
   text-align: center;
+}
+.kanban-area-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+.kanban-area-count {
+  font-size: 0.85rem;
+  color: #24364a;
 }
 .kanban-card {
   border: 1px solid #d4dde7;

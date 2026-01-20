@@ -177,6 +177,7 @@ def dispersiones_kanban(request):
         request.user.is_superuser
         or request.user.groups.filter(name__iexact="Dirección Operaciones").exists()
         or request.user.groups.filter(name__iexact="Direccion Operaciones").exists()
+        or request.user.groups.filter(name__iexact="Ejecutivo Sr").exists()
     ):
         return redirect(reverse("dispersiones_list"))
 
@@ -219,14 +220,16 @@ def dispersiones_kanban(request):
                 }
             )
         clientes = [
-            {"cliente": cliente or "Sin cliente", "items": regs}
+            {"cliente": cliente or "Sin cliente", "items": regs, "card_count": len(regs)}
             for cliente, regs in sorted(by_cliente.items())
         ]
+        total_count = sum(c["card_count"] for c in clientes)
         grouped.append(
             {
                 "titulo": estatus,
                 "status_class": "status-pendiente" if estatus == "Pendiente" else "status-pagado",
                 "clientes": clientes,
+                "card_count": total_count,
             }
         )
 
@@ -430,14 +433,16 @@ def dispersiones_kanban_contabilidad(request):
                     }
                 )
         clientes = [
-            {"cliente": cliente or "Sin cliente", "items": regs}
+            {"cliente": cliente or "Sin cliente", "items": regs, "card_count": len(regs)}
             for cliente, regs in sorted(by_cliente.items())
         ]
+        total_count = sum(c["card_count"] for c in clientes)
         grouped.append(
             {
                 "titulo": titulo,
                 "status_class": "status-pendiente" if titulo == "Pendientes" else "status-pagado",
                 "clientes": clientes,
+                "card_count": total_count,
             }
         )
 
