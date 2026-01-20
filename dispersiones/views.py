@@ -419,15 +419,16 @@ def dispersiones_kanban_contabilidad(request):
             key = (d.cliente.razon_social or "").strip().upper()
             if key not in by_cliente:
                 by_cliente[key] = []
-            by_cliente[key].append(
-                {
-                    "cliente": d.cliente.razon_social or "",
-                    "id": d.id,
-                    "monto": d.monto_comision_iva,
-                    "fecha": d.fecha,
-                    "num_factura_honorarios": d.num_factura_honorarios,
-                }
-            )
+                by_cliente[key].append(
+                    {
+                        "cliente": d.cliente.razon_social or "",
+                        "id": d.id,
+                        "monto": d.monto_comision_iva,
+                        "fecha": d.fecha,
+                        "forma_pago": d.get_forma_pago_display() if hasattr(d, "get_forma_pago_display") else (d.forma_pago or ""),
+                        "num_factura_honorarios": d.num_factura_honorarios,
+                    }
+                )
         clientes = [
             {"cliente": cliente or "Sin cliente", "items": regs}
             for cliente, regs in sorted(by_cliente.items())
