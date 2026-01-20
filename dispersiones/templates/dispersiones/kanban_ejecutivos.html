@@ -50,7 +50,7 @@
           <select id="f_cliente" name="cliente">
             <option value="">Todos</option>
             {% for c in clientes %}
-              <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social }}</option>
+              <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social|default_if_none:"" }} - {{ c.get_servicio_display|default_if_none:"" }}</option>
             {% endfor %}
           </select>
         </div>
