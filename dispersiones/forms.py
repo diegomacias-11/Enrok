@@ -57,6 +57,7 @@ def _can_ver_todos_clientes(user):
     return (
         user.groups.filter(name__iexact="Ejecutivo Sr").exists()
         or user.groups.filter(name__iexact="Direccion Operaciones").exists()
+        or user.groups.filter(name__iexact="Apoyo").exists()
         or user.groups.filter(name__iexact="Dirección Operaciones").exists()
     )
 
