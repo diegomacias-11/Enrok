@@ -142,7 +142,7 @@ def append_dispersion_row(dispersion):
         except Exception:
             estructura = dispersion.cliente.ac or ""
 
-        cuenta_value = "Banorte" if dispersion.cliente.ac == "CONFEDIN" else ""
+        cuenta_value = "BANORTE" if dispersion.cliente.ac == "CONFEDIN" else ""
         values = {
             "fecha": fecha_value,
             "|": fecha_value,
