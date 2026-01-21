@@ -88,12 +88,17 @@ class ClienteSelect(forms.Select):
             servicio = str(getattr(obj, "servicio", ""))
         comision = _format_comision_display(obj)
         ejecutivo_id = getattr(obj, "ejecutivo_id", "") or ""
+        try:
+            forma_pago = obj.get_forma_pago_display()
+        except Exception:
+            forma_pago = getattr(obj, "forma_pago", "") or ""
         option["attrs"].update(
             {
                 "data-ac": ac,
                 "data-servicio": servicio,
                 "data-comision": comision,
                 "data-facturadora": getattr(obj, "facturadora", "") or "",
+                "data-forma-pago": forma_pago,
                 "data-ejecutivo-id": str(ejecutivo_id),
             }
         )
@@ -170,6 +175,7 @@ class DispersionForm(forms.ModelForm):
                 "servicio": getattr(cliente_obj, "get_servicio_display", lambda: getattr(cliente_obj, "servicio", ""))(),
                 "comision_servicio": _format_comision_display(cliente_obj),
                 "facturadora": getattr(cliente_obj, "facturadora", "") or "",
+                "forma_pago": cliente_obj.get_forma_pago_display() if hasattr(cliente_obj, "get_forma_pago_display") else "",
             }
 
         for field_name in ("ejecutivo",):

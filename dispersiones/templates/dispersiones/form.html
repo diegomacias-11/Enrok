@@ -95,7 +95,7 @@
       {{ form.num_factura_honorarios|default_if_none:"" }}
 
       <label>Forma de pago</label>
-      <input type="text" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% else %}{{ cliente_info.forma_pago|default_if_none:'' }}{% endif %}" disabled>
+      <input type="text" id="cliente-forma-pago" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% else %}{{ cliente_info.forma_pago|default_if_none:'' }}{% endif %}" disabled>
       </div>
 
       <div class="form-col">
@@ -140,6 +140,7 @@
       var servicioInput = document.getElementById("cliente-servicio");
       var comisionInput = document.getElementById("cliente-comision");
       var facturadoraInput = document.getElementById("cliente-facturadora");
+      var formaPagoInput = document.getElementById("cliente-forma-pago");
       var ejecutivoSelect = document.getElementById("{{ form.ejecutivo.id_for_label }}");
       var isEditing = {{ dispersion|yesno:"true,false" }};
 
@@ -153,6 +154,7 @@
         if (servicioInput) servicioInput.value = data.servicio || "";
         if (comisionInput) comisionInput.value = data.comision || "";
         if (facturadoraInput) facturadoraInput.value = data.facturadora || "";
+        if (formaPagoInput) formaPagoInput.value = data.formaPago || "";
         if (ejecutivoSelect && !isEditing && !ejecutivoSelect.value) {
           ejecutivoSelect.value = data.ejecutivoId || "";
         }
