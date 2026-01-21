@@ -93,6 +93,9 @@
 
       <label for="{{ form.num_factura_honorarios.id_for_label }}">No. factura honorarios</label>
       {{ form.num_factura_honorarios|default_if_none:"" }}
+
+      <label>Forma de pago</label>
+      <input type="text" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% else %}{{ cliente_info.forma_pago|default_if_none:'' }}{% endif %}" disabled>
       </div>
 
       <div class="form-col">
