@@ -1652,7 +1652,7 @@ textarea::placeholder {
 }
 .kanban-column-count {
   font-size: 0.85rem;
-  color: #24364a;
+  color: #1f5ea8;
 }
 .kanban-column-name {
   justify-self: center;
@@ -1698,7 +1698,7 @@ textarea::placeholder {
 }
 .kanban-period-count {
   font-size: 0.85rem;
-  color: #24364a;
+  color: #1f5ea8;
 }
 .kanban-area {
   border: 1px solid #c7d5e5;
@@ -1734,7 +1734,7 @@ textarea::placeholder {
 }
 .kanban-area-count {
   font-size: 0.85rem;
-  color: #24364a;
+  color: #1f5ea8;
 }
 .kanban-card {
   border: 1px solid #d4dde7;
@@ -1755,12 +1755,12 @@ textarea::placeholder {
 }
 .kanban-task {
   font-weight: 600;
-  color: #1f2a3d;
+  color: #1f5ea8;
   overflow-wrap: anywhere;
 }
 .kanban-meta {
   font-size: 0.85rem;
-  color: #556575;
+  color: #1f5ea8;
 }
 .kanban-card .btn-detalle {
   position: absolute;
@@ -1772,8 +1772,15 @@ textarea::placeholder {
   line-height: 1.1;
 }
 .kanban-honorarios {
-  font-size: 0.75rem;
-  color: #556575;
+  font-size: 0.85rem;
+  color: #1f5ea8;
+}
+.kanban-meta strong,
+.kanban-honorarios strong,
+.kanban-column-count strong,
+.kanban-period-count strong,
+.kanban-area-count strong {
+  color: #1f5ea8;
 }
 .kanban-empty {
   text-align: center;

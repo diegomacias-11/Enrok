@@ -92,13 +92,13 @@
         <div class="kanban-column-title">
           <button type="button" class="btn-filter btn-expand-toggle" data-action="toggle">Extender</button>
           <span class="kanban-column-name">{{ bloque.titulo }}</span>
-          <span class="kanban-column-count">Total: {{ bloque.card_count }}</span>
+          <span class="kanban-column-count">Total: <strong>{{ bloque.card_count }}</strong></span>
         </div>
         {% for periodo in bloque.periodos %}
           <details class="kanban-period">
             <summary class="kanban-period-title">
               <span class="kanban-period-name">{{ periodo.titulo }}</span>
-              <span class="kanban-period-count">No. dispersiones: {{ periodo.card_count }}</span>
+              <span class="kanban-period-count">No. dispersiones: <strong>{{ periodo.card_count }}</strong></span>
             </summary>
             {% if periodo.clientes %}
               {% for grupo in periodo.clientes %}
@@ -106,11 +106,11 @@
                   <div class="kanban-area-title">{{ grupo.cliente }}</div>
                   {% if grupo.items %}
                     {% for item in grupo.items %}
-                      <div class="kanban-card">
+                        <div class="kanban-card">
                         <div class="kanban-card-body">
                           <div class="kanban-task">{{ item.fecha|date:"d/m/Y" }}</div>
-                          <div class="kanban-meta">{{ item.monto|currency }}</div>
-                          <div class="kanban-honorarios">No. factura honorarios: {{ item.num_factura_honorarios|default_if_none:"" }}</div>
+                          <div class="kanban-meta">Monto dispersión: <strong>{{ item.monto|currency }}</strong></div>
+                          <div class="kanban-honorarios">No. factura honorarios: <strong>{{ item.num_factura_honorarios|default_if_none:"" }}</strong></div>
                           <a class="btn-detalle" href="{% url 'dispersiones_edit' item.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a>
                         </div>
                       </div>
