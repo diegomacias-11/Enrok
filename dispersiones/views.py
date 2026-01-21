@@ -232,16 +232,16 @@ def dispersiones_kanban(request):
             key = (d.cliente.razon_social or "").strip().upper()
             if key not in by_cliente:
                 by_cliente[key] = []
-                by_cliente[key].append(
-                    {
-                        "cliente": d.cliente.razon_social or "",
-                        "id": d.id,
-                        "monto": d.monto_comision_iva,
-                        "monto_enrok": _enrok_comision_monto(d),
-                        "fecha": d.fecha,
-                        "num_factura_honorarios": d.num_factura_honorarios,
-                    }
-                )
+            by_cliente[key].append(
+                {
+                    "cliente": d.cliente.razon_social or "",
+                    "id": d.id,
+                    "monto": d.monto_comision_iva,
+                    "monto_enrok": _enrok_comision_monto(d),
+                    "fecha": d.fecha,
+                    "num_factura_honorarios": d.num_factura_honorarios,
+                }
+            )
         clientes = [
             {"cliente": cliente or "Sin cliente", "items": regs, "card_count": len(regs)}
             for cliente, regs in sorted(by_cliente.items())
