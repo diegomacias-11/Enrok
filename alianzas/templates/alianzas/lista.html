@@ -30,7 +30,7 @@
   {% for alianza in alianzas %}
   <tr>
     <td class="sticky-1 col-actions">
-      <a class="btn-detalle" href="{% url 'alianzas_edit' alianza.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
+      <a class="btn-detalle" href="{% url 'alianzas_edit' alianza.id %}?next={{ request.get_full_path|urlencode }}">Detalle</a>
     </td>
     <td class="sticky-2">{{ alianza.nombre|default_if_none:"" }}</td>
     <td>{{ alianza.correo_electronico|default_if_none:"" }}</td>

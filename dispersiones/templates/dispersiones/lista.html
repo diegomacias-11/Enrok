@@ -142,7 +142,7 @@
 {% block tabla_body %}
   {% for d in dispersiones %}
     <tr>
-      <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Editar</a></td>
+      <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a></td>
       <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
       <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
       {% if is_contabilidad %}

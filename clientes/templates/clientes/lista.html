@@ -47,7 +47,7 @@
   {% for c in clientes %}
   <tr>
     <td class="sticky-1 col-actions">
-      <a class="btn-detalle" href="{% url 'clientes_edit' c.id %}?next={{ request.get_full_path|urlencode }}">Editar</a>
+      <a class="btn-detalle" href="{% url 'clientes_edit' c.id %}?next={{ request.get_full_path|urlencode }}">Detalle</a>
     </td>
     <td class="sticky-2">{{ c.razon_social|default_if_none:"" }}</td>
     <td>{{ c.get_ac_display|default_if_none:"" }}</td>

@@ -101,7 +101,7 @@
                   <td>{{ p.monto|default_if_none:""|currency }}</td>
                   <td>{{ p.comentario|default_if_none:"" }}</td>
                   <td>
-                    <a class="btn-detalle" href="{% url 'comisiones_pago_edit' p.id %}?mes={{ mes }}&anio={{ anio }}">Editar</a>
+                    <a class="btn-detalle" href="{% url 'comisiones_pago_edit' p.id %}?mes={{ mes }}&anio={{ anio }}">Detalle</a>
                   </td>
                 </tr>
                 {% empty %}
