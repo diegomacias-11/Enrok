@@ -210,15 +210,15 @@ def dispersiones_kanban(request):
             key = (d.cliente.razon_social or "").strip().upper()
             if key not in by_cliente:
                 by_cliente[key] = []
-            by_cliente[key].append(
-                {
-                    "cliente": d.cliente.razon_social or "",
-                    "id": d.id,
-                    "monto": d.monto_dispersion,
-                    "fecha": d.fecha,
-                    "num_factura_honorarios": d.num_factura_honorarios,
-                }
-            )
+                by_cliente[key].append(
+                    {
+                        "cliente": d.cliente.razon_social or "",
+                        "id": d.id,
+                        "monto": d.monto_comision_iva,
+                        "fecha": d.fecha,
+                        "num_factura_honorarios": d.num_factura_honorarios,
+                    }
+                )
         clientes = [
             {"cliente": cliente or "Sin cliente", "items": regs, "card_count": len(regs)}
             for cliente, regs in sorted(by_cliente.items())
@@ -422,16 +422,16 @@ def dispersiones_kanban_contabilidad(request):
             key = (d.cliente.razon_social or "").strip().upper()
             if key not in by_cliente:
                 by_cliente[key] = []
-                by_cliente[key].append(
-                    {
-                        "cliente": d.cliente.razon_social or "",
-                        "id": d.id,
-                        "monto": d.monto_comision_iva,
-                        "fecha": d.fecha,
-                        "forma_pago": d.get_forma_pago_display() if hasattr(d, "get_forma_pago_display") else (d.forma_pago or ""),
-                        "num_factura_honorarios": d.num_factura_honorarios,
-                    }
-                )
+            by_cliente[key].append(
+                {
+                    "cliente": d.cliente.razon_social or "",
+                    "id": d.id,
+                    "monto": d.monto_comision_iva,
+                    "fecha": d.fecha,
+                    "forma_pago": d.get_forma_pago_display() if hasattr(d, "get_forma_pago_display") else (d.forma_pago or ""),
+                    "num_factura_honorarios": d.num_factura_honorarios,
+                }
+            )
         clientes = [
             {"cliente": cliente or "Sin cliente", "items": regs, "card_count": len(regs)}
             for cliente, regs in sorted(by_cliente.items())
@@ -493,6 +493,8 @@ def agregar_dispersion(request):
                 return redirect(
                     f"{reverse('dispersiones_edit', args=[disp.id])}?mes={mes}&anio={anio}&next={back_url}"
                 )
+            if getattr(disp, "_sheets_success", False):
+                messages.success(request, "Sheets: registro enviado.")
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(mes=mes, anio=anio, user=request.user)
@@ -539,6 +541,8 @@ def editar_dispersion(request, id: int):
             if sheets_error:
                 messages.error(request, f"Sheets: {sheets_error}")
                 return redirect(request.path + f"?mes={mes}&anio={anio}&next={back_url}")
+            if getattr(disp, "_sheets_success", False):
+                messages.success(request, "Sheets: registro enviado.")
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(instance=disp, mes=mes, anio=anio, user=request.user)

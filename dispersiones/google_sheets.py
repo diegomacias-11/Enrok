@@ -96,20 +96,31 @@ def append_dispersion_row(dispersion):
         header_row = headers[0]
         normalized = {_normalize_header(value): idx for idx, value in enumerate(header_row)}
 
-        required = {
-            "|": "|",
-            "hr de peticion": "hr de peticion",
-            "cliente": "cliente",
-            "estructura": "estructura",
-            "cuenta": "cuenta",
-            "monto": "monto",
-        }
+        if "fecha" in normalized:
+            required = {
+                "fecha": "fecha",
+                "hr de peticion": "hr de peticion",
+                "cliente": "cliente",
+                "estructura": "estructura",
+                "cuenta": "cuenta",
+                "monto": "monto",
+            }
+        else:
+            required = {
+                "|": "|",
+                "hr de peticion": "hr de peticion",
+                "cliente": "cliente",
+                "estructura": "estructura",
+                "cuenta": "cuenta",
+                "monto": "monto",
+            }
 
         missing = [key for key in required.values() if key not in normalized]
         if missing:
             return f"Encabezados faltantes en {sheet_title}: {', '.join(missing)}"
 
-        date_col = _column_letter(normalized["|"])
+        date_key = "fecha" if "fecha" in normalized else "|"
+        date_col = _column_letter(normalized[date_key])
         col_values = service.spreadsheets().values().get(
             spreadsheetId=sheet_id,
             range=f"'{sheet_title}'!{date_col}:{date_col}",
@@ -132,6 +143,7 @@ def append_dispersion_row(dispersion):
             estructura = dispersion.cliente.ac or ""
 
         values = {
+            "fecha": fecha_value,
             "|": fecha_value,
             "hr de peticion": hora_value,
             "cliente": dispersion.cliente.razon_social or "",

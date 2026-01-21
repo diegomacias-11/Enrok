@@ -103,5 +103,7 @@ class Dispersion(models.Model):
                 error = append_dispersion_row(self)
                 if error:
                     self._sheets_error = error
+                else:
+                    self._sheets_success = True
             except Exception as exc:
                 self._sheets_error = str(exc)

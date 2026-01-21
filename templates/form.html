@@ -6,15 +6,6 @@
 {% block content %}
   <main>
   {% block back_link %}{% endblock %}
-  {% block messages_block %}
-    {% if messages %}
-      <div class="form-alert">
-        {% for message in messages %}
-          <div class="{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endblock %}
 
   <div class="form-container {% block form_container_classes %}{% endblock %}">
     <form method="post" class="js-disable-submit">
