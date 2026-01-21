@@ -12,13 +12,15 @@
 <body>{% include 'includes/header.html' %}
 
   <main>
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+    {% block messages_block %}
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endblock %}
     {% block content %}{% endblock %}
   </main>
 

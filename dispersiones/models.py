@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal, InvalidOperation
 from django.conf import settings
+from .google_sheets import append_dispersion_row
 from clientes.models import Cliente
 from core.choices import (
     ESTATUS_PROCESO_CHOICES,
@@ -41,6 +42,13 @@ class Dispersion(models.Model):
         return f"{self.cliente} - {self.facturadora} - {self.fecha}"
 
     def save(self, *args, **kwargs):
+        was_factura_solicitada = None
+        if self.pk:
+            was_factura_solicitada = (
+                Dispersion.objects.filter(pk=self.pk)
+                .values_list("factura_solicitada", flat=True)
+                .first()
+            )
         rate = None
         try:
             # Preferimos comision_servicio (fracción 0..1) si existe en el cliente
@@ -90,3 +98,10 @@ class Dispersion(models.Model):
         self.monto_comision = (rate_fraction * self.monto_dispersion).quantize(Decimal("0.01"))
         self.monto_comision_iva = (self.monto_comision * Decimal("1.16")).quantize(Decimal("0.01"))
         super().save(*args, **kwargs)
+        if self.factura_solicitada and not was_factura_solicitada:
+            try:
+                error = append_dispersion_row(self)
+                if error:
+                    self._sheets_error = error
+            except Exception as exc:
+                self._sheets_error = str(exc)

@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Q, Sum
 from django.contrib.auth import get_user_model, models as auth_models
+from django.contrib import messages
 from .models import Dispersion
 from core.choices import ESTATUS_PAGO_CHOICES, ESTATUS_PERIODO_CHOICES, ESTATUS_PROCESO_CHOICES
 from .forms import DispersionForm
@@ -486,6 +487,12 @@ def agregar_dispersion(request):
         form = DispersionForm(request.POST, mes=mes, anio=anio, user=request.user)
         if form.is_valid():
             disp = form.save()
+            sheets_error = getattr(disp, "_sheets_error", "")
+            if sheets_error:
+                messages.error(request, f"Sheets: {sheets_error}")
+                return redirect(
+                    f"{reverse('dispersiones_edit', args=[disp.id])}?mes={mes}&anio={anio}&next={back_url}"
+                )
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(mes=mes, anio=anio, user=request.user)
@@ -527,7 +534,11 @@ def editar_dispersion(request, id: int):
     if request.method == "POST":
         form = DispersionForm(request.POST, instance=disp, mes=mes, anio=anio, user=request.user)
         if form.is_valid():
-            form.save()
+            disp = form.save()
+            sheets_error = getattr(disp, "_sheets_error", "")
+            if sheets_error:
+                messages.error(request, f"Sheets: {sheets_error}")
+                return redirect(request.path + f"?mes={mes}&anio={anio}&next={back_url}")
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(instance=disp, mes=mes, anio=anio, user=request.user)

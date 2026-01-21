@@ -35,6 +35,13 @@ DEBUG = os.environ.get(
 # Permite correr local si no hay variable de entorno definida
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1 localhost').split()
 
+# ======================
+# GOOGLE_SHEETS CREDENTIALS
+# ======================
+
+GOOGLE_SHEETS_CONFEDIN = os.environ.get('GOOGLE_SHEETS_CONFEDIN', '')
+GOOGLE_SHEETS_OTHERS = os.environ.get('GOOGLE_SHEETS_OTHERS', '')
+
 # Application definition
 
 INSTALLED_APPS = [
