@@ -493,8 +493,6 @@ def agregar_dispersion(request):
                 return redirect(
                     f"{reverse('dispersiones_edit', args=[disp.id])}?mes={mes}&anio={anio}&next={back_url}"
                 )
-            if getattr(disp, "_sheets_success", False):
-                messages.success(request, "Sheets: registro enviado.")
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(mes=mes, anio=anio, user=request.user)
@@ -542,7 +540,8 @@ def editar_dispersion(request, id: int):
                 messages.error(request, f"Sheets: {sheets_error}")
                 return redirect(request.path + f"?mes={mes}&anio={anio}&next={back_url}")
             if getattr(disp, "_sheets_success", False):
-                messages.success(request, "Sheets: registro enviado.")
+                label = "CONDEFIN" if getattr(disp.cliente, "ac", "") == "CONFEDIN" else "RESTO DE AC"
+                messages.success(request, f"Factura enviada a {label}.")
             return redirect(request.POST.get("next") or back_url)
     else:
         form = DispersionForm(instance=disp, mes=mes, anio=anio, user=request.user)
