@@ -1,4 +1,5 @@
 ﻿from datetime import datetime
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.db.models import Q, Sum
@@ -64,6 +65,27 @@ def _coerce_mes_anio(request):
     except (TypeError, ValueError):
         anio_i = now.year
     return mes_i, anio_i, None
+
+
+def _enrok_comision_monto(dispersion):
+    total = Decimal("0")
+    cliente = getattr(dispersion, "cliente", None)
+    if not cliente:
+        return total
+    monto_base = Decimal(dispersion.monto_dispersion or 0)
+    for i in range(1, 13):
+        comisionista = getattr(cliente, f"comisionista{i}", None)
+        pct = getattr(cliente, f"comision{i}", None)
+        if not comisionista or pct is None:
+            continue
+        nombre = getattr(comisionista, "nombre", "")
+        if str(nombre).strip().upper() == "ENROK":
+            try:
+                total += (Decimal(pct) * monto_base).quantize(Decimal("0.01"))
+            except Exception:
+                continue
+    return total
+
 
 
 def dispersiones_lista(request):
@@ -215,6 +237,7 @@ def dispersiones_kanban(request):
                         "cliente": d.cliente.razon_social or "",
                         "id": d.id,
                         "monto": d.monto_comision_iva,
+                        "monto_enrok": _enrok_comision_monto(d),
                         "fecha": d.fecha,
                         "num_factura_honorarios": d.num_factura_honorarios,
                     }
