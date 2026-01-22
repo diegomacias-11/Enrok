@@ -85,5 +85,18 @@
     })();
   </script>
   {% block extra_scripts %}{% endblock %}
+  <script>
+    (function () {
+      var messages = document.querySelector(".messages");
+      if (!messages) {
+        return;
+      }
+      setTimeout(function () {
+        if (messages) {
+          messages.style.display = "none";
+        }
+      }, 10000);
+    })();
+  </script>
 </body>
 </html>

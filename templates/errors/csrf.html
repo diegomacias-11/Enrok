@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Sesion expirada{% endblock %}
+
+{% block content %}
+  <main>
+    <section class="form-container">
+      <div class="form-meta">Sesion expirada</div>
+      <div class="form-meta">Tu sesion ya no es valida. Recarga para intentar de nuevo.</div>
+      <button type="button" class="btn-primary btn-primary-inline" onclick="window.location.reload();">
+        Recargar
+      </button>
+    </section>
+  </main>
+{% endblock %}

@@ -166,6 +166,7 @@ LOGIN_REDIRECT_URL = '/dispersiones/'
 LOGOUT_REDIRECT_URL = '/login/'
 SESSION_COOKIE_AGE = 3600  # 1 hora
 SESSION_SAVE_EVERY_REQUEST = True  # renovar inactividad en cada request
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 
 # Microsoft Graph (client credentials)
 GRAPH_CLIENT_ID = os.environ.get("GRAPH_CLIENT_ID", "")

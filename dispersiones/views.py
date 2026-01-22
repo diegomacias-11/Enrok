@@ -545,7 +545,7 @@ def editar_dispersion(request, id: int):
     )
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
-    if is_ejecutivo and not is_apoyo and not (
+    if is_ejecutivo and not is_apoyo and not _can_edit_estatus_pago(request.user) and not (
         disp.cliente.ejecutivo_id == request.user.id
         or disp.cliente.ejecutivo2_id == request.user.id
         or disp.cliente.ejecutivo_apoyo_id == request.user.id
