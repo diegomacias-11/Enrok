@@ -34,6 +34,19 @@ def _can_ver_todos_clientes(user):
     )
 
 
+def _can_edit_estatus_pago(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return True
+    return (
+        user.groups.filter(name__iexact="Ejecutivo Sr").exists()
+        or user.groups.filter(name__iexact="Direccion Operaciones").exists()
+        or user.groups.filter(name__iexact="Direcci?n Operaciones").exists()
+    )
+
+
+
 def _users_in_group(name: str):
     try:
         grupo = auth_models.Group.objects.get(name__iexact=name)
