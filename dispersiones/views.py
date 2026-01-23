@@ -377,7 +377,7 @@ def dispersiones_kanban_ejecutivos(request):
                     {
                         "cliente": d.cliente.razon_social or "",
                         "id": d.id,
-                        "monto": d.monto_comision,
+                        "monto": d.monto_dispersion,
                         "fecha": d.fecha,
                         "num_factura_honorarios": d.num_factura_honorarios,
                     }
