@@ -1842,11 +1842,23 @@ textarea::placeholder {
 
 
 .duplicate-alert {
-  color: #a62f2f;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.8rem;
+  margin: 0.35rem auto 0.6rem;
+  background: #f9d7d7;
+  border: 1px solid #d79aa2;
+  border-radius: 6px;
+  color: #8b0000;
   font-weight: 700;
   text-align: center;
-  margin: 0.35rem 0 0.6rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
-.duplicate-row td {
+.duplicate-cell {
   background: #f9d7d7 !important;
+  color: #8b0000 !important;
+  font-weight: 900;
 }

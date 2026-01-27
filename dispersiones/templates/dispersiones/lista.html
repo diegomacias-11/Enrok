@@ -92,15 +92,17 @@
   </div>
 
 
-  {% if dup_fields %}
+{% endblock %}
+
+{% block avisos %}
+  {% if dup_facturas_clientes or dup_honorarios_clientes %}
     <div class="duplicate-alert">
-      Alerta: duplicados en {{ dup_fields|join:", " }}.
-      {% if dup_facturas_info %}
-        <div>Clientes distintos en No. factura: {{ dup_facturas_info|length }}</div>
-      {% endif %}
-      {% if dup_honorarios_info %}
-        <div>Clientes distintos en No. factura honorarios: {{ dup_honorarios_info|length }}</div>
-      {% endif %}
+      {% for num, clientes in dup_facturas_clientes %}
+        <div>Duplicados en No. factura {{ num }} - cliente {{ clientes|join:" / " }}</div>
+      {% endfor %}
+      {% for num, clientes in dup_honorarios_clientes %}
+        <div>Duplicados en No. factura honorarios {{ num }} - cliente {{ clientes|join:" / " }}</div>
+      {% endfor %}
     </div>
   {% endif %}
 {% endblock %}
@@ -154,7 +156,7 @@
 
 {% block tabla_body %}
   {% for d in dispersiones %}
-    <tr class="{% if d.num_factura in dup_facturas or d.num_factura_honorarios in dup_honorarios %}duplicate-row{% endif %}">
+    <tr>
       <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a></td>
       <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
       <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
@@ -164,7 +166,7 @@
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
         <td>{{ d.facturadora|default_if_none:"" }}</td>
-        <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
+        <td class="{% if d.num_factura_honorarios in dup_honorarios %}duplicate-cell{% endif %}">{{ d.num_factura_honorarios|default_if_none:"" }}</td>
         <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
       {% else %}
         <td>{{ d.num_periodo|default_if_none:"" }}</td>
@@ -179,9 +181,9 @@
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
         <td>{{ d.cliente.get_ac_display|default_if_none:"" }}</td>
-        <td>{{ d.num_factura|default_if_none:"" }}</td>
+        <td class="{% if d.num_factura in dup_facturas %}duplicate-cell{% endif %}">{{ d.num_factura|default_if_none:"" }}</td>
         <td>{{ d.facturadora|default_if_none:"" }}</td>
-        <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
+        <td class="{% if d.num_factura_honorarios in dup_honorarios %}duplicate-cell{% endif %}">{{ d.num_factura_honorarios|default_if_none:"" }}</td>
         <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
         <td>{{ d.estatus_proceso|default_if_none:"" }}</td>
         <td>{{ d.estatus_periodo|default_if_none:"" }}</td>

@@ -12,6 +12,7 @@
 <body>{% include 'includes/header.html' %}
 
   <main>
+    {% block avisos %}{% endblock %}
     {% if messages %}
       <ul class="messages">
         {% for message in messages %}
