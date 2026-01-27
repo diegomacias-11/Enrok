@@ -2,7 +2,7 @@
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.contrib.auth import get_user_model, models as auth_models
 from django.contrib import messages
 from .models import Dispersion
@@ -180,6 +180,59 @@ def dispersiones_lista(request):
         | _users_in_group("Ejecutivo Apoyo")
     ).order_by("username").distinct()
     ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
+    dup_facturas = list(
+        dispersiones.exclude(num_factura__isnull=True).exclude(num_factura__exact="")
+        .values("num_factura").annotate(c=Count("id")).filter(c__gt=1)
+        .values_list("num_factura", flat=True)
+    )
+    dup_honorarios = list(
+        dispersiones.exclude(num_factura_honorarios__isnull=True).exclude(num_factura_honorarios__exact="")
+        .values("num_factura_honorarios").annotate(c=Count("id")).filter(c__gt=1)
+        .values_list("num_factura_honorarios", flat=True)
+    )
+    dup_facturas_info = {}
+    if dup_facturas:
+        dup_facturas_info = {
+            row["num_factura"]: row["clientes"]
+            for row in dispersiones.exclude(num_factura__isnull=True).exclude(num_factura__exact="")
+            .values("num_factura").annotate(clientes=Count("cliente_id", distinct=True))
+            .filter(num_factura__in=dup_facturas)
+        }
+    dup_honorarios_info = {}
+    if dup_honorarios:
+        dup_honorarios_info = {
+            row["num_factura_honorarios"]: row["clientes"]
+            for row in dispersiones.exclude(num_factura_honorarios__isnull=True).exclude(num_factura_honorarios__exact="")
+            .values("num_factura_honorarios").annotate(clientes=Count("cliente_id", distinct=True))
+            .filter(num_factura_honorarios__in=dup_honorarios)
+        }
+
+    dup_facturas_clientes = []
+    if dup_facturas:
+        fact_qs = dispersiones.filter(num_factura__in=dup_facturas)
+        fact_map = {}
+        for row in fact_qs.values("num_factura", "cliente__razon_social"):
+            key = row.get("num_factura") or ""
+            nombre = row.get("cliente__razon_social") or ""
+            fact_map.setdefault(key, set()).add(nombre)
+        dup_facturas_clientes = [(k, sorted(list(v))) for k, v in fact_map.items()]
+
+    dup_honorarios_clientes = []
+    if dup_honorarios:
+        hon_qs = dispersiones.filter(num_factura_honorarios__in=dup_honorarios)
+        hon_map = {}
+        for row in hon_qs.values("num_factura_honorarios", "cliente__razon_social"):
+            key = row.get("num_factura_honorarios") or ""
+            nombre = row.get("cliente__razon_social") or ""
+            hon_map.setdefault(key, set()).add(nombre)
+        dup_honorarios_clientes = [(k, sorted(list(v))) for k, v in hon_map.items()]
+
+    dup_fields = []
+    if dup_facturas:
+        dup_fields.append("No. factura")
+    if dup_honorarios:
+        dup_fields.append("No. factura honorarios")
+
     context = {
         "dispersiones": dispersiones,
         "mes": str(mes),
@@ -196,6 +249,11 @@ def dispersiones_lista(request):
         "f_estatus_pago": "",
         "estatus_pago_choices": ESTATUS_PAGO_CHOICES,
         "clientes": clientes_qs.order_by("razon_social"),
+        "dup_facturas": dup_facturas,
+        "dup_honorarios": dup_honorarios,
+        "dup_fields": dup_fields,
+        "dup_facturas_clientes": dup_facturas_clientes,
+        "dup_honorarios_clientes": dup_honorarios_clientes,
     }
     return render(request, "dispersiones/lista.html", context)
 

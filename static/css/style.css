@@ -1840,3 +1840,13 @@ textarea::placeholder {
   }
 }
 
+
+.duplicate-alert {
+  color: #a62f2f;
+  font-weight: 700;
+  text-align: center;
+  margin: 0.35rem 0 0.6rem;
+}
+.duplicate-row td {
+  background: #f9d7d7 !important;
+}

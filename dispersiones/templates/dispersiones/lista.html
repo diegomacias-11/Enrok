@@ -90,6 +90,19 @@
       {% endif %}
     </div>
   </div>
+
+
+  {% if dup_fields %}
+    <div class="duplicate-alert">
+      Alerta: duplicados en {{ dup_fields|join:", " }}.
+      {% if dup_facturas_info %}
+        <div>Clientes distintos en No. factura: {{ dup_facturas_info|length }}</div>
+      {% endif %}
+      {% if dup_honorarios_info %}
+        <div>Clientes distintos en No. factura honorarios: {{ dup_honorarios_info|length }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}
 
 
@@ -141,7 +154,7 @@
 
 {% block tabla_body %}
   {% for d in dispersiones %}
-    <tr>
+    <tr class="{% if d.num_factura in dup_facturas or d.num_factura_honorarios in dup_honorarios %}duplicate-row{% endif %}">
       <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a></td>
       <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
       <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
