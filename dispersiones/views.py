@@ -112,7 +112,7 @@ def dispersiones_lista(request):
     if redir:
         return redir
 
-    dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
+    dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio)
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
@@ -138,7 +138,7 @@ def dispersiones_lista(request):
                 | Q(ejecutivo=request.user)
             ).distinct()
             if puede_ver_todos:
-                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
+                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio)
             if cliente_id:
                 dispersiones = dispersiones.filter(cliente_id=cliente_id)
             if puede_ver_todos:
@@ -180,6 +180,17 @@ def dispersiones_lista(request):
         | _users_in_group("Ejecutivo Apoyo")
     ).order_by("username").distinct()
     ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
+
+    orden = request.GET.get("orden") or "reciente"
+    if orden == "antigua":
+        dispersiones = dispersiones.order_by("fecha", "id")
+    elif orden == "az":
+        dispersiones = dispersiones.order_by("cliente__razon_social", "id")
+    elif orden == "za":
+        dispersiones = dispersiones.order_by("-cliente__razon_social", "-id")
+    else:
+        orden = "reciente"
+        dispersiones = dispersiones.order_by("-fecha", "-id")
     dup_facturas = list(
         dispersiones.exclude(num_factura__isnull=True).exclude(num_factura__exact="")
         .values("num_factura").annotate(c=Count("id")).filter(c__gt=1)
@@ -246,6 +257,7 @@ def dispersiones_lista(request):
         "f_ejecutivo": ejecutivo_id,
         "f_cliente": cliente_id,
         "f_factura_solicitada": factura_solicitada,
+        "f_orden": orden,
         "f_estatus_pago": "",
         "estatus_pago_choices": ESTATUS_PAGO_CHOICES,
         "clientes": clientes_qs.order_by("razon_social"),

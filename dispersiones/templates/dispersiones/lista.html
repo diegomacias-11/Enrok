@@ -78,6 +78,16 @@
             {% endif %}
         {% endif %}
         <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="f_orden">Orden</label>
+          <select id="f_orden" name="orden">
+            <option value="reciente" {% if f_orden == "reciente" %}selected{% endif %}>Más reciente</option>
+            <option value="antigua" {% if f_orden == "antigua" %}selected{% endif %}>Más antigua</option>
+            <option value="az" {% if f_orden == "az" %}selected{% endif %}>A-Z</option>
+            <option value="za" {% if f_orden == "za" %}selected{% endif %}>Z-A</option>
+          </select>
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-actions">
           <button type="submit" class="btn-filter">Filtrar</button>
           <a href="{% url 'dispersiones_list' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
