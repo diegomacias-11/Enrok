@@ -112,7 +112,7 @@ def dispersiones_lista(request):
     if redir:
         return redir
 
-    dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
+    dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
@@ -138,7 +138,7 @@ def dispersiones_lista(request):
                 | Q(ejecutivo=request.user)
             ).distinct()
             if puede_ver_todos:
-                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
+                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
             if cliente_id:
                 dispersiones = dispersiones.filter(cliente_id=cliente_id)
             if puede_ver_todos:
@@ -278,7 +278,7 @@ def dispersiones_kanban(request):
     if redir:
         return redir
 
-    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
     ejecutivo_id = request.GET.get("ejecutivo") or ""
     factura_solicitada = request.GET.get("factura_solicitada") or ""
     cliente_id = request.GET.get("cliente") or ""
@@ -376,7 +376,7 @@ def dispersiones_kanban_ejecutivos(request):
     if redir:
         return redir
 
-    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha")
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
     if is_ejecutivo and not request.user.is_superuser:
         puede_ver_todos = _can_ver_todos_clientes(request.user)
         if not puede_ver_todos:
@@ -503,7 +503,7 @@ def dispersiones_kanban_contabilidad(request):
         return redir
 
     cliente_id = request.GET.get("cliente") or ""
-    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio, factura_solicitada=True).order_by("-fecha")
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio, factura_solicitada=True).order_by("-fecha", "-id")
     if cliente_id:
         qs = qs.filter(cliente_id=cliente_id)
 
