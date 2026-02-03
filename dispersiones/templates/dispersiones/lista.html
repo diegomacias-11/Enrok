@@ -26,6 +26,11 @@
     <div class="filter-slot filter-slot-center">
       <form action="{% url 'dispersiones_list' %}" method="get" class="filter-form-simple dispersiones-filter">
         <div class="filter-block">
+          <label for="f_dia">Día</label>
+          <input type="number" id="f_dia" name="dia" value="{{ f_dia|default_if_none:'' }}" min="1" max="31" placeholder="-----">
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
           <label for="mes">Mes</label>
           <select id="mes" name="mes">
             {% if meses_choices %}
@@ -58,17 +63,24 @@
           <span class="filter-separator" aria-hidden="true"></span>
           <div class="filter-block">
             <label for="f_ejecutivo">Ejecutivo</label>
-              <select id="f_ejecutivo" name="ejecutivo">
-                <option value="">Todos</option>
-                {% for id, name in ejecutivos %}
-                  <option value="{{ id }}" {% if f_ejecutivo == id|stringformat:'i' %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-              </select>
+              <details class="filter-multiselect">
+                <summary id="f_ejecutivo">
+                  {% if f_ejecutivo %}Seleccionados ({{ f_ejecutivo|length }}){% else %}Todos{% endif %}
+                </summary>
+                <div class="filter-multiselect-options">
+                  {% for id, name in ejecutivos %}
+                    <label class="filter-multiselect-option">
+                      <input type="checkbox" name="ejecutivo" value="{{ id }}" {% if id|stringformat:'i' in f_ejecutivo %}checked{% endif %}>
+                      <span>{{ name }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </details>
             </div>
             <span class="filter-separator" aria-hidden="true"></span>
             {% if not is_contabilidad %}
             <div class="filter-block">
-              <label for="f_factura_solicitada">Factura solicitada</label>
+              <label for="f_factura_solicitada">Factura</label>
               <select id="f_factura_solicitada" name="factura_solicitada">
                 <option value="">Todos</option>
                 <option value="1" {% if f_factura_solicitada == "1" %}selected{% endif %}>Sí</option>

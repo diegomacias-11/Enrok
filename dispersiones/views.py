@@ -113,14 +113,21 @@ def dispersiones_lista(request):
         return redir
 
     dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio)
+    dia = (request.GET.get("dia") or "").strip()
+    if dia:
+        try:
+            dia_i = int(dia)
+            dispersiones = dispersiones.filter(fecha__day=dia_i)
+        except (TypeError, ValueError):
+            dia = ""
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Apoyo"])
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
 
     cliente_id = request.GET.get("cliente") or ""
+    ejecutivo_ids = []
     if is_contabilidad:
         is_ejecutivo = False
-        ejecutivo_id = ""
         estatus_pago = ""
         factura_solicitada = ""
         dispersiones = dispersiones.filter(factura_solicitada=True).distinct()
@@ -128,7 +135,8 @@ def dispersiones_lista(request):
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         clientes_qs = Cliente.objects.filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio).distinct()
     else:
-        ejecutivo_id = request.GET.get("ejecutivo") or ""
+        ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
+        ejecutivo_ids = [e for e in ejecutivo_ids_raw if str(e).strip()]
         if is_ejecutivo:
             puede_ver_todos = _can_ver_todos_clientes(request.user)
             dispersiones = dispersiones.filter(
@@ -152,15 +160,17 @@ def dispersiones_lista(request):
                 ).filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio).distinct()
             estatus_pago = ""
             factura_solicitada = request.GET.get("factura_solicitada") or ""
-            if ejecutivo_id:
-                dispersiones = dispersiones.filter(ejecutivo_id=ejecutivo_id)
+            dispersiones_base = dispersiones
+            if ejecutivo_ids:
+                dispersiones = dispersiones.filter(ejecutivo_id__in=ejecutivo_ids)
             if factura_solicitada in ("0", "1"):
                 dispersiones = dispersiones.filter(factura_solicitada=(factura_solicitada == "1"))
         else:
             estatus_pago = ""
             factura_solicitada = request.GET.get("factura_solicitada") or ""
-            if ejecutivo_id:
-                dispersiones = dispersiones.filter(ejecutivo_id=ejecutivo_id)
+            dispersiones_base = dispersiones
+            if ejecutivo_ids:
+                dispersiones = dispersiones.filter(ejecutivo_id__in=ejecutivo_ids)
             if cliente_id:
                 dispersiones = dispersiones.filter(cliente_id=cliente_id)
             if factura_solicitada in ("0", "1"):
@@ -174,12 +184,22 @@ def dispersiones_lista(request):
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ]
     meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
-    ejecutivos_qs = (
-        _users_in_group("Ejecutivo Jr")
-        | _users_in_group("Ejecutivo Sr")
-        | _users_in_group("Ejecutivo Apoyo")
-    ).order_by("username").distinct()
-    ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
+    dispersiones_base = locals().get("dispersiones_base", dispersiones)
+    ejecutivos = []
+    if not is_contabilidad:
+        exec_rows = (
+            dispersiones_base.exclude(ejecutivo__isnull=True)
+            .values("ejecutivo_id", "ejecutivo__first_name", "ejecutivo__last_name", "ejecutivo__username")
+            .distinct()
+            .order_by("ejecutivo__username")
+        )
+        for row in exec_rows:
+            exec_id = row.get("ejecutivo_id")
+            if not exec_id:
+                continue
+            name = f"{row.get('ejecutivo__first_name', '')} {row.get('ejecutivo__last_name', '')}".strip()
+            label = name or (row.get("ejecutivo__username") or "")
+            ejecutivos.append((exec_id, label))
 
     orden = request.GET.get("orden") or "reciente"
     if orden == "antigua":
@@ -248,13 +268,14 @@ def dispersiones_lista(request):
         "dispersiones": dispersiones,
         "mes": str(mes),
         "anio": str(anio),
+        "f_dia": dia,
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
         "mes_nombre": meses_nombres[mes],
         "is_contabilidad": is_contabilidad,
         "is_ejecutivo": is_ejecutivo,
         "ejecutivos": ejecutivos,
-        "f_ejecutivo": ejecutivo_id,
+        "f_ejecutivo": ejecutivo_ids,
         "f_cliente": cliente_id,
         "f_factura_solicitada": factura_solicitada,
         "f_orden": orden,

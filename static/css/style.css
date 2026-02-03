@@ -294,7 +294,7 @@ html, body { height: 100%; }
   align-items: center;
   justify-content: center;
   
-  gap: .5rem;
+  gap: .15rem;
 }
 
 
@@ -303,7 +303,7 @@ html, body { height: 100%; }
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: .5rem;
+  gap: .15rem;
 }
 
 .filter-container a {
@@ -954,7 +954,7 @@ form input[type="checkbox"]:checked::after {
 
 .filter-container input,
 .filter-container select {
-  padding: 0.35rem 0.5rem;
+  padding: 0.2rem 0.35rem;
   border: 1px solid #003b71;
   border-radius: 6px;
   line-height: 1;
@@ -963,6 +963,11 @@ form input[type="checkbox"]:checked::after {
   color: #003b71;
   
   font-weight: 400;
+  font-family: inherit;
+  width: auto;
+  min-width: 0;
+  height: 26px;
+  box-sizing: border-box;
   
 }
 
@@ -1549,7 +1554,9 @@ textarea::placeholder {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: 0.25rem !important;
+  gap: 0.15rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
   min-width: 160px !important;
 }
 .filter-container .filter-block label,
@@ -1567,8 +1574,9 @@ textarea::placeholder {
 }
 .filter-container .filter-separator {
   width: 1px !important;
-  height: 38px !important;
+  height: 26px !important;
   align-self: flex-end !important;
+  margin: 0 !important;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0)) !important;
 }
 .filter-container > .btn-primary {
@@ -1578,18 +1586,23 @@ textarea::placeholder {
 
 /* Compact layout for dispersiones filters */
 .filter-container .dispersiones-filter {
-  gap: 0.4rem !important;
+  gap: 0.25rem !important;
 }
 .filter-container .dispersiones-filter .filter-block {
-  min-width: 120px !important;
+  min-width: 0 !important;
 }
 .filter-container .dispersiones-filter .filter-separator {
-  height: 30px !important;
+  height: 26px !important;
+  margin: 0 6px !important;
 }
 .filter-container .dispersiones-filter input,
-.filter-container .dispersiones-filter select {
+.filter-container .dispersiones-filter select,
+.filter-container .dispersiones-filter .filter-multiselect summary {
   padding: 0.3rem 0.4rem !important;
-  min-width: 120px !important;
+  min-width: 0 !important;
+  font-size: 0.85rem !important;
+  height: 30px !important;
+  text-align: center;
 }
 
 /* Dispersiones: limitar el ancho del filtro de cliente */
@@ -1861,4 +1874,102 @@ textarea::placeholder {
   background: #f9d7d7 !important;
   color: #8b0000 !important;
   font-weight: 900;
+}
+
+.filter-multi-native {
+  min-width: 120px !important;
+  padding: 0.3rem 0.4rem !important;
+  border-radius: 6px;
+}
+
+.filter-multiselect {
+  position: relative;
+  width: auto;
+  min-width: 120px;
+}
+
+.filter-multiselect summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #003b71;
+  border-radius: 6px;
+  background: #fff;
+  color: #003b71;
+  min-width: 120px;
+  box-sizing: border-box;
+  text-align: center;
+  font-weight: 400;
+  font-size: 0.85rem;
+  line-height: 1;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-multiselect summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter-multiselect[open] summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.filter-multiselect-options {
+  position: absolute;
+  left: 0;
+  right: auto;
+  width: 220px;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-top: none;
+  padding: 6px 8px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.filter-multiselect-option {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 2px;
+  font-weight: 400;
+  color: #003b71;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  width: auto;
+}
+
+.filter-multiselect-option span {
+  color: #003b71;
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.filter-multiselect-option input[type="checkbox"] {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 !important;
+  flex: 0 0 12px;
+  max-width: 12px;
+  min-width: 12px;
+  padding: 0 !important;
+  border-radius: 2px;
+  background: #ffffff;
+  border: 1px solid #003b71;
+  appearance: auto;
+}
+
+.filter-multiselect-options input[type="checkbox"] {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  max-width: 12px !important;
 }
