@@ -85,6 +85,22 @@
       });
     })();
   </script>
+  <script>
+    (function () {
+      document.addEventListener("submit", function (event) {
+        var form = event.target;
+        if (!form || form.tagName !== "FORM") return;
+        var method = (form.getAttribute("method") || "get").toLowerCase();
+        if (method === "get") return;
+        var submitter = event.submitter || form.querySelector("button[type='submit'], input[type='submit']");
+        if (!submitter) return;
+        if (submitter.dataset.noDisable === "true") return;
+        if (submitter.disabled) return;
+        submitter.disabled = true;
+        submitter.classList.add("is-disabled");
+      }, true);
+    })();
+  </script>
   {% block extra_scripts %}{% endblock %}
   <script>
     (function () {

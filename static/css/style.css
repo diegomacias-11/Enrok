@@ -732,6 +732,11 @@ form input[type="checkbox"]:checked::after {
   font-size: 0.75rem;
 }
 
+.subtotal-row td {
+  background: #eef3f7;
+  font-weight: 700;
+}
+
 
 
 

@@ -64,16 +64,24 @@
                 </tr>
               </thead>
               <tbody>
-                {% for c in items %}
-                  <tr>
-                    <td>{{ c.fecha_dispersion|date:"d/m/Y"|default_if_none:"" }}</td>
-                    <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
-                    <td>{{ c.servicio|default_if_none:"" }}</td>
-                    <td>{{ c.dispersion.monto_dispersion|currency }}</td>
-                    <td>{{ c.porcentaje|pct:2 }}</td>
-                    <td>{{ c.monto|currency }}</td>
-                    <td>{{ c.estatus_pago_dispersion|default_if_none:"" }}</td>
-                    <td>{% if c.liberada %}Liberada{% else %}No liberada{% endif %}</td>
+                {% for grupo in items_grouped %}
+                  {% for c in grupo.items %}
+                    <tr>
+                      <td>{{ c.fecha_dispersion|date:"d/m/Y"|default_if_none:"" }}</td>
+                      <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
+                      <td>{{ c.servicio|default_if_none:"" }}</td>
+                      <td>{{ c.dispersion.monto_dispersion|currency }}</td>
+                      <td>{{ c.porcentaje|pct:2 }}</td>
+                      <td>{{ c.monto|currency }}</td>
+                      <td>{{ c.estatus_pago_dispersion|default_if_none:"" }}</td>
+                      <td>{% if c.liberada %}Liberada{% else %}No liberada{% endif %}</td>
+                    </tr>
+                  {% endfor %}
+                  <tr class="subtotal-row">
+                    <td></td>
+                    <td colspan="4"><strong>Subtotal {{ grupo.cliente.razon_social|default_if_none:"" }}</strong></td>
+                    <td><strong>{{ grupo.subtotal|currency }}</strong></td>
+                    <td colspan="2"></td>
                   </tr>
                 {% empty %}
                   <tr><td colspan="7">Sin registros.</td></tr>
