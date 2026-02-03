@@ -207,7 +207,7 @@ def eliminar_pago(request, id: int):
 def _detalle_context(comisionista_id, mes, anio):
     qs = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id=comisionista_id) \
         .select_related('dispersion', 'cliente', 'comisionista') \
-        .order_by('cliente__razon_social', 'fecha_dispersion', 'id')
+        .order_by('cliente_id', 'fecha_dispersion', 'id')
     pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id=comisionista_id).order_by('fecha_pago')
     total_periodo = qs.aggregate(v=Sum('monto'))['v'] or 0
     total_liberado = qs.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0
