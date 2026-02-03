@@ -224,9 +224,15 @@ class DispersionForm(forms.ModelForm):
                 if name != "num_factura_honorarios":
                     field.disabled = True
                     field.required = False
-        elif "num_factura_honorarios" in self.fields and not getattr(self.user, "is_superuser", False):
-            self.fields["num_factura_honorarios"].disabled = True
-            self.fields["num_factura_honorarios"].required = False
+        elif "num_factura_honorarios" in self.fields:
+            can_edit_honorarios = (
+                getattr(self.user, "is_superuser", False)
+                or (self.user and self.user.groups.filter(name__iexact="Direccion Operaciones").exists())
+                or (self.user and self.user.groups.filter(name__iexact="Dirección Operaciones").exists())
+            )
+            if not can_edit_honorarios:
+                self.fields["num_factura_honorarios"].disabled = True
+                self.fields["num_factura_honorarios"].required = False
         if self._is_apoyo:
             allowed = {"estatus_proceso", "estatus_periodo"}
             for name, field in self.fields.items():
