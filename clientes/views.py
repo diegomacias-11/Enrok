@@ -28,6 +28,15 @@ def _is_ejecutivo_permisos(user):
     )
 
 
+def _is_direccion_operaciones(user):
+    if not user or not user.is_authenticated:
+        return False
+    return (
+        user.groups.filter(name__iexact="Direccion Operaciones").exists()
+        or user.groups.filter(name__iexact="Dirección Operaciones").exists()
+    )
+
+
 def clientes_lista(request):
     q = (request.GET.get("q") or "").strip()
     servicio = (request.GET.get("servicio") or "").strip()
@@ -45,6 +54,7 @@ def clientes_lista(request):
 def agregar_cliente(request):
     back_url = request.GET.get("next") or reverse("clientes_list")
     is_ejecutivo = _is_ejecutivo_permisos(request.user)
+    is_direccion_operaciones = _is_direccion_operaciones(request.user)
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, user=request.user)
@@ -53,13 +63,23 @@ def agregar_cliente(request):
             return redirect(back_url)
     else:
         form = ClienteForm(user=request.user)
-    return render(request, "clientes/form.html", {"form": form, "back_url": back_url, "is_ejecutivo": is_ejecutivo})
+    return render(
+        request,
+        "clientes/form.html",
+        {
+            "form": form,
+            "back_url": back_url,
+            "is_ejecutivo": is_ejecutivo,
+            "is_direccion_operaciones": is_direccion_operaciones,
+        },
+    )
 
 
 def editar_cliente(request, id: int):
     cliente = get_object_or_404(Cliente, pk=id)
     back_url = request.GET.get("next") or reverse("clientes_list")
     is_ejecutivo = _is_ejecutivo_permisos(request.user)
+    is_direccion_operaciones = _is_direccion_operaciones(request.user)
     if request.method == "POST":
         back_url = request.POST.get("next") or back_url
         form = ClienteForm(request.POST, instance=cliente, user=request.user)
@@ -68,7 +88,17 @@ def editar_cliente(request, id: int):
             return redirect(back_url)
     else:
         form = ClienteForm(instance=cliente, user=request.user)
-    return render(request, "clientes/form.html", {"form": form, "cliente": cliente, "back_url": back_url, "is_ejecutivo": is_ejecutivo})
+    return render(
+        request,
+        "clientes/form.html",
+        {
+            "form": form,
+            "cliente": cliente,
+            "back_url": back_url,
+            "is_ejecutivo": is_ejecutivo,
+            "is_direccion_operaciones": is_direccion_operaciones,
+        },
+    )
 
 
 def eliminar_cliente(request, id: int):
