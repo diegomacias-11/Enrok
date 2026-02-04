@@ -312,6 +312,13 @@ def dispersiones_kanban(request):
         return redir
 
     qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
+    dia = (request.GET.get("dia") or "").strip()
+    if dia:
+        try:
+            dia_i = int(dia)
+            qs = qs.filter(fecha__day=dia_i)
+        except (TypeError, ValueError):
+            dia = ""
     ejecutivo_id = request.GET.get("ejecutivo") or ""
     factura_solicitada = request.GET.get("factura_solicitada") or ""
     cliente_id = request.GET.get("cliente") or ""
@@ -375,6 +382,7 @@ def dispersiones_kanban(request):
         "kanban_data": grouped,
         "mes": str(mes),
         "anio": str(anio),
+        "f_dia": dia,
         "mes_nombre": meses_nombres[mes],
         "is_contabilidad": is_contabilidad,
         "meses": list(range(1, 13)),
@@ -410,6 +418,13 @@ def dispersiones_kanban_ejecutivos(request):
         return redir
 
     qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
+    dia = (request.GET.get("dia") or "").strip()
+    if dia:
+        try:
+            dia_i = int(dia)
+            qs = qs.filter(fecha__day=dia_i)
+        except (TypeError, ValueError):
+            dia = ""
     if is_ejecutivo and not request.user.is_superuser:
         puede_ver_todos = _can_ver_todos_clientes(request.user)
         if not puede_ver_todos:
@@ -504,6 +519,7 @@ def dispersiones_kanban_ejecutivos(request):
         "kanban_data": grouped,
         "mes": str(mes),
         "anio": str(anio),
+        "f_dia": dia,
         "mes_nombre": meses_nombres[mes],
         "is_contabilidad": is_contabilidad,
         "meses": list(range(1, 13)),

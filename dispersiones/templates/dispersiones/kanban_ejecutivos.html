@@ -26,6 +26,11 @@
     <div class="filter-slot filter-slot-center">
       <form method="get" class="filter-form-simple kanban-filter dispersiones-filter">
         <div class="filter-block">
+          <label for="dia">Día</label>
+          <input type="number" id="dia" name="dia" value="{{ f_dia|default_if_none:'' }}" min="1" max="31" placeholder="-----">
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
           <label for="mes">Mes</label>
           <select id="mes" name="mes">
             {% if meses_choices %}

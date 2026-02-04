@@ -247,6 +247,7 @@ class DispersionForm(forms.ModelForm):
                 raise forms.ValidationError("La fecha debe pertenecer al mes filtrado.")
         return fecha
 
+
     def clean(self):
         cleaned = super().clean()
         if self._is_ejecutivo and not _can_edit_estatus_pago(self.user):
