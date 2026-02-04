@@ -114,6 +114,8 @@ def append_dispersion_row(dispersion):
                 "cuenta": "cuenta",
                 "monto": "monto",
             }
+        if dispersion.cliente.ac == "CONFEDIN":
+            required["concepto"] = "concepto"
 
         missing = [key for key in required.values() if key not in normalized]
         if missing:
@@ -151,6 +153,7 @@ def append_dispersion_row(dispersion):
             "estructura": estructura,
             "cuenta": cuenta_value,
             "monto": str(dispersion.monto_dispersion or ""),
+            "concepto": "PRAIDS" if str(getattr(dispersion, "servicio", "")).strip().upper() == "PRAIDS" else "",
         }
 
         data = []

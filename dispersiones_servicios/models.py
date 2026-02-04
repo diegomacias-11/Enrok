@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal, InvalidOperation
 from django.conf import settings
-from .google_sheets import append_dispersion_row
 from clientes.models import Cliente
 from core.choices import ESTATUS_PAGO_CHOICES, FACTURADORA_CHOICES, FORMA_PAGO_CHOICES
 
@@ -93,12 +92,4 @@ class Dispersion(models.Model):
         self.monto_comision = (rate_fraction * self.monto_dispersion).quantize(Decimal("0.01"))
         self.monto_comision_iva = (self.monto_comision * Decimal("1.16")).quantize(Decimal("0.01"))
         super().save(*args, **kwargs)
-        if self.factura_solicitada and not was_factura_solicitada:
-            try:
-                error = append_dispersion_row(self)
-                if error:
-                    self._sheets_error = error
-                else:
-                    self._sheets_success = True
-            except Exception as exc:
-                self._sheets_error = str(exc)
+        # No enviar a Google Sheets desde esta app.

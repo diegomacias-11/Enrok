@@ -322,13 +322,14 @@ def dispersiones_kanban(request):
             qs = qs.filter(fecha__day=dia_i)
         except (TypeError, ValueError):
             dia = ""
-    ejecutivo_id = request.GET.get("ejecutivo") or ""
+    ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
+    ejecutivo_ids = [e for e in ejecutivo_ids_raw if str(e).strip()]
     factura_solicitada = request.GET.get("factura_solicitada") or ""
     cliente_id = request.GET.get("cliente") or ""
     if cliente_id:
         qs = qs.filter(cliente_id=cliente_id)
-    if ejecutivo_id:
-        qs = qs.filter(ejecutivo_id=ejecutivo_id)
+    if ejecutivo_ids:
+        qs = qs.filter(ejecutivo_id__in=ejecutivo_ids)
     if factura_solicitada in ("0", "1"):
         qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
     clientes_qs = Cliente.objects.filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
@@ -392,7 +393,7 @@ def dispersiones_kanban(request):
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
         "ejecutivos": ejecutivos,
-        "f_ejecutivo": ejecutivo_id,
+        "f_ejecutivo": ejecutivo_ids,
         "f_factura_solicitada": factura_solicitada,
         "clientes": clientes_qs.order_by("razon_social"),
         "f_cliente": cliente_id,
@@ -448,13 +449,14 @@ def dispersiones_kanban_ejecutivos(request):
             clientes_qs = Cliente.objects.filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
     else:
         clientes_qs = Cliente.objects.filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
-    ejecutivo_id = request.GET.get("ejecutivo") or ""
+    ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
+    ejecutivo_ids = [e for e in ejecutivo_ids_raw if str(e).strip()]
     factura_solicitada = request.GET.get("factura_solicitada") or ""
     cliente_id = request.GET.get("cliente") or ""
     if cliente_id:
         qs = qs.filter(cliente_id=cliente_id)
-    if ejecutivo_id:
-        qs = qs.filter(ejecutivo_id=ejecutivo_id)
+    if ejecutivo_ids:
+        qs = qs.filter(ejecutivo_id__in=ejecutivo_ids)
     if factura_solicitada in ("0", "1"):
         qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
     totals = qs.aggregate(
@@ -530,7 +532,7 @@ def dispersiones_kanban_ejecutivos(request):
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
         "ejecutivos": ejecutivos,
-        "f_ejecutivo": ejecutivo_id,
+        "f_ejecutivo": ejecutivo_ids,
         "f_factura_solicitada": factura_solicitada,
         "clientes": clientes_qs.order_by("razon_social"),
         "f_cliente": cliente_id,
