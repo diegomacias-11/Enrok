@@ -9,9 +9,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.template.loader import render_to_string
 from dispersiones.models import Dispersion
-from .models import Comision, PagoComision
+from .models import Comision, ComisionServicio, PagoComision
 from .forms import PagoComisionForm
-from .services import recalcular_periodo
+from .services import recalcular_periodo, recalcular_periodo_servicios
 from core.graph_email import send_graph_mail, GraphEmailError
 
 MESES_NOMBRES = [
@@ -54,19 +54,48 @@ def comisiones_lista(request):
 
     # Recalculo ligero en cada consulta (seguro en Render sin cron)
     recalcular_periodo(mes, anio)
+    recalcular_periodo_servicios(mes, anio)
 
     # Listado por comisionista con total del periodo
     qs_periodo = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio)
+    qs_periodo_servicios = ComisionServicio.objects.filter(periodo_mes=mes, periodo_anio=anio)
     cliente_id = request.GET.get("cliente") or ""
     if cliente_id:
         qs_periodo = qs_periodo.filter(cliente_id=cliente_id)
-    resumen = list(qs_periodo \
-        .values('comisionista_id', 'comisionista__nombre') \
-        .annotate(total=Sum('monto'), liberadas=Sum('monto', filter=Q(liberada=True))) \
-        .order_by('comisionista__nombre'))
+        qs_periodo_servicios = qs_periodo_servicios.filter(cliente_id=cliente_id)
+
+    resumen_base = list(qs_periodo
+        .values('comisionista_id', 'comisionista__nombre')
+        .annotate(total=Sum('monto'), liberadas=Sum('monto', filter=Q(liberada=True)))
+    )
+    resumen_servicios = list(qs_periodo_servicios
+        .values('comisionista_id', 'comisionista__nombre')
+        .annotate(total=Sum('monto'), liberadas=Sum('monto', filter=Q(liberada=True)))
+    )
+    resumen_map = {}
+    for row in resumen_base + resumen_servicios:
+        cid = row.get('comisionista_id')
+        if not cid:
+            continue
+        entry = resumen_map.setdefault(cid, {
+            'comisionista_id': cid,
+            'comisionista__nombre': row.get('comisionista__nombre'),
+            'total': 0,
+            'liberadas': 0,
+        })
+        entry['total'] += row.get('total') or 0
+        entry['liberadas'] += row.get('liberadas') or 0
+        if not entry.get('comisionista__nombre') and row.get('comisionista__nombre'):
+            entry['comisionista__nombre'] = row.get('comisionista__nombre')
+    resumen = sorted(resumen_map.values(), key=lambda r: (r.get('comisionista__nombre') or ""))
 
     # Pagos registrados para el periodo
-    com_ids = list(qs_periodo.values_list('comisionista_id', flat=True).distinct())
+    com_ids = list(
+        set(
+            list(qs_periodo.values_list('comisionista_id', flat=True).distinct())
+            + list(qs_periodo_servicios.values_list('comisionista_id', flat=True).distinct())
+        )
+    )
     pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id__in=com_ids) \
         .values('comisionista_id').annotate(pagos=Sum('monto'))
     pagos_map = {p['comisionista_id']: p['pagos'] for p in pagos}
@@ -76,13 +105,18 @@ def comisiones_lista(request):
         r['pendiente'] = (r['liberadas'] or 0) - (r['pagos'] or 0)
 
     # Totales de la hoja (mes filtrado)
-    total_periodo = qs_periodo.aggregate(v=Sum('monto'))['v'] or 0
-    total_liberado = qs_periodo.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0
+    total_periodo = (qs_periodo.aggregate(v=Sum('monto'))['v'] or 0) + \
+                    (qs_periodo_servicios.aggregate(v=Sum('monto'))['v'] or 0)
+    total_liberado = (qs_periodo.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0) + \
+                     (qs_periodo_servicios.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0)
     total_pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id__in=com_ids) \
         .aggregate(v=Sum('monto'))['v'] or 0
     total_pendiente = total_liberado - total_pagos
 
-    clientes_qs = Cliente.objects.filter(comision__periodo_mes=mes, comision__periodo_anio=anio).distinct()
+    clientes_qs = Cliente.objects.filter(
+        Q(comision__periodo_mes=mes, comision__periodo_anio=anio)
+        | Q(comisiones_servicios__periodo_mes=mes, comisiones_servicios__periodo_anio=anio)
+    ).distinct()
     meses_choices = [(i, MESES_NOMBRES[i]) for i in range(1, 13)]
     context = {
         'mes': str(mes),
@@ -106,6 +140,7 @@ def comisiones_detalle(request, comisionista_id):
     if redir:
         return redir
     recalcular_periodo(mes, anio)
+    recalcular_periodo_servicios(mes, anio)
     context = _detalle_context(comisionista_id, mes, anio)
     return render(request, 'comisiones/detalle.html', context)
 
@@ -118,8 +153,14 @@ def registrar_pago(request, comisionista_id: int = None):
     back_url = f"{reverse('comisiones_list')}?mes={mes}&anio={anio}"
     # Limitar comisionistas a los que tienen comisiones en el periodo
     from alianzas.models import Alianza
-    com_ids = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio) \
-        .values_list('comisionista_id', flat=True).distinct()
+    com_ids = list(
+        set(
+            list(Comision.objects.filter(periodo_mes=mes, periodo_anio=anio)
+                 .values_list('comisionista_id', flat=True).distinct())
+            + list(ComisionServicio.objects.filter(periodo_mes=mes, periodo_anio=anio)
+                   .values_list('comisionista_id', flat=True).distinct())
+        )
+    )
     qset = Alianza.objects.filter(id__in=list(com_ids))
 
     if request.method == 'POST':
@@ -163,8 +204,14 @@ def editar_pago(request, id: int):
     back_url = f"{reverse('comisiones_detail', args=[pago.comisionista_id])}?mes={mes}&anio={anio}"
     # Limitar queryset al periodo del pago o al del filtro actual
     from alianzas.models import Alianza
-    com_ids = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio) \
-        .values_list('comisionista_id', flat=True).distinct()
+    com_ids = list(
+        set(
+            list(Comision.objects.filter(periodo_mes=mes, periodo_anio=anio)
+                 .values_list('comisionista_id', flat=True).distinct())
+            + list(ComisionServicio.objects.filter(periodo_mes=mes, periodo_anio=anio)
+                   .values_list('comisionista_id', flat=True).distinct())
+        )
+    )
     qset = Alianza.objects.filter(id__in=list(com_ids))
     if request.method == 'POST':
         form = PagoComisionForm(request.POST, instance=pago)
@@ -206,26 +253,34 @@ def eliminar_pago(request, id: int):
 
 def _detalle_context(comisionista_id, mes, anio):
     qs = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id=comisionista_id) \
-        .select_related('dispersion', 'cliente', 'comisionista') \
-        .order_by('cliente_id', 'fecha_dispersion', 'id')
+        .select_related('dispersion', 'cliente', 'comisionista')
+    qs_serv = ComisionServicio.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id=comisionista_id) \
+        .select_related('dispersion', 'cliente', 'comisionista')
     pagos = PagoComision.objects.filter(periodo_mes=mes, periodo_anio=anio, comisionista_id=comisionista_id).order_by('fecha_pago')
-    total_periodo = qs.aggregate(v=Sum('monto'))['v'] or 0
-    total_liberado = qs.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0
+    total_periodo = (qs.aggregate(v=Sum('monto'))['v'] or 0) + (qs_serv.aggregate(v=Sum('monto'))['v'] or 0)
+    total_liberado = (qs.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0) + \
+                     (qs_serv.filter(liberada=True).aggregate(v=Sum('monto'))['v'] or 0)
     total_pagos = pagos.aggregate(v=Sum('monto'))['v'] or 0
     total_pendiente = total_liberado - total_pagos
+
+    items = list(qs) + list(qs_serv)
+    items.sort(key=lambda c: (c.cliente_id, c.fecha_dispersion, c.id))
     grupos = []
     current = None
-    for c in qs:
+    for c in items:
         key = c.cliente_id
         if not current or current['cliente'].id != key:
             current = {'cliente': c.cliente, 'items': [], 'subtotal': 0}
             grupos.append(current)
         current['items'].append(c)
         current['subtotal'] += c.monto or 0
+    comisionista = None
+    if items:
+        comisionista = items[0].comisionista
     return {
         'mes': str(mes),
         'anio': str(anio),
-        'comisionista': qs.first().comisionista if qs.exists() else None,
+        'comisionista': comisionista,
         'items_grouped': grupos,
         'meses': list(range(1, 13)),
         'mes_nombre': MESES_NOMBRES[mes],
@@ -244,6 +299,7 @@ def enviar_detalle_comisionista(request, comisionista_id):
         return redir
 
     recalcular_periodo(mes, anio)
+    recalcular_periodo_servicios(mes, anio)
     context = _detalle_context(comisionista_id, mes, anio)
     comisionista = context.get('comisionista')
     if not comisionista:

@@ -82,10 +82,6 @@ class ClienteSelect(forms.Select):
         if not obj:
             return option
         try:
-            ac = obj.get_ac_display()
-        except Exception:
-            ac = ""
-        try:
             servicio = obj.get_servicio_display()
         except Exception:
             servicio = str(getattr(obj, "servicio", ""))
@@ -97,7 +93,6 @@ class ClienteSelect(forms.Select):
             forma_pago = getattr(obj, "forma_pago", "") or ""
         option["attrs"].update(
             {
-                "data-ac": ac,
                 "data-servicio": servicio,
                 "data-comision": comision,
                 "data-facturadora": getattr(obj, "facturadora", "") or "",
@@ -117,12 +112,8 @@ class DispersionForm(forms.ModelForm):
             "fecha",
             "cliente",
             "ejecutivo",
-            "num_factura",
+            "facturadora",
             "monto_dispersion",
-            "num_factura_honorarios",
-            "estatus_proceso",
-            "num_periodo",
-            "estatus_periodo",
             "comentarios",
             "estatus_pago",
             "factura_solicitada",
@@ -155,7 +146,7 @@ class DispersionForm(forms.ModelForm):
                 ).distinct()
                 self.fields["cliente"].queryset = allowed.order_by("razon_social")
         if "cliente" in self.fields and self.fields["cliente"].queryset is not None:
-            self.fields["cliente"].queryset = self.fields["cliente"].queryset.filter(servicio__in=["PROCOM", "PRAIDS"])
+            self.fields["cliente"].queryset = self.fields["cliente"].queryset.exclude(servicio__in=["PROCOM", "PRAIDS"])
 
         if "cliente" in self.fields:
             self.fields["cliente"].label_from_instance = (
@@ -176,10 +167,8 @@ class DispersionForm(forms.ModelForm):
         if cliente_obj:
             self.cliente_info = {
                 "razon_social": cliente_obj.razon_social,
-                "ac": cliente_obj.get_ac_display() if hasattr(cliente_obj, "get_ac_display") else "",
                 "servicio": getattr(cliente_obj, "get_servicio_display", lambda: getattr(cliente_obj, "servicio", ""))(),
                 "comision_servicio": _format_comision_display(cliente_obj),
-                "facturadora": getattr(cliente_obj, "facturadora", "") or "",
                 "forma_pago": cliente_obj.get_forma_pago_display() if hasattr(cliente_obj, "get_forma_pago_display") else "",
             }
 
@@ -226,24 +215,12 @@ class DispersionForm(forms.ModelForm):
 
         if self._is_contabilidad:
             for name, field in self.fields.items():
-                if name != "num_factura_honorarios":
-                    field.disabled = True
-                    field.required = False
-        elif "num_factura_honorarios" in self.fields:
-            can_edit_honorarios = (
-                getattr(self.user, "is_superuser", False)
-                or (self.user and self.user.groups.filter(name__iexact="Direccion Operaciones").exists())
-                or (self.user and self.user.groups.filter(name__iexact="Dirección Operaciones").exists())
-            )
-            if not can_edit_honorarios:
-                self.fields["num_factura_honorarios"].disabled = True
-                self.fields["num_factura_honorarios"].required = False
+                field.disabled = True
+                field.required = False
         if self._is_apoyo:
-            allowed = {"estatus_proceso", "estatus_periodo"}
             for name, field in self.fields.items():
-                if name not in allowed:
-                    field.disabled = True
-                    field.required = False
+                field.disabled = True
+                field.required = False
 
     def clean_fecha(self):
         fecha = self.cleaned_data.get("fecha")
@@ -261,10 +238,8 @@ class DispersionForm(forms.ModelForm):
             else:
                 cleaned["estatus_pago"] = self.fields["estatus_pago"].initial or "Pendiente"
         if self._is_apoyo and self.instance and getattr(self.instance, "pk", None):
-            allowed = {"estatus_proceso", "estatus_periodo"}
             for name in self.fields.keys():
-                if name not in allowed:
-                    cleaned[name] = getattr(self.instance, name)
+                cleaned[name] = getattr(self.instance, name)
         return cleaned
 
     def save(self, commit=True):

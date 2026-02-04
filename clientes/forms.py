@@ -72,6 +72,9 @@ class ClienteForm(forms.ModelForm):
             field.required = True
         if "ac" in self.fields:
             self.fields["ac"].empty_label = "---------"
+        if "facturadora" in self.fields:
+            self.fields["facturadora"].required = False
+            self.fields["facturadora"].empty_label = "---------"
 
         jr_qs = _users_in_group("Ejecutivo Jr")
         apoyo_qs = _users_in_group("Ejecutivo Apoyo")

@@ -5,6 +5,8 @@ from django.contrib.auth import logout
 
 def inicio(request):
     if request.user.is_authenticated:
+        if request.user.groups.filter(name__iexact="Ejecutivo Sr Servicios").exists():
+            return redirect("dispersiones_servicios_list")
         return redirect("dispersiones_list")
     return redirect(settings.LOGIN_URL)
 

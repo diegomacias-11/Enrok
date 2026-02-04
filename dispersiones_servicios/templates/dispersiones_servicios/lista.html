@@ -1,0 +1,191 @@
+{% extends "lista.html" %}
+{% load cliente_extras %}
+{% load group_tags %}
+
+{% block title %}{% if is_contabilidad %}Facturas{% else %}Dispersiones{% endif %}{% endblock %}
+
+{% block filtros %}
+  <div class="filter-title">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
+  <div class="filter-bar">
+    <div class="filter-slot filter-slot-left">
+      {% if is_contabilidad %}
+        <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_servicios_kanban_contabilidad' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
+      {% else %}
+        <a class="btn-primary btn-primary-inline btn-view" href="{% url 'dispersiones_servicios_kanban' %}?mes={{ mes }}&anio={{ anio }}">Vista</a>
+      {% endif %}
+    </div>
+    <div class="filter-slot filter-slot-center">
+      <form action="{% url 'dispersiones_servicios_list' %}" method="get" class="filter-form-simple dispersiones-filter">
+        <div class="filter-block">
+          <label for="f_dia">Día</label>
+          <input type="number" id="f_dia" name="dia" value="{{ f_dia|default_if_none:'' }}" min="1" max="31" placeholder="-----">
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="mes">Mes</label>
+          <select id="mes" name="mes">
+            {% if meses_choices %}
+              {% for m, nombre in meses_choices %}
+                <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ nombre }}</option>
+              {% endfor %}
+            {% else %}
+              {% for m in meses %}
+                <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ m|stringformat:"02d" }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="anio">Año</label>
+          <input type="number" id="anio" name="anio" value="{{ anio|default_if_none:'' }}" min="2000" max="2100">
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="f_cliente">Cliente</label>
+          <select id="f_cliente" name="cliente">
+            <option value="">Todos</option>
+            {% for c in clientes %}
+              <option value="{{ c.id }}" {% if f_cliente == c.id|stringformat:'i' %}selected{% endif %}>{{ c.razon_social|default_if_none:"" }} - {{ c.get_servicio_display|default_if_none:"" }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if not is_contabilidad %}
+          <span class="filter-separator" aria-hidden="true"></span>
+          <div class="filter-block">
+            <label for="f_ejecutivo">Ejecutivo</label>
+              <details class="filter-multiselect">
+                <summary id="f_ejecutivo">
+                  {% if f_ejecutivo %}Seleccionados ({{ f_ejecutivo|length }}){% else %}Todos{% endif %}
+                </summary>
+                <div class="filter-multiselect-options">
+                  {% for id, name in ejecutivos %}
+                    <label class="filter-multiselect-option">
+                      <input type="checkbox" name="ejecutivo" value="{{ id }}" {% if id|stringformat:'i' in f_ejecutivo %}checked{% endif %}>
+                      <span>{{ name }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </details>
+            </div>
+            <span class="filter-separator" aria-hidden="true"></span>
+            {% if not is_contabilidad %}
+            <div class="filter-block">
+              <label for="f_factura_solicitada">Factura</label>
+              <select id="f_factura_solicitada" name="factura_solicitada">
+                <option value="">Todos</option>
+                <option value="1" {% if f_factura_solicitada == "1" %}selected{% endif %}>Sí</option>
+                <option value="0" {% if f_factura_solicitada == "0" %}selected{% endif %}>No</option>
+              </select>
+            </div>
+            {% endif %}
+        {% endif %}
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="f_orden">Orden</label>
+          <select id="f_orden" name="orden">
+            <option value="reciente" {% if f_orden == "reciente" %}selected{% endif %}>Más reciente</option>
+            <option value="antigua" {% if f_orden == "antigua" %}selected{% endif %}>Más antigua</option>
+            <option value="az" {% if f_orden == "az" %}selected{% endif %}>A-Z</option>
+            <option value="za" {% if f_orden == "za" %}selected{% endif %}>Z-A</option>
+          </select>
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-actions">
+          <button type="submit" class="btn-filter">Filtrar</button>
+          <a href="{% url 'dispersiones_servicios_list' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>
+        </div>
+      </form>
+    </div>
+    <div class="filter-slot filter-slot-right">
+      {% if not is_contabilidad %}
+        <a href="{% url 'dispersiones_servicios_add' %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}" class="btn-primary btn-primary-inline">Nueva dispersión</a>
+      {% endif %}
+    </div>
+  </div>
+
+
+{% endblock %}
+
+{% block avisos %}{% endblock %}
+
+
+
+
+
+
+{% block tabla_head %}
+  {% if is_contabilidad %}
+    <tr>
+      <th class="sticky-1 col-actions">Acciones</th>
+      <th class="sticky-2 col-fecha">Fecha</th>
+      <th class="sticky-3">Cliente</th>
+      <th>Comisión (%)</th>
+      <th>Monto dispersión</th>
+      <th>Monto comisión</th>
+      <th>Comisión + IVA</th>
+      <th>Facturadora</th>
+      <th>Forma de pago</th>
+      <th>Estatus pago</th>
+    </tr>
+  {% else %}
+    <tr>
+      <th class="sticky-1 col-actions">Acciones</th>
+      <th class="sticky-2 col-fecha">Fecha</th>
+      <th class="sticky-3">Cliente</th>
+      <th>Servicio</th>
+      <th>Comisión (%)</th>
+      <th>Ejecutivo</th>
+      <th>Monto dispersión</th>
+      <th>Monto comisión</th>
+      <th>Comisión + IVA</th>
+      <th>Facturadora</th>
+      <th>Forma de pago</th>
+      <th>Estatus pago</th>
+      <th>Factura solicitada</th>
+      <th>Comentarios</th>
+    </tr>
+  {% endif %}
+{% endblock %}
+
+
+
+{% block tabla_body %}
+  {% for d in dispersiones %}
+    <tr>
+      <td class="sticky-1 col-actions"><a class="btn-detalle" href="{% url 'dispersiones_servicios_edit' d.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a></td>
+      <td class="sticky-2 col-fecha">{{ d.fecha|date:"d/m/Y"|default_if_none:"" }}</td>
+      <td class="sticky-3">{{ d.cliente.razon_social|default_if_none:"" }}</td>
+      {% if is_contabilidad %}
+        <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
+        <td>{{ d.monto_dispersion|currency }}</td>
+        <td>{{ d.monto_comision|currency }}</td>
+        <td>{{ d.monto_comision_iva|currency }}</td>
+        <td>{{ d.facturadora|default_if_none:"" }}</td>
+        <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
+        <td>{{ d.estatus_pago|default_if_none:"" }}</td>
+      {% else %}
+        <td>{{ d.servicio|default_if_none:"" }}</td>
+        <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
+        <td>
+          {% with e1=d.ejecutivo %}
+            {% if e1 %}{{ e1.get_full_name|default:e1.username }}{% endif %}
+          {% endwith %}
+        </td>
+        <td>{{ d.monto_dispersion|currency }}</td>
+        <td>{{ d.monto_comision|currency }}</td>
+        <td>{{ d.monto_comision_iva|currency }}</td>
+        <td>{{ d.facturadora|default_if_none:"" }}</td>
+        <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
+        <td>{{ d.estatus_pago|default_if_none:"" }}</td>
+        <td class="text-center">
+          <input type="checkbox" {% if d.factura_solicitada %}checked{% endif %} disabled>
+        </td>
+        <td>{{ d.comentarios|default_if_none:"" }}</td>
+      {% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="{% if is_contabilidad %}10{% else %}14{% endif %}">Sin dispersiones en el periodo.</td></tr>
+  {% endfor %}
+{% endblock %}
+

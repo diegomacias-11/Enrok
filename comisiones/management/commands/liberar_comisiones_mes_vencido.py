@@ -1,6 +1,6 @@
 from datetime import date
 from django.core.management.base import BaseCommand
-from comisiones.services import recalcular_periodo
+from comisiones.services import recalcular_periodo, recalcular_periodo_servicios
 
 
 def _periodo_anterior(hoy: date) -> tuple[int, int]:
@@ -32,6 +32,7 @@ class Command(BaseCommand):
             anio = hoy.year
 
     count = recalcular_periodo(mes, anio, today=hoy, solo_pendientes=options.get("solo_pendientes"))
+    count += recalcular_periodo_servicios(mes, anio, today=hoy, solo_pendientes=options.get("solo_pendientes"))
     if count == 0:
         self.stdout.write("No hay comisiones que procesar.")
     else:

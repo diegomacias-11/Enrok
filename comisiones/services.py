@@ -3,8 +3,9 @@ from decimal import Decimal
 from typing import Optional, Tuple
 from django.utils import timezone
 from dispersiones.models import Dispersion
+from dispersiones_servicios.models import Dispersion as DispersionServicio
 from clientes.models import Cliente
-from .models import Comision
+from .models import Comision, ComisionServicio
 
 
 def first_day_next_month(d: date) -> date:
@@ -20,34 +21,48 @@ def _normalize_razon_social(value: str) -> str:
     return " ".join(value.split()).strip().upper() if value else ""
 
 
-def _all_dispersions_paid_group(cliente_ids: list[int], mes: int, anio: int) -> bool:
-    qs = Dispersion.objects.filter(cliente_id__in=cliente_ids, fecha__year=anio, fecha__month=mes)
+def _all_dispersions_paid_group(cliente_ids: list[int], mes: int, anio: int, dispersion_model) -> bool:
+    qs = dispersion_model.objects.filter(cliente_id__in=cliente_ids, fecha__year=anio, fecha__month=mes)
     total = qs.count()
     if total == 0:
         return False
     return qs.filter(estatus_pago="Pagado").count() == total
 
 
-def evaluar_liberacion_grupo_mes(cliente_ids: list[int], mes: int, anio: int, today: Optional[date] = None) -> None:
+def evaluar_liberacion_grupo_mes(
+    cliente_ids: list[int],
+    mes: int,
+    anio: int,
+    today: Optional[date] = None,
+    comision_model=Comision,
+    dispersion_model=Dispersion,
+) -> None:
     """
     Libera (o bloquea) todas las comisiones del grupo en el periodo dado
     si ya es mes vencido y todas las dispersiones del periodo estan Pagadas.
     """
     today = today or timezone.localdate()
     liberable_desde = first_day_next_month(date(anio, mes, 1))
-    qs = Comision.objects.filter(cliente_id__in=cliente_ids, periodo_mes=mes, periodo_anio=anio)
+    qs = comision_model.objects.filter(cliente_id__in=cliente_ids, periodo_mes=mes, periodo_anio=anio)
     if not qs.exists():
         return
-    liberar = today >= liberable_desde and _all_dispersions_paid_group(cliente_ids, mes, anio)
+    liberar = today >= liberable_desde and _all_dispersions_paid_group(cliente_ids, mes, anio, dispersion_model)
     qs.update(liberada=liberar)
 
 
-def recalcular_periodo(mes: int, anio: int, today: Optional[date] = None, solo_pendientes: bool = False) -> int:
+def recalcular_periodo(
+    mes: int,
+    anio: int,
+    today: Optional[date] = None,
+    solo_pendientes: bool = False,
+    comision_model=Comision,
+    dispersion_model=Dispersion,
+) -> int:
     """
     Recalcula liberaciones para todos los clientes con comisiones en el periodo.
     Returna la cantidad de periodos cliente procesados.
     """
-    qs = Comision.objects.filter(periodo_mes=mes, periodo_anio=anio)
+    qs = comision_model.objects.filter(periodo_mes=mes, periodo_anio=anio)
     if solo_pendientes:
         qs = qs.filter(liberada=False)
     periodos = qs.values_list("cliente_id", "periodo_mes", "periodo_anio").distinct()
@@ -65,7 +80,14 @@ def recalcular_periodo(mes: int, anio: int, today: Optional[date] = None, solo_p
         if key in seen:
             continue
         seen.add(key)
-        evaluar_liberacion_grupo_mes(norm_to_ids.get(norm, [cliente_id]), per_mes, per_anio, today=today)
+        evaluar_liberacion_grupo_mes(
+            norm_to_ids.get(norm, [cliente_id]),
+            per_mes,
+            per_anio,
+            today=today,
+            comision_model=comision_model,
+            dispersion_model=dispersion_model,
+        )
     return len(seen)
 
 
@@ -109,3 +131,58 @@ def generar_comisiones_para_dispersion(instance: Dispersion) -> None:
     if not group_ids:
         group_ids = [cliente.id]
     evaluar_liberacion_grupo_mes(group_ids, periodo_mes, periodo_anio)
+
+
+def recalcular_periodo_servicios(mes: int, anio: int, today: Optional[date] = None, solo_pendientes: bool = False) -> int:
+    return recalcular_periodo(
+        mes,
+        anio,
+        today=today,
+        solo_pendientes=solo_pendientes,
+        comision_model=ComisionServicio,
+        dispersion_model=DispersionServicio,
+    )
+
+
+def generar_comisiones_para_dispersion_servicios(instance: DispersionServicio) -> None:
+    ComisionServicio.objects.filter(dispersion=instance).delete()
+
+    cliente = instance.cliente
+    periodo_mes, periodo_anio = periodo_from_date(instance.fecha)
+    liberable_desde = first_day_next_month(instance.fecha)
+
+    for i in range(1, 13):
+        com_field = f"comisionista{i}"
+        pct_field = f"comision{i}"
+        comisionista = getattr(cliente, com_field, None)
+        pct = getattr(cliente, pct_field, None)
+        if comisionista and pct is not None and Decimal(pct) > 0:
+            monto = (Decimal(pct) * Decimal(instance.monto_dispersion or 0)).quantize(Decimal("0.01"))
+            ComisionServicio.objects.create(
+                dispersion=instance,
+                cliente=cliente,
+                comisionista=comisionista,
+                servicio=getattr(instance, "servicio", ""),
+                porcentaje=Decimal(pct),
+                monto=monto,
+                periodo_mes=periodo_mes,
+                periodo_anio=periodo_anio,
+                liberable_desde=liberable_desde,
+                liberada=False,
+                estatus_pago_dispersion=getattr(instance, "estatus_pago", ""),
+                fecha_dispersion=instance.fecha,
+            )
+
+    norm = _normalize_razon_social(cliente.razon_social or "")
+    group_ids = list(
+        Cliente.objects.filter(razon_social__iexact=cliente.razon_social).values_list("id", flat=True)
+    )
+    if not group_ids:
+        group_ids = [cliente.id]
+    evaluar_liberacion_grupo_mes(
+        group_ids,
+        periodo_mes,
+        periodo_anio,
+        comision_model=ComisionServicio,
+        dispersion_model=DispersionServicio,
+    )

@@ -7,38 +7,68 @@
   <nav class="main-nav">
     {% if user.is_authenticated and user.is_superuser %}
       <a href="{% url 'alianzas_list' %}"
-         class="{% if 'alianzas' in request.path %}active{% endif %}">Alianzas</a>
+         class="{% if 'alianzas' in request.path %}active{% endif %}"><span class="nav-title">Alianzas</span><span class="nav-subtitle"></span></a>
       <a href="{% url 'clientes_list' %}"
-         class="{% if 'clientes' in request.path %}active{% endif %}">Clientes</a>
+         class="{% if 'clientes' in request.path %}active{% endif %}"><span class="nav-title">Clientes</span><span class="nav-subtitle"></span></a>
       <a href="{% url 'dispersiones_list' %}"
-         class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
+         class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
       <a href="{% url 'comisiones_list' %}"
-         class="{% if 'comisiones' in request.path %}active{% endif %}">Comisiones</a>
+         class="{% if 'comisiones' in request.path %}active{% endif %}"><span class="nav-title">Comisiones</span><span class="nav-subtitle"></span></a>
     {% elif user.is_authenticated and user|has_group:"Ejecutivo Jr" %}
       <a href="{% url 'clientes_list' %}"
-         class="{% if 'clientes' in request.path %}active{% endif %}">Clientes</a>
+         class="{% if 'clientes' in request.path %}active{% endif %}"><span class="nav-title">Clientes</span><span class="nav-subtitle"></span></a>
       <a href="{% url 'dispersiones_list' %}"
-         class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
+         class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
     {% elif user.is_authenticated and user|has_group:"Ejecutivo Sr" %}
       <a href="{% url 'clientes_list' %}"
-         class="{% if 'clientes' in request.path %}active{% endif %}">Clientes</a>
+         class="{% if 'clientes' in request.path %}active{% endif %}"><span class="nav-title">Clientes</span><span class="nav-subtitle"></span></a>
       <a href="{% url 'dispersiones_list' %}"
-         class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
+         class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
     {% elif user.is_authenticated and user|has_group:"Ejecutivo Apoyo" %}
       <a href="{% url 'dispersiones_list' %}"
-         class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
+         class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
     {% elif user.is_authenticated and user|has_group:"Contabilidad" %}
       <a href="{% url 'dispersiones_list' %}"
-         class="{% if 'dispersiones' in request.path %}active{% endif %}">Facturas</a>
+         class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
     {% else %}
       <a href="{% url 'alianzas_list' %}"
-         class="{% if 'alianzas' in request.path %}active{% endif %}">Alianzas</a>
+         class="{% if 'alianzas' in request.path %}active{% endif %}"><span class="nav-title">Alianzas</span><span class="nav-subtitle"></span></a>
       <a href="{% url 'clientes_list' %}"
-         class="{% if 'clientes' in request.path %}active{% endif %}">Clientes</a>
+         class="{% if 'clientes' in request.path %}active{% endif %}"><span class="nav-title">Clientes</span><span class="nav-subtitle"></span></a>
       <a href="{% url 'dispersiones_list' %}"
-         class="{% if 'dispersiones' in request.path %}active{% endif %}">Dispersiones</a>
+         class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
       <a href="{% url 'comisiones_list' %}"
-         class="{% if 'comisiones' in request.path %}active{% endif %}">Comisiones</a>
+         class="{% if 'comisiones' in request.path %}active{% endif %}"><span class="nav-title">Comisiones</span><span class="nav-subtitle"></span></a>
     {% endif %}
   </nav>
   <div class="user-card">

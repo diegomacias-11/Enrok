@@ -1,0 +1,146 @@
+﻿{% extends "form.html" %}
+{% load cliente_extras %}
+
+{% block form_container_classes %}dispersiones-form{% endblock %}
+
+{% block title %}{% if dispersion %}Editar Dispersión{% else %}Nueva Dispersión{% endif %}{% endblock %}
+
+{% block back_link %}
+  <section class="filter-container">
+    <a href="{{ back_url|default_if_none:'' }}" class="btn-filter">Volver</a>
+  </section>
+{% endblock %}
+
+{% block form_fields %}
+  <input type="hidden" name="next" value="{{ back_url|default_if_none:'' }}">
+  <input type="hidden" name="mes" value="{{ mes|default_if_none:'' }}">
+  <input type="hidden" name="anio" value="{{ anio|default_if_none:'' }}">
+
+  {% if is_contabilidad %}
+    <div class="form-grid form-grid-contabilidad">
+      <div class="form-col">
+        <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.fecha|date:"d/m/Y" }}{% endif %}" disabled>
+
+        <label for="{{ form.cliente.id_for_label }}">Cliente</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.cliente.razon_social|default_if_none:'' }}{% endif %}" disabled>
+
+        <label>Comisión (%)</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.comision_porcentaje|floatformat:2 }}%{% endif %}" disabled>
+
+        <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
+        <div class="input-currency has-symbol-value">
+          <input type="text" value="{% if dispersion %}{{ dispersion.monto_dispersion|currency }}{% endif %}" disabled>
+        </div>
+
+        <label>Monto comisión</label>
+        <div class="input-currency has-symbol-value">
+          <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision|currency }}{% endif %}" disabled>
+        </div>
+
+        <label>Comisión + IVA</label>
+        <div class="input-currency has-symbol-value">
+          <input type="text" value="{% if dispersion %}{{ dispersion.monto_comision_iva|currency }}{% endif %}" disabled>
+        </div>
+
+        <label for="{{ form.facturadora.id_for_label }}">Facturadora</label>
+        {{ form.facturadora|default_if_none:"" }}
+
+        <label>Forma de pago</label>
+        <input type="text" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% endif %}" disabled>
+
+        <label for="{{ form.estatus_pago.id_for_label }}">Estatus pago</label>
+        {{ form.estatus_pago|default_if_none:"" }}
+      </div>
+    </div>
+  {% else %}
+    <div class="form-grid">
+      <div class="form-col">
+        <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+        {{ form.fecha }}
+
+        <label for="{{ form.cliente.id_for_label }}">Cliente</label>
+        {{ form.cliente|default_if_none:"" }}
+
+        <label>Servicio</label>
+        <input type="text" id="cliente-servicio" value="{{ cliente_info.servicio|default_if_none:'' }}" disabled>
+
+        <label>Comisión servicio</label>
+        <input type="text" id="cliente-comision" value="{{ cliente_info.comision_servicio|default_if_none:'' }}" disabled>
+
+        <label for="{{ form.ejecutivo.id_for_label }}">Ejecutivo</label>
+        {{ form.ejecutivo|default_if_none:"" }}
+
+        <label for="{{ form.comentarios.id_for_label }}">Comentarios</label>
+        {{ form.comentarios|default_if_none:"" }}
+      </div>
+
+      <div class="form-col">
+        <label for="{{ form.monto_dispersion.id_for_label }}">Monto dispersión</label>
+        <div class="input-currency">{{ form.monto_dispersion|default_if_none:"" }}</div>
+        <label for="{{ form.facturadora.id_for_label }}">Facturadora</label>
+        {{ form.facturadora|default_if_none:"" }}
+
+        <label>Forma de pago</label>
+        <input type="text" id="cliente-forma-pago" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% else %}{{ cliente_info.forma_pago|default_if_none:'' }}{% endif %}" disabled>
+      </div>
+
+      <div class="form-col">
+        <label for="{{ form.estatus_pago.id_for_label }}">Estatus pago</label>
+        {{ form.estatus_pago|default_if_none:"" }}
+
+        {% if dispersion %}
+        <label for="{{ form.factura_solicitada.id_for_label }}">Factura solicitada</label>
+        {{ form.factura_solicitada|default_if_none:"" }}
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block extra_actions %}
+  {% if dispersion %}
+    <button type="submit"
+            class="btn-delete"
+            formaction="{% url 'dispersiones_servicios_delete' dispersion.id %}"
+            formmethod="post"
+            onclick="return confirm('¿Eliminar esta dispersión?');">
+      Eliminar
+    </button>
+  {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    (function () {
+      var clienteSelect = document.getElementById("{{ form.cliente.id_for_label }}");
+      if (!clienteSelect) {
+        return;
+      }
+      var servicioInput = document.getElementById("cliente-servicio");
+      var comisionInput = document.getElementById("cliente-comision");
+      var facturadoraInput = document.getElementById("{{ form.facturadora.id_for_label }}");
+      var formaPagoInput = document.getElementById("cliente-forma-pago");
+      var ejecutivoSelect = document.getElementById("{{ form.ejecutivo.id_for_label }}");
+      var isEditing = {{ dispersion|yesno:"true,false" }};
+
+      function applyFromSelected() {
+        var opt = clienteSelect.options[clienteSelect.selectedIndex];
+        if (!opt) {
+          return;
+        }
+        var data = opt.dataset || {};
+        if (servicioInput) servicioInput.value = data.servicio || "";
+        if (comisionInput) comisionInput.value = data.comision || "";
+        if (facturadoraInput && data.facturadora) facturadoraInput.value = data.facturadora;
+        if (formaPagoInput) formaPagoInput.value = data.formaPago || "";
+        if (ejecutivoSelect && !isEditing && !ejecutivoSelect.value) {
+          ejecutivoSelect.value = data.ejecutivoId || "";
+        }
+      }
+
+      clienteSelect.addEventListener("change", applyFromSelected);
+      applyFromSelected();
+    })();
+  </script>
+{% endblock %}

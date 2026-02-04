@@ -30,5 +30,6 @@ urlpatterns = [
     path('alianzas/', include('alianzas.urls')),
     path('clientes/', include('clientes.urls')),
     path('dispersiones/', include('dispersiones.urls')),
+    path('dispersiones_servicios/', include('dispersiones_servicios.urls')),
     path('comisiones/', include('comisiones.urls')),
 ]
