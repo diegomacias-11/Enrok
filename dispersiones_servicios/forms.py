@@ -116,7 +116,6 @@ class DispersionForm(forms.ModelForm):
             "monto_dispersion",
             "comentarios",
             "estatus_pago",
-            "factura_solicitada",
         ]
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),

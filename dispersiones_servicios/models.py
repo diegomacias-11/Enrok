@@ -26,7 +26,6 @@ class Dispersion(models.Model):
     comision_porcentaje = models.DecimalField(max_digits=7, decimal_places=4, editable=False)
     monto_comision = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     monto_comision_iva = models.DecimalField(max_digits=12, decimal_places=2, editable=False, null=True, blank=True)
-    factura_solicitada = models.BooleanField(default=False)
     forma_pago = models.CharField(max_length=100, choices=FORMA_PAGO_CHOICES, null=True, blank=True)
     comentarios = models.CharField(max_length=255, blank=True, null=True)
     estatus_pago = models.CharField(max_length=20, choices=ESTATUS_PAGO_CHOICES, default="Pendiente")
@@ -35,13 +34,6 @@ class Dispersion(models.Model):
         return f"{self.cliente} - {self.facturadora} - {self.fecha}"
 
     def save(self, *args, **kwargs):
-        was_factura_solicitada = None
-        if self.pk:
-            was_factura_solicitada = (
-                Dispersion.objects.filter(pk=self.pk)
-                .values_list("factura_solicitada", flat=True)
-                .first()
-            )
         rate = None
         try:
             # Preferimos comision_servicio (fracción 0..1) si existe en el cliente

@@ -135,7 +135,11 @@ def dispersiones_lista(request):
         dispersiones = dispersiones.filter(factura_solicitada=True).distinct()
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
-        clientes_qs = Cliente.objects.filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
+        clientes_qs = Cliente.objects.filter(
+            dispersion__fecha__month=mes,
+            dispersion__fecha__year=anio,
+            dispersion__factura_solicitada=True,
+        ).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
     else:
         ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
         ejecutivo_ids = [e for e in ejecutivo_ids_raw if str(e).strip()]
@@ -601,7 +605,11 @@ def dispersiones_kanban_contabilidad(request):
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ]
     meses_choices = [(i, meses_nombres[i]) for i in range(1, 13)]
-    clientes_qs = Cliente.objects.filter(dispersion__fecha__month=mes, dispersion__fecha__year=anio, dispersion__factura_solicitada=True).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
+    clientes_qs = Cliente.objects.filter(
+        dispersion__fecha__month=mes,
+        dispersion__fecha__year=anio,
+        dispersion__factura_solicitada=True,
+    ).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
     context = {
         "kanban_data": grouped,
         "mes": str(mes),
