@@ -133,6 +133,13 @@ def dispersiones_lista(request):
         estatus_pago = ""
         factura_solicitada = ""
         dispersiones = dispersiones.filter(factura_solicitada=True).distinct()
+        dispersiones = dispersiones.exclude(
+            cliente__razon_social__iexact="CAPHEUS BROKERS"
+        ).exclude(
+            cliente__razon_social__iexact="GOROSABEL"
+        ).exclude(
+            cliente__razon_social__iexact="PPS"
+        )
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         clientes_qs = Cliente.objects.filter(
@@ -140,6 +147,13 @@ def dispersiones_lista(request):
             dispersion__fecha__year=anio,
             dispersion__factura_solicitada=True,
         ).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
+        clientes_qs = clientes_qs.exclude(
+            razon_social__iexact="CAPHEUS BROKERS"
+        ).exclude(
+            razon_social__iexact="GOROSABEL"
+        ).exclude(
+            razon_social__iexact="PPS"
+        )
     else:
         ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
         ejecutivo_ids = [e for e in ejecutivo_ids_raw if str(e).strip()]
@@ -564,6 +578,13 @@ def dispersiones_kanban_contabilidad(request):
 
     cliente_id = request.GET.get("cliente") or ""
     qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio, factura_solicitada=True).order_by("-fecha", "-id")
+    qs = qs.exclude(
+        cliente__razon_social__iexact="CAPHEUS BROKERS"
+    ).exclude(
+        cliente__razon_social__iexact="GOROSABEL"
+    ).exclude(
+        cliente__razon_social__iexact="PPS"
+    )
     if cliente_id:
         qs = qs.filter(cliente_id=cliente_id)
 
@@ -610,6 +631,13 @@ def dispersiones_kanban_contabilidad(request):
         dispersion__fecha__year=anio,
         dispersion__factura_solicitada=True,
     ).filter(servicio__in=["PROCOM", "PRAIDS"]).distinct()
+    clientes_qs = clientes_qs.exclude(
+        razon_social__iexact="CAPHEUS BROKERS"
+    ).exclude(
+        razon_social__iexact="GOROSABEL"
+    ).exclude(
+        razon_social__iexact="PPS"
+    )
     context = {
         "kanban_data": grouped,
         "mes": str(mes),
