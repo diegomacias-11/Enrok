@@ -50,11 +50,6 @@
     {% elif user.is_authenticated and user|has_group:"Contabilidad" %}
       <a href="{% url 'dispersiones_list' %}"
          class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>
-      <a href="{% url 'dispersiones_servicios_list' %}"
-         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
-        <span class="nav-title">Dispersiones</span>
-        <span class="nav-subtitle">servicios</span>
-      </a>
     {% else %}
       <a href="{% url 'alianzas_list' %}"
          class="{% if 'alianzas' in request.path %}active{% endif %}"><span class="nav-title">Alianzas</span><span class="nav-subtitle"></span></a>
