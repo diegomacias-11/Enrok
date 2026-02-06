@@ -18,6 +18,18 @@
   </style>
 </head>
 <body>
+  {% if is_preview %}
+    <div style="background:#fff7ed;border:1px solid #fdba74;padding:12px 14px;border-radius:8px;margin:16px auto 12px;max-width:760px;">
+      <strong style="display:block;color:#9a3412;">Vista previa de reporte</strong>
+      <span style="color:#7c2d12;">Este es un preview del reporte. No se ha enviado ningún correo.</span>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="{{ send_url }}" style="background:#2563eb;color:#fff;text-decoration:none;padding:8px 12px;border-radius:6px;">Enviar correo</a>
+        {% if back_url %}
+          <a href="{{ back_url }}" style="background:#e2e8f0;color:#0f172a;text-decoration:none;padding:8px 12px;border-radius:6px;">Volver</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
   <div class="wrap">
     <h2>Detalle de comisiones - {{ comisionista|default_if_none:"" }}</h2>
     <div class="muted">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
@@ -49,7 +61,6 @@
           <th>Cliente</th>
           <th>Servicio</th>
           <th>Monto disp.</th>
-          <th>%</th>
           <th>Monto comisión</th>
           <th>Estatus pago cliente</th>
           <th>Liberada</th>
@@ -62,7 +73,6 @@
           <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
           <td>{{ c.servicio|default_if_none:"" }}</td>
           <td>{{ c.dispersion.monto_dispersion|currency }}</td>
-          <td>{{ c.porcentaje|pct:2 }}</td>
           <td>{{ c.monto|currency }}</td>
           <td>{{ c.estatus_pago_dispersion|default_if_none:"" }}</td>
           <td>{% if c.liberada %}Liberada{% else %}No liberada{% endif %}</td>

@@ -33,7 +33,7 @@
     </form>
     <div class="actions">
       {% if comisionista %}
-        <a class="btn-primary" href="{% url 'comisiones_detail_send' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Enviar reporte</a>
+        <a class="btn-primary" href="{% url 'comisiones_detail_preview' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Vista previa de correo</a>
         <a class="btn-primary" href="{% url 'comisiones_pago_add_by_id' comisionista.id %}?mes={{ mes }}&anio={{ anio }}">Registrar pago</a>
       {% endif %}
     </div>

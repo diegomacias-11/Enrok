@@ -328,3 +328,28 @@ def enviar_detalle_comisionista(request, comisionista_id):
         messages.error(request, f"No se pudo enviar el correo: {exc}")
 
     return redirect(reverse('comisiones_detail', args=[comisionista_id]) + f"?mes={mes}&anio={anio}")
+
+
+@permission_required("comisiones.view_comision", raise_exception=True)
+def comisiones_detalle_preview(request, comisionista_id):
+    mes, anio, redir = _coerce_mes_anio(request)
+    if redir:
+        return redir
+
+    recalcular_periodo(mes, anio)
+    recalcular_periodo_servicios(mes, anio)
+    context = _detalle_context(comisionista_id, mes, anio)
+    comisionista = context.get("comisionista")
+    if not comisionista:
+        messages.error(request, "No se encontraron comisiones para este comisionista.")
+        return redirect(reverse("comisiones_list") + f"?mes={mes}&anio={anio}")
+
+    context.update(
+        {
+            "is_preview": True,
+            "preview_title": "Vista previa de correo",
+            "send_url": reverse("comisiones_detail_send", args=[comisionista_id]) + f"?mes={mes}&anio={anio}",
+            "back_url": reverse("comisiones_detail", args=[comisionista_id]) + f"?mes={mes}&anio={anio}",
+        }
+    )
+    return render(request, "comisiones/email_reporte.html", context)
