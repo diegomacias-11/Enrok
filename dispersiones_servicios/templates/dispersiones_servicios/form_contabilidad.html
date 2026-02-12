@@ -51,8 +51,6 @@
       <label>Forma de pago</label>
       <input type="text" value="{% if dispersion %}{{ dispersion.get_forma_pago_display|default_if_none:'' }}{% endif %}" disabled>
 
-      <label>Factura solicitada</label>
-      <input type="checkbox" {% if dispersion and dispersion.factura_solicitada %}checked{% endif %} disabled>
     </div>
   </div>
 {% endblock %}
