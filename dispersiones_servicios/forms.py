@@ -129,6 +129,11 @@ class DispersionForm(forms.ModelForm):
         self.mes = kwargs.pop("mes", None)
         self.anio = kwargs.pop("anio", None)
         super().__init__(*args, **kwargs)
+        self._is_superuser_bypass = bool(
+            self.user
+            and getattr(self.user, "is_authenticated", False)
+            and getattr(self.user, "is_superuser", False)
+        )
 
         self._is_ejecutivo = _is_ejecutivo_restringido(self.user)
         self._is_apoyo = _is_apoyo(self.user)
@@ -180,22 +185,31 @@ class DispersionForm(forms.ModelForm):
                     lambda u: f"{getattr(u, 'first_name', '')} {getattr(u, 'last_name', '')}".strip()
                     or getattr(u, "username", "")
                 )
-                self.fields[field_name].disabled = True
-                self.fields[field_name].required = False
+                if not self._is_superuser_bypass:
+                    self.fields[field_name].disabled = True
+                    self.fields[field_name].required = False
                 if self.instance and getattr(self.instance, "pk", None):
                     self.initial[field_name] = getattr(self.instance, f"{field_name}_id", None)
                 elif self.user and getattr(self.user, "is_authenticated", False):
                     self.initial[field_name] = getattr(self.user, "id", None)
 
         if self.instance and getattr(self.instance, "pk", None):
-            if "cliente" in self.fields:
+            if "cliente" in self.fields and not self._is_superuser_bypass:
                 self.fields["cliente"].disabled = True
                 self.fields["cliente"].required = False
 
-            if getattr(self.instance, "factura_solicitada", False) and "monto_dispersion" in self.fields:
+            if (
+                not self._is_superuser_bypass
+                and getattr(self.instance, "factura_solicitada", False)
+                and "monto_dispersion" in self.fields
+            ):
                 self.fields["monto_dispersion"].disabled = True
                 self.fields["monto_dispersion"].required = False
-            if getattr(self.instance, "factura_solicitada", False) and "factura_solicitada" in self.fields:
+            if (
+                not self._is_superuser_bypass
+                and getattr(self.instance, "factura_solicitada", False)
+                and "factura_solicitada" in self.fields
+            ):
                 self.fields["factura_solicitada"].disabled = True
                 self.fields["factura_solicitada"].required = False
             if self.instance.fecha is not None:
@@ -220,15 +234,16 @@ class DispersionForm(forms.ModelForm):
             if self.instance and getattr(self.instance, "pk", None):
                 self.initial["estatus_pago"] = self.instance.estatus_pago
 
-        if self._is_contabilidad:
+        if self._is_contabilidad and not self._is_superuser_bypass:
             for name, field in self.fields.items():
                 if name != "num_factura_honorarios":
                     field.disabled = True
                     field.required = False
         elif "num_factura_honorarios" in self.fields:
-            self.fields["num_factura_honorarios"].disabled = True
-            self.fields["num_factura_honorarios"].required = False
-        if self._is_apoyo:
+            if not self._is_superuser_bypass:
+                self.fields["num_factura_honorarios"].disabled = True
+                self.fields["num_factura_honorarios"].required = False
+        if self._is_apoyo and not self._is_superuser_bypass:
             for name, field in self.fields.items():
                 field.disabled = True
                 field.required = False
@@ -244,7 +259,7 @@ class DispersionForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         if self.instance and getattr(self.instance, "pk", None):
-            if getattr(self.instance, "factura_solicitada", False):
+            if getattr(self.instance, "factura_solicitada", False) and not self._is_superuser_bypass:
                 cleaned["factura_solicitada"] = True
                 cleaned["monto_dispersion"] = self.instance.monto_dispersion
         if self._is_ejecutivo and not _can_edit_estatus_pago(self.user):
@@ -252,7 +267,7 @@ class DispersionForm(forms.ModelForm):
                 cleaned["estatus_pago"] = self.instance.estatus_pago
             else:
                 cleaned["estatus_pago"] = self.fields["estatus_pago"].initial or "Pendiente"
-        if self._is_apoyo and self.instance and getattr(self.instance, "pk", None):
+        if self._is_apoyo and not self._is_superuser_bypass and self.instance and getattr(self.instance, "pk", None):
             for name in self.fields.keys():
                 cleaned[name] = getattr(self.instance, name)
         return cleaned

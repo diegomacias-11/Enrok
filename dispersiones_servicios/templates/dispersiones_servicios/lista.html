@@ -138,6 +138,7 @@
       <th>Monto comisión</th>
       <th>Comisión + IVA</th>
       <th>Facturadora</th>
+      <th>No. factura honorarios</th>
       <th>Forma de pago</th>
       <th>Estatus pago</th>
       <th>Factura solicitada</th>
@@ -174,6 +175,7 @@
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
         <td>{{ d.facturadora|default_if_none:"" }}</td>
+        <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
         <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
         <td>{{ d.estatus_pago|default_if_none:"" }}</td>
         <td class="text-center">
@@ -183,7 +185,7 @@
       {% endif %}
     </tr>
   {% empty %}
-    <tr><td colspan="{% if is_contabilidad %}10{% else %}14{% endif %}">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if is_contabilidad %}10{% else %}15{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}
 
