@@ -53,15 +53,3 @@
     </div>
   </div>
 {% endblock %}
-
-{% block extra_actions %}
-  {% if dispersion %}
-    <button type="submit"
-            class="btn-delete"
-            formaction="{% url 'dispersiones_delete' dispersion.id %}"
-            formmethod="post"
-            onclick="return confirm('¿Eliminar esta dispersión?');">
-      Eliminar
-    </button>
-  {% endif %}
-{% endblock %}
