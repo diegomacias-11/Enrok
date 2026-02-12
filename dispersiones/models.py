@@ -25,7 +25,7 @@ class Dispersion(models.Model):
     servicio = models.CharField(max_length=50)
     facturadora = models.CharField(max_length=100, blank=True, null=True, choices=FACTURADORA_CHOICES)
     num_factura = models.CharField(max_length=5, blank=True, null=True)
-    monto_dispersion = models.DecimalField(max_digits=12, decimal_places=2)
+    monto_dispersion = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     comision_porcentaje = models.DecimalField(max_digits=7, decimal_places=4, editable=False)
     monto_comision = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     monto_comision_iva = models.DecimalField(max_digits=12, decimal_places=2, editable=False, null=True, blank=True)
@@ -49,6 +49,7 @@ class Dispersion(models.Model):
                 .values_list("factura_solicitada", flat=True)
                 .first()
             )
+
         rate = None
         try:
             # Preferimos comision_servicio (fracción 0..1) si existe en el cliente

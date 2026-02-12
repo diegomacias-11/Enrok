@@ -45,7 +45,7 @@ def _is_contabilidad(user):
         return False
     if getattr(user, "is_superuser", False):
         return False
-    return user.groups.filter(name__iexact="Contabilidad").exists()
+    return user.groups.filter(name__iexact="Contabilidad Servicios").exists()
 
 
 def _can_ver_todos_clientes(user):
@@ -114,8 +114,10 @@ class DispersionForm(forms.ModelForm):
             "ejecutivo",
             "facturadora",
             "monto_dispersion",
+            "num_factura_honorarios",
             "comentarios",
             "estatus_pago",
+            "factura_solicitada",
         ]
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}),
@@ -186,10 +188,16 @@ class DispersionForm(forms.ModelForm):
                     self.initial[field_name] = getattr(self.user, "id", None)
 
         if self.instance and getattr(self.instance, "pk", None):
-            for fname in ("cliente", "monto_dispersion"):
-                if fname in self.fields:
-                    self.fields[fname].disabled = True
-                    self.fields[fname].required = False
+            if "cliente" in self.fields:
+                self.fields["cliente"].disabled = True
+                self.fields["cliente"].required = False
+
+            if getattr(self.instance, "factura_solicitada", False) and "monto_dispersion" in self.fields:
+                self.fields["monto_dispersion"].disabled = True
+                self.fields["monto_dispersion"].required = False
+            if getattr(self.instance, "factura_solicitada", False) and "factura_solicitada" in self.fields:
+                self.fields["factura_solicitada"].disabled = True
+                self.fields["factura_solicitada"].required = False
             if self.instance.fecha is not None:
                 self.initial["fecha"] = self.instance.fecha.isoformat()
         if "monto_comision_iva" in self.fields and self.instance:
@@ -214,8 +222,12 @@ class DispersionForm(forms.ModelForm):
 
         if self._is_contabilidad:
             for name, field in self.fields.items():
-                field.disabled = True
-                field.required = False
+                if name != "num_factura_honorarios":
+                    field.disabled = True
+                    field.required = False
+        elif "num_factura_honorarios" in self.fields:
+            self.fields["num_factura_honorarios"].disabled = True
+            self.fields["num_factura_honorarios"].required = False
         if self._is_apoyo:
             for name, field in self.fields.items():
                 field.disabled = True
@@ -231,6 +243,10 @@ class DispersionForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if self.instance and getattr(self.instance, "pk", None):
+            if getattr(self.instance, "factura_solicitada", False):
+                cleaned["factura_solicitada"] = True
+                cleaned["monto_dispersion"] = self.instance.monto_dispersion
         if self._is_ejecutivo and not _can_edit_estatus_pago(self.user):
             if self.instance and getattr(self.instance, "pk", None):
                 cleaned["estatus_pago"] = self.instance.estatus_pago

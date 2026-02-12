@@ -22,6 +22,14 @@ def _user_in_groups(user, names):
     return any(user.groups.filter(name__iexact=name).exists() for name in names)
 
 
+def _is_contabilidad_servicios(user):
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False):
+        return False
+    return user.groups.filter(name__iexact="Contabilidad Servicios").exists()
+
+
 def _can_ver_todos_clientes(user):
     if not user or not user.is_authenticated:
         return False
@@ -104,11 +112,7 @@ def _enrok_comision_monto(dispersion):
 
 
 def dispersiones_servicios_lista(request):
-    is_contabilidad = (
-        request.user.is_authenticated
-        and not request.user.is_superuser
-        and request.user.groups.filter(name__iexact="Contabilidad").exists()
-    )
+    is_contabilidad = _is_contabilidad_servicios(request.user)
 
     mes, anio, redir = _coerce_mes_anio(request)
     if redir:
@@ -130,12 +134,14 @@ def dispersiones_servicios_lista(request):
     ejecutivo_ids = []
     if is_contabilidad:
         is_ejecutivo = False
-        estatus_pago = ""
+        factura_solicitada = ""
+        dispersiones = dispersiones.filter(factura_solicitada=True).distinct()
         if cliente_id:
             dispersiones = dispersiones.filter(cliente_id=cliente_id)
         clientes_qs = Cliente.objects.filter(
             dispersiones_servicios__fecha__month=mes,
             dispersiones_servicios__fecha__year=anio,
+            dispersiones_servicios__factura_solicitada=True,
         ).exclude(servicio__in=["PROCOM", "PRAIDS"]).distinct()
     else:
         ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
@@ -167,17 +173,21 @@ def dispersiones_servicios_lista(request):
                 dispersiones_servicios__fecha__month=mes,
                 dispersiones_servicios__fecha__year=anio,
             ).exclude(servicio__in=["PROCOM", "PRAIDS"]).distinct()
-            estatus_pago = ""
+            factura_solicitada = request.GET.get("factura_solicitada") or ""
             dispersiones_servicios_base = dispersiones
             if ejecutivo_ids:
                 dispersiones = dispersiones.filter(ejecutivo_id__in=ejecutivo_ids)
+            if factura_solicitada in ("0", "1"):
+                dispersiones = dispersiones.filter(factura_solicitada=(factura_solicitada == "1"))
         else:
-            estatus_pago = ""
+            factura_solicitada = request.GET.get("factura_solicitada") or ""
             dispersiones_servicios_base = dispersiones
             if ejecutivo_ids:
                 dispersiones = dispersiones.filter(ejecutivo_id__in=ejecutivo_ids)
             if cliente_id:
                 dispersiones = dispersiones.filter(cliente_id=cliente_id)
+            if factura_solicitada in ("0", "1"):
+                dispersiones = dispersiones.filter(factura_solicitada=(factura_solicitada == "1"))
             dispersiones = dispersiones.distinct()
             clientes_qs = Cliente.objects.filter(
                 dispersiones_servicios__fecha__month=mes,
@@ -231,6 +241,7 @@ def dispersiones_servicios_lista(request):
         "ejecutivos": ejecutivos,
         "f_ejecutivo": ejecutivo_ids,
         "f_cliente": cliente_id,
+        "f_factura_solicitada": factura_solicitada,
         "f_orden": orden,
         "f_estatus_pago": "",
         "estatus_pago_choices": ESTATUS_PAGO_CHOICES,
@@ -242,11 +253,7 @@ def dispersiones_servicios_lista(request):
 def dispersiones_servicios_kanban(request):
     if not request.user.is_authenticated:
         return redirect(reverse("login"))
-    is_contabilidad = (
-        request.user.is_authenticated
-        and not request.user.is_superuser
-        and request.user.groups.filter(name__iexact="Contabilidad").exists()
-    )
+    is_contabilidad = _is_contabilidad_servicios(request.user)
     if not (
         request.user.is_superuser
         or request.user.groups.filter(name__iexact="Dirección Operaciones").exists()
@@ -270,11 +277,14 @@ def dispersiones_servicios_kanban(request):
             dia = ""
     ejecutivo_ids_raw = request.GET.getlist("ejecutivo")
     ejecutivo_ids = [e for e in ejecutivo_ids_raw if str(e).strip()]
+    factura_solicitada = request.GET.get("factura_solicitada") or ""
     cliente_id = request.GET.get("cliente") or ""
     if cliente_id:
         qs = qs.filter(cliente_id=cliente_id)
     if ejecutivo_ids:
         qs = qs.filter(ejecutivo_id__in=ejecutivo_ids)
+    if factura_solicitada in ("0", "1"):
+        qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
     clientes_qs = Cliente.objects.filter(
         dispersiones_servicios__fecha__month=mes,
         dispersiones_servicios__fecha__year=anio,
@@ -341,6 +351,7 @@ def dispersiones_servicios_kanban(request):
         "f_ejecutivo": ejecutivo_ids,
         "clientes": clientes_qs.order_by("razon_social"),
         "f_cliente": cliente_id,
+        "f_factura_solicitada": factura_solicitada,
         "total_dispersiones": total_dispersiones,
         "total_dispersado": totals["total_dispersado"] or 0,
         "total_facturado": totals["total_facturado"] or 0,
@@ -351,11 +362,7 @@ def dispersiones_servicios_kanban(request):
 def dispersiones_servicios_kanban_contabilidad(request):
     if not request.user.is_authenticated:
         return redirect(reverse("login"))
-    is_contabilidad = (
-        request.user.is_authenticated
-        and not request.user.is_superuser
-        and request.user.groups.filter(name__iexact="Contabilidad").exists()
-    )
+    is_contabilidad = _is_contabilidad_servicios(request.user)
     if not is_contabilidad:
         return redirect(reverse("dispersiones_servicios_list"))
 
@@ -364,13 +371,13 @@ def dispersiones_servicios_kanban_contabilidad(request):
         return redir
 
     cliente_id = request.GET.get("cliente") or ""
-    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
+    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio, factura_solicitada=True).order_by("-fecha", "-id")
     if cliente_id:
         qs = qs.filter(cliente_id=cliente_id)
 
     grouped = []
-    pendientes_qs = qs.exclude(estatus_pago="Pagado")
-    completadas_qs = qs.filter(estatus_pago="Pagado")
+    pendientes_qs = qs.filter(Q(num_factura_honorarios__isnull=True) | Q(num_factura_honorarios=""))
+    completadas_qs = qs.exclude(Q(num_factura_honorarios__isnull=True) | Q(num_factura_honorarios=""))
     for titulo, items in (("Pendientes", pendientes_qs), ("Completadas", completadas_qs)):
         by_cliente = {}
         for d in items:
@@ -384,6 +391,7 @@ def dispersiones_servicios_kanban_contabilidad(request):
                     "monto": d.monto_comision_iva,
                     "fecha": d.fecha,
                     "forma_pago": d.get_forma_pago_display() if hasattr(d, "get_forma_pago_display") else (d.forma_pago or ""),
+                    "num_factura_honorarios": d.num_factura_honorarios,
                 }
             )
         clientes = [
@@ -408,6 +416,7 @@ def dispersiones_servicios_kanban_contabilidad(request):
     clientes_qs = Cliente.objects.filter(
         dispersiones_servicios__fecha__month=mes,
         dispersiones_servicios__fecha__year=anio,
+        dispersiones_servicios__factura_solicitada=True,
     ).exclude(servicio__in=["PROCOM", "PRAIDS"]).distinct()
     context = {
         "kanban_data": grouped,
@@ -428,11 +437,7 @@ def agregar_dispersion(request):
         return redir
     back_url = request.GET.get("next") or f"{reverse('dispersiones_servicios_list')}?mes={mes}&anio={anio}"
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Sr Servicios", "Ejecutivo Apoyo"])
-    is_contabilidad = (
-        request.user.is_authenticated
-        and not request.user.is_superuser
-        and request.user.groups.filter(name__iexact="Contabilidad").exists()
-    )
+    is_contabilidad = _is_contabilidad_servicios(request.user)
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
     if is_contabilidad:
@@ -472,11 +477,7 @@ def editar_dispersion(request, id: int):
     disp = get_object_or_404(Dispersion, pk=id)
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Sr Servicios", "Ejecutivo Apoyo"])
     is_apoyo = _user_in_groups(request.user, ["Ejecutivo Apoyo"])
-    is_contabilidad = (
-        request.user.is_authenticated
-        and not request.user.is_superuser
-        and request.user.groups.filter(name__iexact="Contabilidad").exists()
-    )
+    is_contabilidad = _is_contabilidad_servicios(request.user)
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
     if is_ejecutivo and not is_apoyo and not _can_edit_estatus_pago(request.user) and not (

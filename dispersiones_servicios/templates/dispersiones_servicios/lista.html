@@ -68,6 +68,15 @@
                 </div>
               </details>
             </div>
+            <span class="filter-separator" aria-hidden="true"></span>
+            <div class="filter-block">
+              <label for="f_factura_solicitada">Factura</label>
+              <select id="f_factura_solicitada" name="factura_solicitada">
+                <option value="">Todos</option>
+                <option value="1" {% if f_factura_solicitada == "1" %}selected{% endif %}>Sí</option>
+                <option value="0" {% if f_factura_solicitada == "0" %}selected{% endif %}>No</option>
+              </select>
+            </div>
         {% endif %}
         <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-block">
@@ -114,8 +123,8 @@
       <th>Monto comisión</th>
       <th>Comisión + IVA</th>
       <th>Facturadora</th>
+      <th>No. factura honorarios</th>
       <th>Forma de pago</th>
-      <th>Estatus pago</th>
     </tr>
   {% else %}
     <tr>
@@ -131,6 +140,7 @@
       <th>Facturadora</th>
       <th>Forma de pago</th>
       <th>Estatus pago</th>
+      <th>Factura solicitada</th>
       <th>Comentarios</th>
     </tr>
   {% endif %}
@@ -150,8 +160,8 @@
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
         <td>{{ d.facturadora|default_if_none:"" }}</td>
+        <td>{{ d.num_factura_honorarios|default_if_none:"" }}</td>
         <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
-        <td>{{ d.estatus_pago|default_if_none:"" }}</td>
       {% else %}
         <td>{{ d.servicio|default_if_none:"" }}</td>
         <td>{{ d.comision_porcentaje|floatformat:2 }}%</td>
@@ -166,11 +176,14 @@
         <td>{{ d.facturadora|default_if_none:"" }}</td>
         <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
         <td>{{ d.estatus_pago|default_if_none:"" }}</td>
+        <td class="text-center">
+          <input type="checkbox" {% if d.factura_solicitada %}checked{% endif %} disabled>
+        </td>
         <td>{{ d.comentarios|default_if_none:"" }}</td>
       {% endif %}
     </tr>
   {% empty %}
-    <tr><td colspan="{% if is_contabilidad %}10{% else %}13{% endif %}">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if is_contabilidad %}10{% else %}14{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}
 

@@ -47,6 +47,12 @@
         <span class="nav-title">Dispersiones</span>
         <span class="nav-subtitle">servicios</span>
       </a>
+    {% elif user.is_authenticated and user|has_group:"Contabilidad Servicios" %}
+      <a href="{% url 'dispersiones_servicios_list' %}"
+         class="{% if 'dispersiones_servicios' in request.path %}active{% endif %}">
+        <span class="nav-title">Dispersiones</span>
+        <span class="nav-subtitle">servicios</span>
+      </a>
     {% elif user.is_authenticated and user|has_group:"Contabilidad" %}
       <a href="{% url 'dispersiones_list' %}"
          class="{% if 'dispersiones/' in request.path %}active{% endif %}"><span class="nav-title">Dispersiones</span><span class="nav-subtitle"></span></a>

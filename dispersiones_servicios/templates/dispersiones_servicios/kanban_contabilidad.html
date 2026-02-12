@@ -71,6 +71,7 @@
                     <div class="kanban-task">{{ item.fecha|date:"d/m/Y" }}</div>
                     <div class="kanban-meta">Comision + IVA: <strong>{{ item.monto|currency }}</strong></div>
                     <div class="kanban-meta">Forma de pago: <strong>{{ item.forma_pago|default_if_none:"" }}</strong></div>
+                    <div class="kanban-honorarios">No. factura honorarios: <strong>{{ item.num_factura_honorarios|default_if_none:"" }}</strong></div>
                     <a class="btn-detalle" href="{% url 'dispersiones_servicios_edit' item.id %}?mes={{ mes }}&anio={{ anio }}&next={{ request.get_full_path|urlencode }}">Detalle</a>
                   </div>
                 </div>

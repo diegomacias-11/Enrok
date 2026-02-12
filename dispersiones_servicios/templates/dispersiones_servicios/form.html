@@ -51,6 +51,9 @@
 
         <label for="{{ form.estatus_pago.id_for_label }}">Estatus pago</label>
         {{ form.estatus_pago|default_if_none:"" }}
+
+        <label>Factura solicitada</label>
+        <input type="checkbox" {% if dispersion and dispersion.factura_solicitada %}checked{% endif %} disabled>
       </div>
     </div>
   {% else %}
@@ -89,6 +92,10 @@
         <label for="{{ form.estatus_pago.id_for_label }}">Estatus pago</label>
         {{ form.estatus_pago|default_if_none:"" }}
 
+        {% if dispersion %}
+        <label for="{{ form.factura_solicitada.id_for_label }}">Factura solicitada</label>
+        {{ form.factura_solicitada|default_if_none:"" }}
+        {% endif %}
       </div>
     </div>
   {% endif %}

@@ -77,6 +77,15 @@
             </details>
           </div>
         <span class="filter-separator" aria-hidden="true"></span>
+        <div class="filter-block">
+          <label for="f_factura_solicitada">Factura</label>
+          <select id="f_factura_solicitada" name="factura_solicitada">
+            <option value="">Todos</option>
+            <option value="1" {% if f_factura_solicitada == "1" %}selected{% endif %}>Si</option>
+            <option value="0" {% if f_factura_solicitada == "0" %}selected{% endif %}>No</option>
+          </select>
+        </div>
+        <span class="filter-separator" aria-hidden="true"></span>
         <div class="filter-actions">
           <button type="submit" class="btn-filter">Filtrar</button>
           <a href="{% url 'dispersiones_servicios_kanban' %}?mes={{ mes }}&anio={{ anio }}" class="btn-filter">Limpiar</a>

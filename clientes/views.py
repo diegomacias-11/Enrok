@@ -31,6 +31,8 @@ def _is_ejecutivo_permisos(user):
 def _is_direccion_operaciones(user):
     if not user or not user.is_authenticated:
         return False
+    if getattr(user, "is_superuser", False):
+        return True
     return (
         user.groups.filter(name__iexact="Direccion Operaciones").exists()
         or user.groups.filter(name__iexact="Dirección Operaciones").exists()
