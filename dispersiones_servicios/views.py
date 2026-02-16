@@ -90,6 +90,33 @@ def _coerce_mes_anio(request):
     return mes_i, anio_i, None
 
 
+def _coerce_mes_anio_kanban(request):
+    now = datetime.now()
+    mes_raw = (request.GET.get("mes") or "").strip()
+    anio_raw = (request.GET.get("anio") or "").strip()
+    if not mes_raw or not anio_raw:
+        return None, None, None, redirect(f"{request.path}?mes={now.month}&anio={now.year}")
+
+    mes_l = mes_raw.lower()
+    if mes_l in ("all", "todos"):
+        mes_i = None
+        mes_param = "all"
+    else:
+        try:
+            mes_i = int(mes_raw)
+            if mes_i < 1 or mes_i > 12:
+                mes_i = now.month
+        except (TypeError, ValueError):
+            mes_i = now.month
+        mes_param = str(mes_i)
+
+    try:
+        anio_i = int(anio_raw)
+    except (TypeError, ValueError):
+        anio_i = now.year
+    return mes_i, anio_i, mes_param, None
+
+
 def _enrok_comision_monto(dispersion):
     total = Decimal("0")
     cliente = getattr(dispersion, "cliente", None)
@@ -263,11 +290,14 @@ def dispersiones_servicios_kanban(request):
     ):
         return redirect(reverse("dispersiones_servicios_list"))
 
-    mes, anio, redir = _coerce_mes_anio(request)
+    mes, anio, mes_param, redir = _coerce_mes_anio_kanban(request)
     if redir:
         return redir
 
-    qs = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio).order_by("-fecha", "-id")
+    qs = Dispersion.objects.filter(fecha__year=anio)
+    if mes is not None:
+        qs = qs.filter(fecha__month=mes)
+    qs = qs.order_by("-fecha", "-id")
     dia = (request.GET.get("dia") or "").strip()
     if dia:
         try:
@@ -286,9 +316,11 @@ def dispersiones_servicios_kanban(request):
     if factura_solicitada in ("0", "1"):
         qs = qs.filter(factura_solicitada=(factura_solicitada == "1"))
     clientes_qs = Cliente.objects.filter(
-        dispersiones_servicios__fecha__month=mes,
         dispersiones_servicios__fecha__year=anio,
-    ).exclude(servicio__in=["PROCOM", "PRAIDS"]).distinct()
+    ).exclude(servicio__in=["PROCOM", "PRAIDS"])
+    if mes is not None:
+        clientes_qs = clientes_qs.filter(dispersiones_servicios__fecha__month=mes)
+    clientes_qs = clientes_qs.distinct()
     totals = qs.aggregate(
         total_dispersado=Sum("monto_dispersion"),
         total_facturado=Sum("monto_comision_iva"),
@@ -340,11 +372,12 @@ def dispersiones_servicios_kanban(request):
     ejecutivos = [(u.id, _label_user(u)) for u in ejecutivos_qs]
     context = {
         "kanban_data": grouped,
-        "mes": str(mes),
+        "mes": mes_param,
         "anio": str(anio),
         "f_dia": dia,
-        "mes_nombre": meses_nombres[mes],
+        "mes_nombre": "Todos" if mes is None else meses_nombres[mes],
         "is_contabilidad": is_contabilidad,
+        "mes_all": mes is None,
         "meses": list(range(1, 13)),
         "meses_choices": meses_choices,
         "ejecutivos": ejecutivos,

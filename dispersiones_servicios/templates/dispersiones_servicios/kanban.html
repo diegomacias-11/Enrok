@@ -33,6 +33,7 @@
         <div class="filter-block">
           <label for="mes">Mes</label>
           <select id="mes" name="mes">
+            <option value="all" {% if mes == "all" %}selected{% endif %}>Todos</option>
             {% if meses_choices %}
               {% for m, nombre in meses_choices %}
                 <option value="{{ m }}" {% if mes == m|stringformat:'i' %}selected{% endif %}>{{ nombre }}</option>
