@@ -149,6 +149,7 @@ def dispersiones_lista(request):
             dispersiones = dispersiones.filter(fecha__day=dia_i)
         except (TypeError, ValueError):
             dia = ""
+    dispersiones_periodo_qs = dispersiones
     is_ejecutivo = _user_in_groups(request.user, ["Ejecutivo Jr", "Ejecutivo Sr", "Ejecutivo Sr Servicios", "Ejecutivo Apoyo"])
     if request.user.is_authenticated and request.user.is_superuser:
         is_ejecutivo = False
@@ -193,7 +194,7 @@ def dispersiones_lista(request):
                 | Q(ejecutivo=request.user)
             ).distinct()
             if puede_ver_todos:
-                dispersiones = Dispersion.objects.filter(fecha__month=mes, fecha__year=anio)
+                dispersiones = dispersiones_periodo_qs
             if cliente_id:
                 dispersiones = dispersiones.filter(cliente_id=cliente_id)
             if puede_ver_todos:
