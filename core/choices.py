@@ -5,6 +5,7 @@
     ("Auto-ahorro", "Auto-ahorro"),
     ("CheckUp", "CheckUp"),
     ("Contabilidad", "Contabilidad"),
+    ("Efectivo", "Efectivo"),
     ("Hidrocarburos", "Hidrocarburos"),
     ("Laboral", "Laboral"),
     ("Marketing", "Marketing"),
