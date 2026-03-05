@@ -144,6 +144,7 @@
       <th>Monto dispersión</th>
       <th>Monto comisión</th>
       <th>Comisión + IVA</th>
+      <th>Total de la factura</th>
       <th>Facturadora</th>
       <th>No. factura honorarios</th>
       <th>Forma de pago</th>
@@ -160,6 +161,7 @@
       <th>Monto dispersión</th>
       <th>Monto comisión</th>
       <th>Comisión + IVA</th>
+      <th>Total de la factura</th>
       <th>AC</th>
       <th>No. factura</th>
       <th>Facturadora</th>
@@ -187,6 +189,7 @@
         <td>{{ d.monto_dispersion|currency }}</td>
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
+        <td>{{ d.monto_dispersion|add_decimal:d.monto_comision_iva|currency }}</td>
         <td>{{ d.facturadora|default_if_none:"" }}</td>
         <td class="{% if d.num_factura_honorarios in dup_honorarios %}duplicate-cell{% endif %}">{{ d.num_factura_honorarios|default_if_none:"" }}</td>
         <td>{{ d.get_forma_pago_display|default_if_none:"" }}</td>
@@ -202,6 +205,7 @@
         <td>{{ d.monto_dispersion|currency }}</td>
         <td>{{ d.monto_comision|currency }}</td>
         <td>{{ d.monto_comision_iva|currency }}</td>
+        <td>{{ d.monto_dispersion|add_decimal:d.monto_comision_iva|currency }}</td>
         <td>{{ d.cliente.get_ac_display|default_if_none:"" }}</td>
         <td class="{% if d.num_factura in dup_facturas %}duplicate-cell{% endif %}">{{ d.num_factura|default_if_none:"" }}</td>
         <td>{{ d.facturadora|default_if_none:"" }}</td>
@@ -217,7 +221,7 @@
       {% endif %}
     </tr>
   {% empty %}
-    <tr><td colspan="{% if is_contabilidad %}11{% else %}20{% endif %}">Sin dispersiones en el periodo.</td></tr>
+    <tr><td colspan="{% if is_contabilidad %}12{% else %}21{% endif %}">Sin dispersiones en el periodo.</td></tr>
   {% endfor %}
 {% endblock %}
 

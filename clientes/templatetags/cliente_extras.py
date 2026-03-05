@@ -43,3 +43,17 @@ def currency(value, decimals=2):
         decs = 2
     fmt = f"{{:,.{decs}f}}"
     return f"${fmt.format(d)}"
+
+
+@register.filter
+def add_decimal(value, arg):
+    """Add two values as Decimals; None/invalid values are treated as 0."""
+    try:
+        left = Decimal(str(value or 0))
+    except Exception:
+        left = Decimal("0")
+    try:
+        right = Decimal(str(arg or 0))
+    except Exception:
+        right = Decimal("0")
+    return left + right
