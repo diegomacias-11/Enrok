@@ -7,14 +7,13 @@
     body { font-family: Arial, sans-serif; color: #1f2933; }
     .wrap { max-width: 760px; margin: 0 auto; }
     h2 { margin-bottom: 4px; }
-    .muted { color: #66788a; font-size: 13px; }
+    .muted { color: #66788a; font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+    .summary { margin: 18px 0; font-size: 15px; line-height: 1.6; }
+    .section-title { margin: 24px 0 10px; font-size: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th, td { padding: 8px; border: 1px solid #d9e2ec; text-align: left; font-size: 14px; }
     th { background: #f0f4f8; }
-    .totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 12px 0; }
-    .card { padding: 10px; border: 1px solid #d9e2ec; border-radius: 6px; background: #f8fafc; }
-    .label { font-size: 12px; color: #52606d; text-transform: uppercase; letter-spacing: 0.5px; }
-    .value { font-size: 16px; font-weight: 600; }
+    .section-total { margin-top: 10px; font-size: 15px; font-weight: 700; text-align: right; }
   </style>
 </head>
 <body>
@@ -33,69 +32,76 @@
   <div class="wrap">
     <h2>Detalle de comisiones - {{ comisionista|default_if_none:"" }}</h2>
     <div class="muted">{{ mes_nombre|default_if_none:"" }} {{ anio|default_if_none:"" }}</div>
-
-    <div class="totals">
-      <div class="card">
-        <div class="label">Total periodo</div>
-        <div class="value">{{ total_periodo|default_if_none:""|currency }}</div>
-      </div>
-      <div class="card">
-        <div class="label">Liberado</div>
-        <div class="value">{{ total_liberado|default_if_none:""|currency }}</div>
-      </div>
-      <div class="card">
-        <div class="label">Pagos</div>
-        <div class="value">{{ total_pagos|default_if_none:""|currency }}</div>
-      </div>
-      <div class="card">
-        <div class="label">Pendiente</div>
-        <div class="value">{{ total_pendiente|default_if_none:""|currency }}</div>
-      </div>
+    <div class="summary">
+      {% if total_pagos %}
+        Durante el mes de <strong>{{ mes_nombre|lower }} de {{ anio }}</strong>, se generaron comisiones por un monto total de <strong>{{ total_periodo|default_if_none:""|currency }} MXN</strong>.
+        De este total, las comisiones liberadas para pago ascienden a <strong>{{ total_liberado|default_if_none:""|currency }} MXN</strong>, mientras que las comisiones pendientes por pago del cliente suman <strong>{{ total_liberado|mul:"-1"|add_decimal:total_periodo|currency }} MXN</strong>.
+        Hasta el momento, se han registrado comisiones pagadas por <strong>{{ total_pagos|default_if_none:""|currency }} MXN</strong>, por lo que el total disponible para pago es de <strong>{{ total_pendiente|default_if_none:""|currency }} MXN</strong>.
+      {% else %}
+        Durante el mes de <strong>{{ mes_nombre|lower }} de {{ anio }}</strong>, se generaron comisiones por un monto total de <strong>{{ total_periodo|default_if_none:""|currency }} MXN</strong>.
+        De este total, las comisiones liberadas para pago ascienden a <strong>{{ total_liberado|default_if_none:""|currency }} MXN</strong>, mientras que las comisiones pendientes por pago del cliente suman <strong>{{ total_liberado|mul:"-1"|add_decimal:total_periodo|currency }} MXN</strong>.
+        Hasta el momento, no se han registrado comisiones ya pagadas, por lo que el total disponible para pago es de <strong>{{ total_pendiente|default_if_none:""|currency }} MXN</strong>.
+      {% endif %}
     </div>
 
-    <h3>Comisiones</h3>
+    <h3 class="section-title">Detalle de comisiones liberadas</h3>
     <table>
       <thead>
         <tr>
-          <th>Fecha</th>
           <th>Cliente</th>
           <th>Servicio</th>
-          <th>Monto disp.</th>
-          <th>Monto comisión</th>
-          <th>Estatus pago cliente</th>
-          <th>Liberada</th>
+          <th>Monto de la comisión</th>
         </tr>
       </thead>
       <tbody>
         {% for grupo in items_grouped %}
           {% for c in grupo.items %}
-          <tr>
-            <td>{{ c.fecha_dispersion|date:"d/m/Y"|default_if_none:"" }}</td>
-            <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
-            <td>{{ c.servicio|default_if_none:"" }}</td>
-            <td>{{ c.dispersion.monto_dispersion|currency }}</td>
-            <td>{{ c.monto|currency }}</td>
-            <td>{{ c.estatus_pago_dispersion|default_if_none:"" }}</td>
-            <td>{% if c.liberada %}Liberada{% else %}No liberada{% endif %}</td>
-          </tr>
+            {% if c.liberada %}
+              <tr>
+                <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
+                <td>{{ c.servicio|default_if_none:"" }}</td>
+                <td>{{ c.monto|currency }}</td>
+              </tr>
+            {% endif %}
           {% endfor %}
-          <tr>
-            <td></td>
-            <td colspan="3"><strong>Subtotal {{ grupo.cliente.razon_social|default_if_none:"" }}</strong></td>
-            <td><strong>{{ grupo.subtotal|currency }}</strong></td>
-            <td colspan="2"></td>
-          </tr>
         {% empty %}
-          <tr><td colspan="7">Sin registros.</td></tr>
+          <tr><td colspan="3">Sin registros.</td></tr>
         {% endfor %}
       </tbody>
     </table>
+    <div class="section-total">Total a pagar: {{ total_pendiente|default_if_none:""|currency }}</div>
 
-    <h3>Pagos</h3>
+    <h3 class="section-title">Detalle de comisiones pendientes</h3>
     <table>
       <thead>
         <tr>
-          <th>Fecha pago</th>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Monto de la comisión</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for grupo in items_grouped %}
+          {% for c in grupo.items %}
+            {% if not c.liberada %}
+              <tr>
+                <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
+                <td>{{ c.servicio|default_if_none:"" }}</td>
+                <td>{{ c.monto|currency }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% empty %}
+          <tr><td colspan="3">Sin registros.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="section-total">Pendiente a pagar: {{ total_liberado|mul:"-1"|add_decimal:total_periodo|currency }}</div>
+
+    <h3 class="section-title">Comisiones pagadas</h3>
+    <table>
+      <thead>
+        <tr>
           <th>Monto</th>
           <th>Comentario</th>
         </tr>
@@ -103,12 +109,11 @@
       <tbody>
         {% for p in pagos %}
         <tr>
-          <td>{{ p.fecha_pago|date:"d/m/Y"|default_if_none:"" }}</td>
           <td>{{ p.monto|default_if_none:""|currency }}</td>
           <td>{{ p.comentario|default_if_none:"" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="3">Sin pagos registrados.</td></tr>
+        <tr><td colspan="2">Sin pagos registrados.</td></tr>
         {% endfor %}
       </tbody>
     </table>
