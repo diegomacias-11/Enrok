@@ -65,9 +65,9 @@
         {% endfor %}
       </tbody>
     </table>
-    <div class="section-total">Total liberado: {{ total_liberado|default_if_none:""|currency }}</div>
+    <div class="section-total">Total: {{ total_liberado|default_if_none:""|currency }}</div>
 
-    <h3 class="section-title">Detalle de comisiones pendientes</h3>
+    <h3 class="section-title">Detalle de comisiones pendientes (pago del cliente)</h3>
     <table>
       <thead>
         <tr>
@@ -88,7 +88,7 @@
         {% endfor %}
       </tbody>
     </table>
-    <div class="section-total">Pendiente a pagar: {{ total_liberado|mul:"-1"|add_decimal:total_periodo|currency }}</div>
+    <div class="section-total">Total: {{ total_liberado|mul:"-1"|add_decimal:total_periodo|currency }}</div>
 
     <h3 class="section-title">Comisiones pagadas</h3>
     <table>
