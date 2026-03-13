@@ -274,6 +274,35 @@ def _detalle_context(comisionista_id, mes, anio):
             grupos.append(current)
         current['items'].append(c)
         current['subtotal'] += c.monto or 0
+
+    def agrupar_por_cliente_servicio(items_filtrados):
+        items_filtrados = sorted(
+            items_filtrados,
+            key=lambda c: (c.cliente_id, (c.servicio or ""), c.fecha_dispersion, c.id),
+        )
+        grupos_filtrados = []
+        current_group = None
+        for c in items_filtrados:
+            key = (c.cliente_id, c.servicio or "")
+            if (
+                not current_group
+                or current_group['cliente'].id != key[0]
+                or current_group['servicio'] != key[1]
+            ):
+                current_group = {
+                    'cliente': c.cliente,
+                    'servicio': c.servicio or "",
+                    'items': [],
+                    'subtotal': 0,
+                }
+                grupos_filtrados.append(current_group)
+            current_group['items'].append(c)
+            current_group['subtotal'] += c.monto or 0
+        return grupos_filtrados
+
+    grupos_liberados = agrupar_por_cliente_servicio([c for c in items if c.liberada])
+    grupos_pendientes = agrupar_por_cliente_servicio([c for c in items if not c.liberada])
+
     comisionista = None
     if items:
         comisionista = items[0].comisionista
@@ -282,9 +311,12 @@ def _detalle_context(comisionista_id, mes, anio):
         'anio': str(anio),
         'comisionista': comisionista,
         'items_grouped': grupos,
+        'items_grouped_liberadas': grupos_liberados,
+        'items_grouped_pendientes': grupos_pendientes,
         'meses': list(range(1, 13)),
         'mes_nombre': MESES_NOMBRES[mes],
         'pagos': pagos,
+        'pagos_count': pagos.count(),
         'total_periodo': total_periodo,
         'total_liberado': total_liberado,
         'total_pagos': total_pagos,

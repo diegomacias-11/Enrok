@@ -54,22 +54,18 @@
         </tr>
       </thead>
       <tbody>
-        {% for grupo in items_grouped %}
-          {% for c in grupo.items %}
-            {% if c.liberada %}
-              <tr>
-                <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
-                <td>{{ c.servicio|default_if_none:"" }}</td>
-                <td>{{ c.monto|currency }}</td>
-              </tr>
-            {% endif %}
-          {% endfor %}
+        {% for grupo in items_grouped_liberadas %}
+          <tr>
+            <td>{{ grupo.cliente.razon_social|default_if_none:"" }}</td>
+            <td>{{ grupo.servicio|default_if_none:"" }}</td>
+            <td>{{ grupo.subtotal|currency }}</td>
+          </tr>
         {% empty %}
           <tr><td colspan="3">Sin registros.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-    <div class="section-total">Total a pagar: {{ total_pendiente|default_if_none:""|currency }}</div>
+    <div class="section-total">Total liberado: {{ total_liberado|default_if_none:""|currency }}</div>
 
     <h3 class="section-title">Detalle de comisiones pendientes</h3>
     <table>
@@ -81,16 +77,12 @@
         </tr>
       </thead>
       <tbody>
-        {% for grupo in items_grouped %}
-          {% for c in grupo.items %}
-            {% if not c.liberada %}
-              <tr>
-                <td>{{ c.cliente.razon_social|default_if_none:"" }}</td>
-                <td>{{ c.servicio|default_if_none:"" }}</td>
-                <td>{{ c.monto|currency }}</td>
-              </tr>
-            {% endif %}
-          {% endfor %}
+        {% for grupo in items_grouped_pendientes %}
+          <tr>
+            <td>{{ grupo.cliente.razon_social|default_if_none:"" }}</td>
+            <td>{{ grupo.servicio|default_if_none:"" }}</td>
+            <td>{{ grupo.subtotal|currency }}</td>
+          </tr>
         {% empty %}
           <tr><td colspan="3">Sin registros.</td></tr>
         {% endfor %}
@@ -102,19 +94,19 @@
     <table>
       <thead>
         <tr>
+          <th>Pagos registrados</th>
           <th>Monto</th>
-          <th>Comentario</th>
         </tr>
       </thead>
       <tbody>
-        {% for p in pagos %}
-        <tr>
-          <td>{{ p.monto|default_if_none:""|currency }}</td>
-          <td>{{ p.comentario|default_if_none:"" }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="2">Sin pagos registrados.</td></tr>
-        {% endfor %}
+        {% if pagos_count %}
+          <tr>
+            <td>{{ pagos_count }} pago{{ pagos_count|pluralize }}</td>
+            <td>{{ total_pagos|default_if_none:""|currency }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="2">Sin pagos registrados.</td></tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
